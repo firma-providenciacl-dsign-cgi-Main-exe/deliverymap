@@ -237,12 +237,16 @@ function seleccionar(l) {
   document.getElementById('btnGmaps').href = `https://www.google.com/maps/dir/?api=1&destination=${l.lat},${l.lng}`;
   document.getElementById('dropdown').style.display = 'none';
   document.getElementById('searchInput').value = `${l.nombre} - ${l.comuna}`;
-  document.getElementById('bottomSheet').className = 'medio';
+  currentY = MEDIO;
+sheet.style.transition = 'transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+sheet.style.transform = `translateY(${MEDIO}px)`;
 }
 
 // CERRAR SHEET
 function cerrarSheet() {
-  document.getElementById('bottomSheet').className = '';
+  sheet.style.transition = 'transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+sheet.style.transform = `translateY(${window.innerHeight}px)`;
+currentY = MEDIO;
   if (pinActivo) { mapa.removeLayer(pinActivo); pinActivo = null; }
   document.getElementById('searchInput').value = '';
   document.getElementById('btnVolver').style.display = 'none';
