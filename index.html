@@ -416,7 +416,7 @@ function seleccionar(l) {
 }
 
 function cerrarSheet() {
-  document.getElementById('bottomSheet').classList.remove('abierto');
+  document.getElementById('bottomSheet').className = 'medio';
   if (pinActivo) {
     mapa.removeLayer(pinActivo);
     pinActivo = null;
