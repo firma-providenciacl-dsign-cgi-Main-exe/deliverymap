@@ -264,7 +264,10 @@ let isDragging = false;
 function onStart(y) {
   isDragging = true;
   startY = y;
-  startBottom = sheet.getBoundingClientRect().bottom - window.innerHeight;
+  const currentBottomPx = sheet.getBoundingClientRect().bottom - window.innerHeight;
+  sheet.style.bottom = currentBottomPx + 'px';
+  sheet.className = '';
+  startBottom = currentBottomPx;
   sheet.style.transition = 'none';
 }
 
@@ -278,12 +281,18 @@ function onMove(y) {
 function onEnd() {
   if (!isDragging) return;
   isDragging = false;
-  sheet.style.transition = 'bottom 0.4s ease';
-  const currentBottom = parseInt(sheet.style.bottom) || 0;
+  sheet.style.transition = 'bottom 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+  const currentBottom = parseFloat(sheet.style.bottom) || 0;
   const vh = window.innerHeight;
-if (currentBottom > -vh * 0.15)       { sheet.className = 'abierto'; }
-else if (currentBottom > -vh * 0.75)  { sheet.className = 'medio'; }
-else                                   { sheet.className = ''; cerrarSheet(); }
+
+  if (currentBottom > -vh * 0.15) {
+    sheet.className = 'abierto';
+    sheet.style.bottom = '';
+  } else if (currentBottom < -vh * 0.75) {
+    cerrarSheet();
+  } else {
+    sheet.style.bottom = currentBottom + 'px';
+  }
 }
 
 sheet.addEventListener('touchstart', e => {
