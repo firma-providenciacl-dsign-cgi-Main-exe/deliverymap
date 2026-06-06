@@ -370,7 +370,6 @@ async function buscar(q) {
 
   document.getElementById('btnVolver').style.display = 'block';
   dropdown.innerHTML = '<div class="no-resultado">Buscando...</div>';
-  dropdown.style.display = 'block';
 
   const resultado = await buscarEnSupabase(texto);
 
