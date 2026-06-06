@@ -441,10 +441,11 @@ sheet.addEventListener('touchstart', e => {
 
 sheet.addEventListener('touchmove', e => {
   if (e.target.id === 'btnCerrarX') return;
+  e.stopPropagation();
   const dy = startY - e.touches[0].clientY;
   const newBottom = Math.min(0, Math.max(-window.innerHeight * 0.85, startBottom + dy));
   sheet.style.bottom = newBottom + 'px';
-}, { passive: true });
+}, { passive: false });
 
 sheet.addEventListener('touchend', e => {
   if (e.target.id === 'btnCerrarX') return;
