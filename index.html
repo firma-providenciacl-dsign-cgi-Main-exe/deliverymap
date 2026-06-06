@@ -430,17 +430,18 @@ function cerrarSheet() {
 const sheet = document.getElementById('bottomSheet');
 let startY = 0;
 let startBottom = 0;
+let isDragging = false;
 
 sheet.addEventListener('touchstart', e => {
-  if (e.target.id === 'btnCerrarX') return;
+  if (e.target.closest('#btnCerrarX')) return;
+  isDragging = true;
   startY = e.touches[0].clientY;
-  const style = getComputedStyle(sheet);
-  startBottom = parseInt(style.bottom);
+  startBottom = sheet.getBoundingClientRect().bottom - window.innerHeight;
   sheet.style.transition = 'none';
 }, { passive: true });
 
 sheet.addEventListener('touchmove', e => {
-  if (e.target.id === 'btnCerrarX') return;
+  if (!isDragging) return;
   e.stopPropagation();
   const dy = startY - e.touches[0].clientY;
   const newBottom = Math.min(0, Math.max(-window.innerHeight * 0.85, startBottom + dy));
@@ -448,17 +449,18 @@ sheet.addEventListener('touchmove', e => {
 }, { passive: false });
 
 sheet.addEventListener('touchend', e => {
-  if (e.target.id === 'btnCerrarX') return;
+  if (!isDragging) return;
+  isDragging = false;
   sheet.style.transition = 'bottom 0.4s ease';
-  const currentBottom = parseInt(sheet.style.bottom);
+  const currentBottom = parseInt(sheet.style.bottom) || 0;
   const vh = window.innerHeight;
 
-  if (currentBottom > -vh * 0.2) {
+  if (currentBottom > -vh * 0.25) {
     sheet.className = 'abierto';
-  } else if (currentBottom > -vh * 0.6) {
+  } else if (currentBottom > -vh * 0.55) {
     sheet.className = 'medio';
   } else {
-    sheet.className = 'minimizado';
+    sheet.className = '';
   }
 });
 
