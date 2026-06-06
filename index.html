@@ -267,7 +267,7 @@ let isDragging = false;
 const MEDIO = window.innerHeight * 0.47;
 
 sheet.style.bottom = '0';
-sheet.style.transform = `translateY(${MEDIO}px)`;
+sheet.style.transform = `translateY(${window.innerHeight}px)`;
 
 function onStart(y) {
   isDragging = true;
