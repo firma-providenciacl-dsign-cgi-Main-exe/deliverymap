@@ -264,17 +264,18 @@ let isDragging = false;
 function onStart(y) {
   isDragging = true;
   startY = y;
-  const currentBottomPx = sheet.getBoundingClientRect().bottom - window.innerHeight;
-  sheet.style.bottom = currentBottomPx + 'px';
-  sheet.className = '';
-  startBottom = currentBottomPx;
+  const rect = sheet.getBoundingClientRect();
+  const currentBottom = rect.bottom - window.innerHeight;
   sheet.style.transition = 'none';
+  sheet.className = '';
+  sheet.style.bottom = currentBottom + 'px';
+  startBottom = currentBottom;
 }
 
 function onMove(y) {
   if (!isDragging) return;
   const dy = startY - y;
-  const newBottom = Math.min(0, Math.max(-window.innerHeight * 0.85, startBottom + dy));
+  const newBottom = Math.min(0, Math.max(-window.innerHeight * 0.9, startBottom + dy));
   sheet.style.bottom = newBottom + 'px';
 }
 
