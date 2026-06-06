@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Delivery App</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
+    body { background: #f5f5f5; }
+
+    #header {
+      background: #4a90e2;
+      padding: 12px 16px;
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    #btnVolver {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 22px;
+      cursor: pointer;
+      padding: 0 4px;
+      line-height: 1;
+      display: none;
+    }
+
+    #searchWrapper {
+      position: relative;
+      flex: 1;
+    }
+
+    #searchInput {
+      width: 100%;
+      padding: 10px 14px 10px 38px;
+      border-radius: 10px;
+      border: none;
+      font-size: 15px;
+      outline: none;
+      background: white;
+      color: #333;
+    }
+
+    #searchIcon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 16px;
+      color: #aaa;
+      pointer-events: none;
+    }
+
+    #dropdown {
+      position: fixed;
+      top: 60px;
+      left: 0; right: 0;
+      background: white;
+      border-radius: 0 0 14px 14px;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+      z-index: 999;
+      overflow: hidden;
+      display: none;
+      max-height: 60vh;
+      overflow-y: auto;
+    }
+
+    .result-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px 16px;
+      border-bottom: 1px solid #f0f0f0;
+      cursor: pointer;
+    }
+    .result-item:last-child { border-bottom: none; }
+    .result-item:active { background: #fff5f0; }
+
+    .result-emoji {
+      font-size: 22px;
+      width: 40px;
+      height: 40px;
+      background: #fff0ea;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .result-nombre { font-size: 15px; font-weight: 600; color: #222; }
+    .result-mall { font-size: 13px; color: #888; margin-top: 2px; }
+    .result-nota { font-size: 12px; color: #FF6B2C; margin-top: 4px; }
+
+    .no-resultado {
+      padding: 16px;
+      text-align: center;
+      color: #aaa;
+      font-size: 14px;
+    }
+
+    #mapa {
+      position: fixed;
+      top: 58px;
+      left: 0; right: 0; bottom: 0;
+      z-index: 1;
+    }
+#splash {
+  position: fixed;
+  inset: 0;
+  background: #0a0a0a;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.8s ease;
+}
+
+#splash-content {
+  text-align: center;
+}
+
+#neon-pin {
+  font-size: 48px;
+  animation: pinPulse 0.5s ease infinite alternate;
+  margin-bottom: 12px;
+  filter: drop-shadow(0 0 8px #4a90e2) drop-shadow(0 0 20px #4a90e2);
+}
+
+#neon-title {
+  font-size: 42px;
+  font-weight: 900;
+  letter-spacing: 4px;
+  margin-bottom: 12px;
+  line-height: 1;
+}
+
+#neon-delivery {
+  display: block;
+  color: white;
+  text-shadow:
+    0 0 5px #fff,
+    0 0 15px #4a90e2,
+    0 0 30px #4a90e2,
+    0 0 60px #4a90e2;
+  animation: neonFlicker 2s linear forwards;
+}
+
+#neon-map {
+  display: block;
+  color: #4a90e2;
+  text-shadow:
+    0 0 5px #4a90e2,
+    0 0 15px #4a90e2,
+    0 0 30px #4a90e2,
+    0 0 80px #4a90e2;
+  animation: neonFlicker 2s linear forwards 0.3s;
+  opacity: 0;
+}
+
+#neon-sub {
+  font-size: 11px;
+  letter-spacing: 3px;
+  color: #4a90e2;
+  opacity: 0;
+  animation: fadeInSub 0.5s ease forwards 1.2s;
+  text-shadow: 0 0 8px #4a90e2;
+}
+
+@keyframes neonFlicker {
+  0%   { opacity: 0; }
+  10%  { opacity: 1; }
+  11%  { opacity: 0; }
+  13%  { opacity: 1; }
+  14%  { opacity: 0; }
+  16%  { opacity: 1; }
+  100% { opacity: 1; }
+}
+
+@keyframes pinPulse {
+  from { transform: scale(1);   }
+  to   { transform: scale(1.15); }
+}
+
+@keyframes fadeInSub {
+  from { opacity: 0; letter-spacing: 6px; }
+  to   { opacity: 1; letter-spacing: 3px; }
+}
+
+#bottomSheet {
+  position: fixed;
+  bottom: -100%;
+  left: 0; right: 0;
+  background: #1a1a1a;
+  border-radius: 20px 20px 0 0;
+  z-index: 2000;
+  transition: bottom 0.4s ease;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+#bottomSheet.abierto {
+  bottom: 0;
+}
+
+#sheetHandle {
+  width: 40px;
+  height: 4px;
+  background: #444;
+  border-radius: 10px;
+  margin: 12px auto 0;
+}
+
+#sheetFoto {
+  width: 100%;
+  height: 180px;
+  background: #2a2a2a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #555;
+  font-size: 13px;
+  margin-top: 12px;
+}
+
+#sheetFoto img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+#sheetInfo {
+  padding: 16px;
+}
+
+#sheetNombre {
+  font-size: 20px;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 4px;
+}
+
+#sheetComuna {
+  font-size: 13px;
+  color: #888;
+  margin-bottom: 12px;
+}
+
+#sheetNota {
+  font-size: 14px;
+  color: #ccc;
+  line-height: 1.6;
+  margin-bottom: 20px;
+  padding: 12px;
+  background: #222;
+  border-radius: 10px;
+  border-left: 3px solid #4a90e2;
+}
+
+.sheetBtn {
+  display: block;
+  width: 100%;
+  padding: 13px;
+  border-radius: 10px;
+  border: none;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  margin-bottom: 10px;
+}
+
+#btnWaze { background: #33ccff; color: white; }
+#btnGmaps { background: #4a90e2; color: white; }
+
+#btnCerrarSheet {
+  display: block;
+  width: 100%;
+  padding: 13px;
+  border-radius: 10px;
+  border: 1px solid #333;
+  background: transparent;
+  color: #888;
+  font-size: 15px;
+  cursor: pointer;
+  margin-bottom: 20px;
+}
+  </style>
+</head>
+<body>
+
+<div id="splash">
+  <div id="splash-content">
+    <div id="neon-title">
+      <span id="neon-delivery">DELIVERY</span>
+      <span id="neon-map">MAP</span>
+    </div>
+    <div id="neon-sub">// CHILE DELIVERY NETWORK //</div>
+  </div>
+</div>
+
+<div id="header">
+  <button id="btnVolver" onclick="volver()">←</button>
+  <div id="searchWrapper">
+    <span id="searchIcon">🔍</span>
+    <input
+      id="searchInput"
+      type="text"
+      placeholder="Buscar local o mall..."
+     oninput="buscar(this.value)" onkeyup="buscar(this.value)"
+      autocomplete="off"
+    />
+  </div>
+</div>
+
+<div id="dropdown"></div>
+<div id="mapa"></div>
+
+<script src="supabase.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+setTimeout(() => {
+  const splash = document.getElementById('splash');
+  splash.style.opacity = '0';
+  setTimeout(() => {
+    splash.style.display = 'none';
+    setTimeout(() => mapa.invalidateSize(), 100);
+  }, 600);
+}, 2000);
+const mapa = L.map('mapa').setView([-33.45, -70.60], 12);
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+  attribution: '© OpenStreetMap © CARTO'
+}).addTo(mapa);
+
+let pinActivo = null;
+
+async function buscar(q) {
+  const dropdown = document.getElementById('dropdown');
+  const texto = q.trim().toLowerCase();
+
+  if (texto.length === 0) {
+    dropdown.style.display = 'none';
+    document.getElementById('btnVolver').style.display = 'none';
+    return;
+  }
+
+  document.getElementById('btnVolver').style.display = 'block';
+  dropdown.innerHTML = '<div class="no-resultado">Buscando...</div>';
+  dropdown.style.display = 'block';
+
+  const resultado = await buscarEnSupabase(texto);
+
+  if (!resultado || resultado.length === 0) {
+    dropdown.innerHTML = '<div class="no-resultado">No se encontró ese local 😕</div>';
+  } else {
+    dropdown.innerHTML = resultado.map((l) => `
+      <div class="result-item" onclick="seleccionar(${JSON.stringify(l).replace(/"/g, '&quot;')})">
+        <div class="result-emoji">${l.emoji || '📍'}</div>
+        <div>
+          <div class="result-nombre">${l.nombre}</div>
+          <div class="result-mall">${l.comuna}</div>
+          <div class="result-nota">📍 ${l.nota}</div>
+        </div>
+      </div>
+    `).join('');
+  }
+}
+
+  dropdown.style.display = 'block';
+
+function seleccionar(l) {
+  if (pinActivo) {
+    mapa.removeLayer(pinActivo);
+    pinActivo = null;
+  }
+
+  pinActivo = L.marker([l.lat, l.lng])
+    .addTo(mapa)
+    .openPopup();
+
+  mapa.setView([l.lat, l.lng], 17);
+
+  document.getElementById('sheetNombre').textContent = l.nombre;
+  document.getElementById('sheetComuna').textContent = l.comuna;
+  document.getElementById('sheetNota').textContent = '📍 ' + l.nota;
+  document.getElementById('btnWaze').href = `https://waze.com/ul?ll=${l.lat},${l.lng}&navigate=yes`;
+  document.getElementById('btnGmaps').href = `https://www.google.com/maps/dir/?api=1&destination=${l.lat},${l.lng}`;
+
+  document.getElementById('dropdown').style.display = 'none';
+  document.getElementById('searchInput').value = `${l.nombre} - ${l.comuna}`;
+  document.getElementById('bottomSheet').classList.add('abierto');
+}
+
+function cerrarSheet() {
+  document.getElementById('bottomSheet').classList.remove('abierto');
+  if (pinActivo) {
+    mapa.removeLayer(pinActivo);
+    pinActivo = null;
+  }
+  document.getElementById('searchInput').value = '';
+  document.getElementById('btnVolver').style.display = 'none';
+  mapa.setView([-33.45, -70.60], 12);
+}
+
+function volver() {
+  if (pinActivo) {
+    mapa.removeLayer(pinActivo);
+    pinActivo = null;
+  }
+  document.getElementById('searchInput').value = '';
+  document.getElementById('dropdown').style.display = 'none';
+  document.getElementById('btnVolver').style.display = 'none';
+  mapa.setView([-33.45, -70.60], 12);
+}
+</script>
+<div id="bottomSheet">
+  <div id="sheetHandle"></div>
+  <div id="sheetFoto">📸 Sin foto aún</div>
+  <div id="sheetInfo">
+    <div id="sheetNombre"></div>
+    <div id="sheetComuna"></div>
+    <div id="sheetNota"></div>
+    <a id="btnWaze" class="sheetBtn" target="_blank">Abrir en Waze</a>
+    <a id="btnGmaps" class="sheetBtn" target="_blank">Abrir en Google Maps</a>
+    <button id="btnCerrarSheet" onclick="cerrarSheet()">← Volver al mapa</button>
+  </div>
+</div>
+</body>
+</html>
