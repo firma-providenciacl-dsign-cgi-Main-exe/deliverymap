@@ -258,42 +258,42 @@ function volver() {
 // DRAGGABLE BOTTOM SHEET
 const sheet = document.getElementById('bottomSheet');
 let startY = 0;
-let startBottom = 0;
+let currentY = 0;
 let isDragging = false;
+const MEDIO = window.innerHeight * 0.47;
+
+sheet.style.bottom = '0';
+sheet.style.transform = `translateY(${MEDIO}px)`;
 
 function onStart(y) {
   isDragging = true;
   startY = y;
-  const rect = sheet.getBoundingClientRect();
-  const currentBottom = rect.bottom - window.innerHeight;
   sheet.style.transition = 'none';
-  sheet.className = '';
-  sheet.style.bottom = currentBottom + 'px';
-  startBottom = currentBottom;
 }
 
 function onMove(y) {
   if (!isDragging) return;
-  const dy = startY - y;
-  const newBottom = Math.min(0, Math.max(-window.innerHeight * 0.9, startBottom + dy));
-  sheet.style.bottom = newBottom + 'px';
+  const dy = y - startY;
+  const newY = Math.min(window.innerHeight * 0.88, Math.max(0, currentY + dy));
+  sheet.style.transform = `translateY(${newY}px)`;
 }
 
-function onEnd() {
+function onEnd(y) {
   if (!isDragging) return;
   isDragging = false;
-  sheet.style.transition = 'bottom 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
-  const currentBottom = parseFloat(sheet.style.bottom) || 0;
-  const vh = window.innerHeight;
+  const dy = y - startY;
+  const newY = Math.min(window.innerHeight * 0.88, Math.max(0, currentY + dy));
+  sheet.style.transition = 'transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
 
-  if (currentBottom > -vh * 0.15) {
-    sheet.className = 'abierto';
-    sheet.style.bottom = '';
-  } else if (currentBottom < -vh * 0.75) {
-    cerrarSheet();
+  if (newY < window.innerHeight * 0.15) {
+    currentY = 0;
+  } else if (newY > window.innerHeight * 0.75) {
+    currentY = window.innerHeight * 0.88;
+    setTimeout(cerrarSheet, 350);
   } else {
-    sheet.style.bottom = currentBottom + 'px';
+    currentY = newY;
   }
+  sheet.style.transform = `translateY(${currentY}px)`;
 }
 
 sheet.addEventListener('touchstart', e => {
@@ -307,15 +307,15 @@ sheet.addEventListener('touchmove', e => {
   onMove(e.touches[0].clientY);
 }, { passive: false });
 
-sheet.addEventListener('touchend', onEnd);
+sheet.addEventListener('touchend', e => onEnd(e.changedTouches[0].clientY));
 
 sheet.addEventListener('mousedown', e => {
   if (e.target.closest('#btnCerrarX')) return;
   onStart(e.clientY);
 });
 
-document.addEventListener('mousemove', e => { onMove(e.clientY); });
-document.addEventListener('mouseup', onEnd);
+document.addEventListener('mousemove', e => { if (isDragging) onMove(e.clientY); });
+document.addEventListener('mouseup', e => { if (isDragging) onEnd(e.clientY); });
 
 </script>
 </body>
