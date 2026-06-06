@@ -432,23 +432,21 @@ let startY = 0;
 let startBottom = 0;
 let isDragging = false;
 
-sheet.addEventListener('touchstart', e => {
-  if (e.target.closest('#btnCerrarX')) return;
+function onStart(y) {
   isDragging = true;
-  startY = e.touches[0].clientY;
+  startY = y;
   startBottom = sheet.getBoundingClientRect().bottom - window.innerHeight;
   sheet.style.transition = 'none';
-}, { passive: true });
+}
 
-sheet.addEventListener('touchmove', e => {
+function onMove(y) {
   if (!isDragging) return;
-  e.stopPropagation();
-  const dy = startY - e.touches[0].clientY;
+  const dy = startY - y;
   const newBottom = Math.min(0, Math.max(-window.innerHeight * 0.85, startBottom + dy));
   sheet.style.bottom = newBottom + 'px';
-}, { passive: false });
+}
 
-sheet.addEventListener('touchend', e => {
+function onEnd() {
   if (!isDragging) return;
   isDragging = false;
   sheet.style.transition = 'bottom 0.4s ease';
@@ -462,7 +460,32 @@ sheet.addEventListener('touchend', e => {
   } else {
     sheet.className = '';
   }
+}
+
+// Touch
+sheet.addEventListener('touchstart', e => {
+  if (e.target.closest('#btnCerrarX')) return;
+  onStart(e.touches[0].clientY);
+}, { passive: true });
+
+sheet.addEventListener('touchmove', e => {
+  onMove(e.touches[0].clientY);
+  e.stopPropagation();
+}, { passive: false });
+
+sheet.addEventListener('touchend', onEnd);
+
+// Mouse
+sheet.addEventListener('mousedown', e => {
+  if (e.target.closest('#btnCerrarX')) return;
+  onStart(e.clientY);
 });
+
+document.addEventListener('mousemove', e => {
+  onMove(e.clientY);
+});
+
+document.addEventListener('mouseup', onEnd);
 
 function volver() {
   if (pinActivo) {
