@@ -412,11 +412,11 @@ function seleccionar(l) {
 
   document.getElementById('dropdown').style.display = 'none';
   document.getElementById('searchInput').value = `${l.nombre} - ${l.comuna}`;
-  document.getElementById('bottomSheet').classList.add('abierto');
+  document.getElementById('bottomSheet').className = 'medio';
 }
 
 function cerrarSheet() {
-  document.getElementById('bottomSheet').className = 'medio';
+  document.getElementById('bottomSheet').className = '';
   if (pinActivo) {
     mapa.removeLayer(pinActivo);
     pinActivo = null;
