@@ -134,6 +134,7 @@
     }
     #btnWaze  { background: #33ccff; color: white; }
     #btnGmaps { background: #4a90e2; color: white; }
+    #btnReporte { background: #1a1a1a; color: #ff9500; border: 1px solid #ff9500; }
   </style>
   <script defer src="https://cloud.umami.is/script.js" data-website-id="0c032f6f-45ed-461a-a58b-f49d1e159bff"></script>
 </head>
@@ -171,6 +172,7 @@
     <div id="sheetNota"></div>
     <a id="btnWaze" class="sheetBtn" target="_blank">Abrir en Waze</a>
     <a id="btnGmaps" class="sheetBtn" target="_blank">Abrir en Google Maps</a>
+    <button id="btnReporte" class="sheetBtn" onclick="reportarError()">⚠️ Reportar error en este local</button>
   </div>
 </div>
 
@@ -228,6 +230,7 @@ async function buscar(q) {
 
 // SELECCIONAR LOCAL
 function seleccionar(l) {
+  localActivo = l;
   if (pinActivo) { mapa.removeLayer(pinActivo); pinActivo = null; }
   pinActivo = L.marker([l.lat, l.lng]).addTo(mapa).openPopup();
   mapa.setView([l.lat, l.lng], 17);
@@ -322,6 +325,24 @@ sheet.addEventListener('mousedown', e => {
 document.addEventListener('mousemove', e => { if (isDragging) onMove(e.clientY); });
 document.addEventListener('mouseup', e => { if (isDragging) onEnd(e.clientY); });
 
+let localActivo = null;
+
+async function reportarError() {
+  if (!localActivo) return;
+  const { error } = await supabase
+    .from('reportes')
+    .insert([{
+      local_nombre: localActivo.nombre,
+      local_comuna: localActivo.comuna,
+      mensaje: 'Error reportado por rider',
+      fecha: new Date().toISOString()
+    }]);
+  if (error) {
+    alert('No se pudo enviar el reporte 😕');
+  } else {
+    alert('✅ Reporte enviado, gracias!');
+  }
+}
 </script>
 </body>
 </html>
