@@ -179,11 +179,9 @@
 </div>
 
 <div style="position:fixed; bottom:30px; right:14px; z-index:999; display:flex; flex-direction:column; gap:6px; align-items:flex-end;">
-  <div id="btnUsuario"></div>
   <a href="sugerir.html" style="font-size:11px; color:#4a90e2; text-decoration:none; background:#1a1a1a; padding:4px 8px; border-radius:6px; border:1px solid #333;">📍 Sugerir local</a>
   <a href="terminos.html" style="font-size:11px; color:#888; text-decoration:none; background:#1a1a1a; padding:4px 8px; border-radius:6px;">Términos de uso</a>
 </div>
-
 <script src="supabase.js"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
@@ -386,27 +384,6 @@ function tiempoTranscurrido(fecha) {
   if (diff < 2592000) return `hace ${Math.floor(diff / 86400)} días`;
   return `hace ${Math.floor(diff / 2592000)} meses`;
 }
-// SESIÓN
-function verificarSesion() {
-  const token = localStorage.getItem('dm_token');
-  const user = localStorage.getItem('dm_user');
-  const btn = document.getElementById('btnUsuario');
-  if (token && user) {
-    const u = JSON.parse(user);
-    const apodo = u.user_metadata?.apodo || u.email?.split('@')[0] || 'Rider';
-    btn.innerHTML = `<span style="font-size:11px; color:#4caf50; background:#1a1a1a; padding:4px 8px; border-radius:6px; border:1px solid #2a5c35; cursor:pointer;" onclick="cerrarSesion()">👤 ${apodo} · Salir</span>`;
-  } else {
-    btn.innerHTML = `<a href="login.html" style="font-size:11px; color:#fff; text-decoration:none; background:#4a90e2; padding:4px 8px; border-radius:6px;">👤 Iniciar sesión</a>`;
-  }
-}
-
-function cerrarSesion() {
-  localStorage.removeItem('dm_token');
-  localStorage.removeItem('dm_user');
-  verificarSesion();
-}
-
-verificarSesion();
 </script>
 </body>
 </html>

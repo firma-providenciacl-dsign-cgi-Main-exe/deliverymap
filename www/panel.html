@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Panel - Delivery App</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
+    body { background: #1a1a1a; color: white; min-height: 100vh; }
+
+    #loginScreen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      gap: 12px;
+      padding: 24px;
+    }
+
+    #appScreen {
+      display: none;
+      padding: 20px 16px;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    h2 {
+      color: #FF6B2C;
+      font-size: 20px;
+      margin-bottom: 20px;
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 10px;
+      border: 1px solid #333;
+      background: #2a2a2a;
+      color: white;
+      font-size: 15px;
+      outline: none;
+      margin-bottom: 10px;
+    }
+
+    input::placeholder, textarea::placeholder { color: #666; }
+
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    button {
+      width: 100%;
+      padding: 13px;
+      border-radius: 10px;
+      border: none;
+      background: #FF6B2C;
+      color: white;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 4px;
+    }
+
+    button:active { opacity: 0.85; }
+
+    #mensaje {
+      margin-top: 14px;
+      padding: 12px;
+      border-radius: 10px;
+      text-align: center;
+      font-size: 14px;
+      display: none;
+    }
+
+    .exito { background: #1a3a1a; color: #4caf50; }
+    .error { background: #3a1a1a; color: #f44336; }
+
+    .hint {
+      font-size: 12px;
+      color: #666;
+      margin-bottom: 10px;
+      margin-top: -6px;
+    }
+
+    #coordsBtn {
+      background: #2a2a2a;
+      border: 1px solid #444;
+      font-size: 13px;
+      font-weight: 400;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<div id="loginScreen">
+  <h2 style="font-size:22px;">🔒 Panel Admin</h2>
+  <input id="passInput" type="email" placeholder="Email" style="max-width:300px;"/>
+  <input id="passInput2" type="password" placeholder="Contraseña" style="max-width:300px;" onkeyup="if(event.key==='Enter') login()"/>
+  <button style="max-width:300px;" onclick="login()">Entrar</button>
+  <p id="loginError" style="color:#f44336;font-size:13px;display:none;">Credenciales incorrectas</p>
+</div>
+
+<div id="appScreen">
+  <h2>➕ Agregar local</h2>
+
+  <input id="nombre" type="text" placeholder="Nombre del local" autocomplete="off"/>
+  <input id="comuna" type="text" placeholder="Comuna" autocomplete="off"/>
+  <textarea id="nota" placeholder="Nota: cómo llegar, entrada, piso, etc."></textarea>
+  <input id="lat" type="number" step="any" placeholder="Latitud (ej: -33.4382)"/>
+  <input id="lng" type="number" step="any" placeholder="Longitud (ej: -70.5612)"/>
+  <p class="hint">💡 Para obtener lat/lng: abre Google Maps, mantén presionado en el local y copia los números que aparecen abajo.</p>
+
+  <button onclick="agregar()">Guardar local</button>
+  <div id="mensaje"></div>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://zxwwffnjrrkmtsxzvswa.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp4d3dmZm5qcnJrbXRzeHp2c3dhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA3MDU2MzksImV4cCI6MjA5NjI4MTYzOX0.0rCwuo78dkvJ-C6Y3br3s7ZuPpdikakxC21WO4dv_rI';
+let SESSION_TOKEN = null;
+
+async function login() {
+  const email = document.getElementById('passInput').value.trim();
+  const pass  = document.getElementById('passInput2').value.trim();
+  const err   = document.getElementById('loginError');
+
+  const res = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
+    method: 'POST',
+    headers: {
+      'apikey': SUPABASE_KEY,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ email, password: pass })
+  });
+
+  const data = await res.json();
+
+  if (res.ok && data.access_token) {
+    SESSION_TOKEN = data.access_token;
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('appScreen').style.display = 'block';
+  } else {
+    err.style.display = 'block';
+  }
+}
+
+async function agregar() {
+  const nombre = document.getElementById('nombre').value.trim();
+  const comuna = document.getElementById('comuna').value.trim();
+  const nota   = document.getElementById('nota').value.trim();
+  const lat    = parseFloat(document.getElementById('lat').value);
+  const lng    = parseFloat(document.getElementById('lng').value);
+  const msg    = document.getElementById('mensaje');
+
+  if (!nombre || !comuna || !nota || isNaN(lat) || isNaN(lng)) {
+    msg.className = 'error';
+    msg.textContent = 'Completa todos los campos.';
+    msg.style.display = 'block';
+    return;
+  }
+
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/locales`, {
+    method: 'POST',
+headers: {
+  'apikey': SUPABASE_KEY,
+  'Authorization': `Bearer ${SESSION_TOKEN}`,
+  'Content-Type': 'application/json',
+  'Prefer': 'return=minimal'
+},
+    body: JSON.stringify({ nombre, comuna, nota, lat, lng })
+  });
+
+  if (res.ok) {
+    msg.className = 'exito';
+    msg.textContent = '✅ Local guardado correctamente.';
+    msg.style.display = 'block';
+    document.getElementById('nombre').value = '';
+    document.getElementById('comuna').value = '';
+    document.getElementById('nota').value = '';
+    document.getElementById('lat').value = '';
+    document.getElementById('lng').value = '';
+  } else {
+    msg.className = 'error';
+    msg.textContent = '❌ Error al guardar. Intenta de nuevo.';
+    msg.style.display = 'block';
+  }
+}
+</script>
+</body>
+</html>
