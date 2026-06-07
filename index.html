@@ -134,6 +134,7 @@
     }
     #btnWaze  { background: #33ccff; color: white; }
     #btnGmaps { background: #4a90e2; color: white; }
+    #btnReporte { background: #333; color: #ff9500; border: 1px solid #ff9500; }
   </style>
   <script defer src="https://cloud.umami.is/script.js" data-website-id="0c032f6f-45ed-461a-a58b-f49d1e159bff"></script>
 </head>
@@ -171,6 +172,7 @@
     <div id="sheetNota"></div>
     <a id="btnWaze" class="sheetBtn" target="_blank">Abrir en Waze</a>
     <a id="btnGmaps" class="sheetBtn" target="_blank">Abrir en Google Maps</a>
+    <a id="btnReporte" class="sheetBtn" target="_blank">⚠️ Reportar error en este local</a>
   </div>
 </div>
 
@@ -236,6 +238,7 @@ function seleccionar(l) {
   document.getElementById('sheetNota').textContent = '📍 ' + l.nota;
   document.getElementById('btnWaze').href = `https://waze.com/ul?ll=${l.lat},${l.lng}&navigate=yes`;
   document.getElementById('btnGmaps').href = `https://www.google.com/maps/dir/?api=1&destination=${l.lat},${l.lng}`;
+  document.getElementById('btnReporte').href = `https://wa.me/56956403759?text=Error%20en%20DeliveryMap%20-%20Local:%20${encodeURIComponent(l.nombre)}%20(${encodeURIComponent(l.comuna)})`;
   document.getElementById('dropdown').style.display = 'none';
   document.getElementById('searchInput').value = `${l.nombre} - ${l.comuna}`;
   currentY = MEDIO;
