@@ -194,6 +194,23 @@ setTimeout(() => {
 
 // MAPA
 const mapa = L.map('mapa').setView([-33.45, -70.60], 12);
+
+if (navigator.geolocation) {
+  navigator.geolocation.getCurrentPosition(
+    (pos) => {
+      const { latitude, longitude } = pos.coords;
+      mapa.setView([latitude, longitude], 14);
+      L.circleMarker([latitude, longitude], {
+        radius: 8,
+        fillColor: '#4a90e2',
+        color: 'white',
+        weight: 2,
+        fillOpacity: 1
+      }).addTo(mapa).bindPopup('📍 Estás aquí').openPopup();
+    },
+    () => {}
+  );
+}
 L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
   attribution: '© OpenStreetMap © CARTO'
 }).addTo(mapa);
