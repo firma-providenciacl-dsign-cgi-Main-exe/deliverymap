@@ -324,7 +324,7 @@ async function guardarPerfil() {
   if (fotoNueva) {
     const ext = fotoNueva.name.split('.').pop();
     const fileName = `${userId}.${ext}`;
-    const resFoto = await fetch(`${SUPABASE_URL}/storage/v1/object/avatares/${fileName}`, {
+    const resFoto = await fetch(`${SUPABASE_URL}/storage/v1/object/Avatares/${fileName}`, {
       method: 'POST',
       headers: {
         'apikey': SUPABASE_KEY,
@@ -336,7 +336,7 @@ async function guardarPerfil() {
     });
 
     if (resFoto.ok) {
-      foto_url = `${SUPABASE_URL}/storage/v1/object/public/avatares/${fileName}`;
+      foto_url = `${SUPABASE_URL}/storage/v1/object/public/Avatares/${fileName}`;
       // Guardar en tabla perfiles
       await fetch(`${SUPABASE_URL}/rest/v1/perfiles`, {
         method: 'POST',
