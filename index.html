@@ -418,7 +418,7 @@ function mostrarBotonUsuario() {
   if (token && user) {
     const u = JSON.parse(user);
     const apodo = u.user_metadata?.apodo || u.email?.split('@')[0] || 'Rider';
-    btn.innerHTML = `<span style="font-size:11px; color:#4caf50; background:#1a1a1a; padding:4px 8px; border-radius:6px; border:1px solid #2a5c35; cursor:pointer;" onclick="cerrarSesion()">👤 ${apodo} · Salir</span>`;
+    btn.innerHTML = `<a href="perfil.html" style="font-size:11px; color:#4caf50; text-decoration:none; background:#1a1a1a; padding:4px 8px; border-radius:6px; border:1px solid #2a5c35;">👤 ${apodo}</a>`;
   } else {
     btn.innerHTML = `<a href="login.html" style="font-size:11px; color:#fff; text-decoration:none; background:#4a90e2; padding:4px 8px; border-radius:6px;">👤 Iniciar sesión</a>`;
   }
