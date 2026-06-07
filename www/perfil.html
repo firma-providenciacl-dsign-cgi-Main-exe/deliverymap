@@ -318,6 +318,39 @@ async function guardarPerfil() {
   btn.disabled = true;
   btn.textContent = 'Guardando...';
 
+  let foto_url = null;
+
+  // Subir foto si hay una nueva
+  if (fotoNueva) {
+    const ext = fotoNueva.name.split('.').pop();
+    const fileName = `${userId}.${ext}`;
+    const resFoto = await fetch(`${SUPABASE_URL}/storage/v1/object/avatares/${fileName}`, {
+      method: 'POST',
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': fotoNueva.type,
+        'x-upsert': 'true'
+      },
+      body: fotoNueva
+    });
+
+    if (resFoto.ok) {
+      foto_url = `${SUPABASE_URL}/storage/v1/object/public/avatares/${fileName}`;
+      // Guardar en tabla perfiles
+      await fetch(`${SUPABASE_URL}/rest/v1/perfiles`, {
+        method: 'POST',
+        headers: {
+          'apikey': SUPABASE_KEY,
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+          'Prefer': 'resolution=merge-duplicates'
+        },
+        body: JSON.stringify({ user_id: userId, foto_url, apodo })
+      });
+    }
+  }
+
   // Actualizar apodo en auth
   const resAuth = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
     method: 'PUT',
