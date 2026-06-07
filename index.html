@@ -329,18 +329,25 @@ let localActivo = null;
 
 async function reportarError() {
   if (!localActivo) return;
-  const { error } = await supabase
-    .from('reportes')
-    .insert([{
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/reportes`, {
+    method: 'POST',
+    headers: {
+      'apikey': SUPABASE_KEY,
+      'Authorization': `Bearer ${SUPABASE_KEY}`,
+      'Content-Type': 'application/json',
+      'Prefer': 'return=minimal'
+    },
+    body: JSON.stringify({
       local_nombre: localActivo.nombre,
       local_comuna: localActivo.comuna,
       mensaje: 'Error reportado por rider',
       fecha: new Date().toISOString()
-    }]);
-  if (error) {
-    alert('No se pudo enviar el reporte 😕');
-  } else {
+    })
+  });
+  if (res.ok) {
     alert('✅ Reporte enviado, gracias!');
+  } else {
+    alert('No se pudo enviar el reporte 😕');
   }
 }
 </script>
