@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DeliveryMap™</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
+    body { background: #0a0a0a; }
+
+    /* SPLASH */
+    #splash {
+      position: fixed; inset: 0;
+      background: #0a0a0a;
+      z-index: 9999;
+      display: flex; align-items: center; justify-content: center;
+      transition: opacity 0.8s ease;
+    }
+    #splash-content { text-align: center; }
+    #neon-title { font-size: 42px; font-weight: 900; letter-spacing: 4px; line-height: 1; margin-bottom: 12px; }
+    #neon-delivery {
+      display: block; color: white;
+      text-shadow: 0 0 5px #fff, 0 0 15px #4a90e2, 0 0 30px #4a90e2, 0 0 60px #4a90e2;
+      animation: neonFlicker 2s linear forwards;
+    }
+    #neon-map {
+      display: block; color: #4a90e2; opacity: 0;
+      text-shadow: 0 0 5px #4a90e2, 0 0 15px #4a90e2, 0 0 30px #4a90e2, 0 0 80px #4a90e2;
+      animation: neonFlicker 2s linear forwards 0.3s;
+    }
+    #neon-sub {
+      font-size: 11px; letter-spacing: 3px; color: #4a90e2; opacity: 0;
+      animation: fadeInSub 0.5s ease forwards 1.2s;
+      text-shadow: 0 0 8px #4a90e2;
+    }
+    @keyframes neonFlicker {
+      0% { opacity:0; } 10% { opacity:1; } 11% { opacity:0; }
+      13% { opacity:1; } 14% { opacity:0; } 16% { opacity:1; } 100% { opacity:1; }
+    }
+    @keyframes fadeInSub {
+      from { opacity:0; letter-spacing:6px; } to { opacity:1; letter-spacing:3px; }
+    }
+
+    /* HEADER */
+    #header {
+      background: #4a90e2;
+      padding: 12px 16px;
+      position: fixed; top: 0; left: 0; right: 0;
+      z-index: 1000;
+      display: flex; align-items: center; gap: 10px;
+    }
+    #btnVolver {
+      background: none; border: none; color: white;
+      font-size: 22px; cursor: pointer; padding: 0 4px;
+      line-height: 1; display: none;
+    }
+    #searchWrapper { position: relative; flex: 1; }
+    #searchInput {
+      width: 100%; padding: 10px 14px 10px 38px;
+      border-radius: 10px; border: none; font-size: 15px;
+      outline: none; background: white; color: #333;
+    }
+    #searchIcon {
+      position: absolute; left: 12px; top: 50%;
+      transform: translateY(-50%); font-size: 16px;
+      color: #aaa; pointer-events: none;
+    }
+
+    /* DROPDOWN */
+    #dropdown {
+      position: fixed; top: 60px; left: 0; right: 0;
+      background: white; border-radius: 0 0 14px 14px;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+      z-index: 999; overflow: hidden; display: none;
+      max-height: 60vh; overflow-y: auto;
+    }
+    .result-item {
+      display: flex; align-items: flex-start; gap: 12px;
+      padding: 12px 16px; border-bottom: 1px solid #f0f0f0; cursor: pointer;
+    }
+    .result-item:last-child { border-bottom: none; }
+    .result-item:active { background: #f0f5ff; }
+    .result-emoji {
+      font-size: 22px; width: 40px; height: 40px;
+      background: #e8f0fb; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .result-nombre { font-size: 15px; font-weight: 600; color: #222; }
+    .result-mall { font-size: 13px; color: #888; margin-top: 2px; }
+    .result-nota { font-size: 12px; color: #4a90e2; margin-top: 4px; }
+    .no-resultado { padding: 16px; text-align: center; color: #aaa; font-size: 14px; }
+
+    /* MAPA */
+    #mapa { position: fixed; top: 58px; left: 0; right: 0; bottom: 0; z-index: 1; }
+
+    /* BOTTOM SHEET */
+    #bottomSheet {
+      position: fixed; left: 0; right: 0; bottom: -100%;
+      background: #1a1a1a; border-radius: 20px 20px 0 0;
+      z-index: 2000; max-height: 90vh; overflow-y: auto;
+      transition: bottom 0.4s ease; touch-action: pan-x;
+    }
+    #bottomSheet.medio    { bottom: -47vh; }
+    #bottomSheet.abierto  { bottom: 0; }
+    #sheetHandle {
+      width: 40px; height: 4px; background: #444;
+      border-radius: 10px; margin: 12px auto 0; cursor: grab;
+    }
+    #btnCerrarX {
+      position: absolute; top: 10px; right: 14px;
+      background: #333; border: none; color: #aaa;
+      font-size: 16px; width: 30px; height: 30px;
+      border-radius: 50%; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+    }
+    #sheetFoto {
+      width: 100%; height: 180px; background: #2a2a2a;
+      display: flex; align-items: center; justify-content: center;
+      color: #555; font-size: 13px; margin-top: 12px;
+    }
+    #sheetInfo { padding: 16px; }
+    #sheetNombre { font-size: 20px; font-weight: 700; color: white; margin-bottom: 4px; }
+    #sheetComuna { font-size: 13px; color: #888; margin-bottom: 12px; }
+    #sheetFecha { font-size: 12px; color: #555; margin-bottom: 12px; }
+    #sheetNota {
+      font-size: 14px; color: #ccc; line-height: 1.6; margin-bottom: 20px;
+      padding: 12px; background: #222; border-radius: 10px;
+      border-left: 3px solid #4a90e2;
+    }
+    .sheetBtn {
+      display: block; width: 100%; padding: 13px; border-radius: 10px;
+      border: none; font-size: 15px; font-weight: 600; cursor: pointer;
+      text-align: center; text-decoration: none; margin-bottom: 10px;
+    }
+    #btnWaze  { background: #33ccff; color: white; }
+    #btnGmaps { background: #4a90e2; color: white; }
+    #btnReporte { background: #1a1a1a; color: #ff9500; border: 1px solid #ff9500; }
+  </style>
+  <script defer src="https://cloud.umami.is/script.js" data-website-id="0c032f6f-45ed-461a-a58b-f49d1e159bff"></script>
+</head>
+<body>
+
+<div id="splash">
+  <div id="splash-content">
+    <div id="neon-title">
+      <span id="neon-delivery">DELIVERY</span>
+      <span id="neon-map">MAP</span>
+    </div>
+    <div id="neon-sub">// CHILE DELIVERY NETWORK //</div>
+  </div>
+</div>
+
+<div id="header">
+  <button id="btnVolver" onclick="volver()">←</button>
+  <div id="searchWrapper">
+    <span id="searchIcon">🔍</span>
+    <input id="searchInput" type="text" placeholder="Buscar local o mall..."
+      oninput="buscar(this.value)" onkeyup="buscar(this.value)" autocomplete="off"/>
+  </div>
+</div>
+
+<div id="dropdown"></div>
+<div id="mapa"></div>
+
+<div id="bottomSheet">
+  <div id="sheetHandle"></div>
+  <button id="btnCerrarX" onclick="cerrarSheet()">✕</button>
+  <div id="sheetFoto">📸 Sin foto aún</div>
+  <div id="sheetInfo">
+    <div id="sheetNombre"></div>
+    <div id="sheetComuna"></div>
+    <div id="sheetFecha"></div>
+    <div id="sheetNota"></div>
+    <a id="btnWaze" class="sheetBtn" target="_blank">Abrir en Waze</a>
+    <a id="btnGmaps" class="sheetBtn" target="_blank">Abrir en Google Maps</a>
+    <button id="btnReporte" class="sheetBtn" onclick="reportarError()">⚠️ Reportar error en este local</button>
+  </div>
+</div>
+
+<div style="position:fixed; bottom:30px; right:14px; z-index:999; display:flex; flex-direction:column; gap:8px; align-items:flex-end;">
+  <div id="btnUsuario"></div>
+  <a href="sugerir.html" style="font-size:11px; color:#4a90e2; text-decoration:none; background:#1a1a1a; padding:4px 10px; border-radius:6px; border:1px solid #333;">Sugerir local</a>
+</div>
+<script src="supabase.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+
+// SPLASH
+setTimeout(() => {
+  const splash = document.getElementById('splash');
+  splash.style.opacity = '0';
+  setTimeout(() => {
+    splash.style.display = 'none';
+    setTimeout(() => mapa.invalidateSize(), 100);
+  }, 600);
+}, 2000);
+
+// MAPA
+const mapa = L.map('mapa').setView([-33.45, -70.60], 12);
+
+if (navigator.geolocation) {
+  navigator.geolocation.getCurrentPosition(
+    (pos) => {
+      const { latitude, longitude } = pos.coords;
+      mapa.setView([latitude, longitude], 14);
+      L.circleMarker([latitude, longitude], {
+        radius: 8,
+        fillColor: '#4a90e2',
+        color: 'white',
+        weight: 2,
+        fillOpacity: 1
+      }).addTo(mapa);
+    },
+    () => {}
+  );
+}
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+  attribution: '© OpenStreetMap © CARTO'
+}).addTo(mapa);
+
+let pinActivo = null;
+
+// BUSCADOR
+async function buscar(q) {
+  const dropdown = document.getElementById('dropdown');
+  const texto = q.trim().toLowerCase();
+  if (texto.length === 0) {
+    dropdown.style.display = 'none';
+    document.getElementById('btnVolver').style.display = 'none';
+    return;
+  }
+  document.getElementById('btnVolver').style.display = 'block';
+  dropdown.innerHTML = '<div class="no-resultado">Buscando...</div>';
+  dropdown.style.display = 'block';
+  const resultado = await buscarEnSupabase(texto);
+  if (!resultado || resultado.length === 0) {
+    dropdown.innerHTML = '<div class="no-resultado">No se encontró ese local 😕</div>';
+  } else {
+    dropdown.innerHTML = resultado.map((l) => `
+      <div class="result-item" onclick="seleccionar(${JSON.stringify(l).replace(/"/g, '&quot;')})">
+        <div class="result-emoji">${l.emoji || '📍'}</div>
+        <div>
+          <div class="result-nombre">${l.nombre}</div>
+          <div class="result-mall">${l.comuna}</div>
+          <div class="result-nota">📍 ${l.nota}</div>
+        </div>
+      </div>
+    `).join('');
+  }
+  dropdown.style.display = 'block';
+}
+
+// SELECCIONAR LOCAL
+function seleccionar(l) {
+  localActivo = l;
+  if (pinActivo) { mapa.removeLayer(pinActivo); pinActivo = null; }
+  pinActivo = L.marker([l.lat, l.lng]).addTo(mapa).openPopup();
+  mapa.setView([l.lat, l.lng], 17);
+  document.getElementById('sheetNombre').textContent = l.nombre;
+  document.getElementById('sheetComuna').textContent = l.comuna;
+  document.getElementById('sheetFecha').textContent = l.actualizado_en ? '🕐 Verificado ' + tiempoTranscurrido(l.actualizado_en) : '';
+  document.getElementById('sheetNota').textContent = '📍 ' + l.nota;
+  document.getElementById('btnWaze').href = `https://waze.com/ul?ll=${l.lat},${l.lng}&navigate=yes`;
+  document.getElementById('btnGmaps').href = `https://www.google.com/maps/dir/?api=1&destination=${l.lat},${l.lng}`;
+  document.getElementById('dropdown').style.display = 'none';
+  document.getElementById('searchInput').value = `${l.nombre} - ${l.comuna}`;
+  currentY = MEDIO;
+sheet.style.transition = 'transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+sheet.style.transform = `translateY(${MEDIO}px)`;
+}
+
+// CERRAR SHEET
+function cerrarSheet() {
+  sheet.style.transition = 'transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+sheet.style.transform = `translateY(${window.innerHeight}px)`;
+currentY = MEDIO;
+  if (pinActivo) { mapa.removeLayer(pinActivo); pinActivo = null; }
+  document.getElementById('searchInput').value = '';
+  document.getElementById('btnVolver').style.display = 'none';
+  mapa.setView([-33.45, -70.60], 12);
+}
+
+// VOLVER
+function volver() {
+  cerrarSheet();
+  document.getElementById('dropdown').style.display = 'none';
+}
+
+// DRAGGABLE BOTTOM SHEET
+const sheet = document.getElementById('bottomSheet');
+let startY = 0;
+let currentY = 0;
+let isDragging = false;
+const MEDIO = window.innerHeight * 0.47;
+
+sheet.style.bottom = '0';
+sheet.style.transform = `translateY(${window.innerHeight}px)`;
+
+function onStart(y) {
+  isDragging = true;
+  startY = y;
+  sheet.style.transition = 'none';
+}
+
+function onMove(y) {
+  if (!isDragging) return;
+  const dy = y - startY;
+  const newY = Math.min(window.innerHeight * 0.88, Math.max(0, currentY + dy));
+  sheet.style.transform = `translateY(${newY}px)`;
+}
+
+function onEnd(y) {
+  if (!isDragging) return;
+  isDragging = false;
+  const dy = y - startY;
+  const newY = Math.min(window.innerHeight * 0.88, Math.max(0, currentY + dy));
+  sheet.style.transition = 'transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+
+  if (newY < window.innerHeight * 0.15) {
+    currentY = 0;
+  } else if (newY > window.innerHeight * 0.75) {
+    currentY = window.innerHeight * 0.88;
+    setTimeout(cerrarSheet, 350);
+  } else {
+    currentY = newY;
+  }
+  sheet.style.transform = `translateY(${currentY}px)`;
+}
+
+sheet.addEventListener('touchstart', e => {
+  if (e.target.closest('#btnCerrarX')) return;
+  onStart(e.touches[0].clientY);
+}, { passive: true });
+
+sheet.addEventListener('touchmove', e => {
+  if (!isDragging) return;
+  e.stopPropagation();
+  onMove(e.touches[0].clientY);
+}, { passive: false });
+
+sheet.addEventListener('touchend', e => onEnd(e.changedTouches[0].clientY));
+
+sheet.addEventListener('mousedown', e => {
+  if (e.target.closest('#btnCerrarX')) return;
+  onStart(e.clientY);
+});
+
+document.addEventListener('mousemove', e => { if (isDragging) onMove(e.clientY); });
+document.addEventListener('mouseup', e => { if (isDragging) onEnd(e.clientY); });
+
+let localActivo = null;
+
+async function reportarError() {
+  if (!localActivo) return;
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/reportes`, {
+    method: 'POST',
+    headers: {
+      'apikey': SUPABASE_KEY,
+      'Authorization': `Bearer ${SUPABASE_KEY}`,
+      'Content-Type': 'application/json',
+      'Prefer': 'return=minimal'
+    },
+    body: JSON.stringify({
+      local_nombre: localActivo.nombre,
+      local_comuna: localActivo.comuna,
+      mensaje: 'Error reportado por rider',
+      fecha: new Date().toISOString()
+    })
+  });
+  if (res.ok) {
+    alert('✅ Reporte enviado, gracias!');
+  } else {
+    alert('No se pudo enviar el reporte 😕');
+  }
+}
+function tiempoTranscurrido(fecha) {
+  const ahora = new Date();
+  const entonces = new Date(fecha);
+  const diff = Math.floor((ahora - entonces) / 1000);
+  if (diff < 60) return 'hace unos segundos';
+  if (diff < 3600) return `hace ${Math.floor(diff / 60)} minutos`;
+  if (diff < 86400) return `hace ${Math.floor(diff / 3600)} horas`;
+  if (diff < 2592000) return `hace ${Math.floor(diff / 86400)} días`;
+  return `hace ${Math.floor(diff / 2592000)} meses`;
+}
+// SESIÓN
+function verificarSesion() {
+  const hash = window.location.hash;
+  if (hash && hash.includes('access_token')) {
+    const params = new URLSearchParams(hash.substring(1));
+    const token = params.get('access_token');
+    if (token) {
+      fetch(`${SUPABASE_URL}/auth/v1/user`, {
+        headers: {
+          'apikey': SUPABASE_KEY,
+          'Authorization': `Bearer ${token}`
+        }
+      })
+      .then(r => r.json())
+      .then(user => {
+        localStorage.setItem('dm_token', token);
+        localStorage.setItem('dm_user', JSON.stringify(user));
+        window.location.hash = '';
+        mostrarBotonUsuario();
+      });
+      return;
+    }
+  }
+  mostrarBotonUsuario();
+}
+
+async function mostrarBotonUsuario() {
+  const token = localStorage.getItem('dm_token');
+  const user = localStorage.getItem('dm_user');
+  const btn = document.getElementById('btnUsuario');
+
+  if (token && user) {
+    const u = JSON.parse(user);
+    const apodo = u.user_metadata?.apodo || u.email?.split('@')[0] || 'R';
+    const inicial = apodo.charAt(0).toUpperCase();
+
+    // Buscar foto en tabla perfiles
+    let fotoUrl = null;
+    try {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/perfiles?user_id=eq.${u.id}&select=foto_url`, {
+        headers: {
+          'apikey': SUPABASE_KEY,
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      const data = await res.json();
+      if (data && data.length > 0 && data[0].foto_url) {
+        fotoUrl = data[0].foto_url;
+      }
+    } catch(e) {}
+
+    if (fotoUrl) {
+      btn.innerHTML = `<a href="perfil.html" style="display:block; width:38px; height:38px; border-radius:50%; border:2.5px solid #4a90e2; box-shadow:0 0 8px #4a90e2, 0 0 16px #4a90e233; overflow:hidden; text-decoration:none;">
+        <img src="${fotoUrl}" style="width:100%; height:100%; object-fit:cover;" /></a>`;
+    } else {
+      btn.innerHTML = `<a href="perfil.html" style="display:flex; align-items:center; justify-content:center; width:38px; height:38px; border-radius:50%; border:2.5px solid #4a90e2; box-shadow:0 0 8px #4a90e2, 0 0 16px #4a90e233; background:#0d1f3c; text-decoration:none; font-size:16px; font-weight:700; color:#4a90e2;">${inicial}</a>`;
+    }
+  } else {
+    btn.innerHTML = `<a href="login.html" style="font-size:11px; color:#fff; text-decoration:none; background:#4a90e2; padding:4px 10px; border-radius:6px;">Iniciar sesión</a>`;
+  }
+}
+
+async function cerrarSesion() {
+  localStorage.removeItem('dm_token');
+  localStorage.removeItem('dm_user');
+  await mostrarBotonUsuario();
+}
+
+verificarSesion();
+</script>
+</body>
+</html>
