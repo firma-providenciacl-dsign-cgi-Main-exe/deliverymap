@@ -214,7 +214,7 @@ async function iniciarSesion() {
     localStorage.setItem('dm_user', JSON.stringify(data.user));
     if (data.refresh_token) localStorage.setItem('dm_refresh', data.refresh_token);
     mostrarMensaje('✅ ¡Bienvenido!', 'exito');
-    setTimeout(() => { window.location.href = 'index.html'; }, 1000);
+    setTimeout(() => { window.location.href = 'app.html'; }, 1000);
   } else {
     mostrarMensaje('Email o contraseña incorrectos.', 'error');
     btn.disabled = false;
@@ -223,7 +223,7 @@ async function iniciarSesion() {
 }
 
 function loginGoogle() {
-  window.location.href = `${SUPABASE_URL}/auth/v1/authorize?provider=google&redirect_to=https://deliverymap.cl/index.html`;
+  window.location.href = `${SUPABASE_URL}/auth/v1/authorize?provider=google&redirect_to=https://deliverymap.cl/app.html`;
 }
 function mostrarMensaje(texto, tipo) {
   const msg = document.getElementById('mensaje');
