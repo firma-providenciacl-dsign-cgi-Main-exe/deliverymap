@@ -236,6 +236,28 @@ let userId = null;
 let fotoNueva = null;
 
 async function init() {
+  // Refrescar token si es necesario
+const userStr2 = localStorage.getItem('dm_user');
+if (userStr2) {
+  const userData = JSON.parse(userStr2);
+  const expiry = new Date(userData.expires_at * 1000);
+  if (expiry < new Date()) {
+    const refreshToken = userData.refresh_token || localStorage.getItem('dm_refresh');
+    if (refreshToken) {
+      const resRefresh = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=refresh_token`, {
+        method: 'POST',
+        headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refresh_token: refreshToken })
+      });
+      if (resRefresh.ok) {
+        const newData = await resRefresh.json();
+        localStorage.setItem('dm_token', newData.access_token);
+        localStorage.setItem('dm_user', JSON.stringify(newData.user));
+        token = newData.access_token;
+      }
+    }
+  }
+}
   token = localStorage.getItem('dm_token');
   const userStr = localStorage.getItem('dm_user');
 
@@ -390,4 +412,4 @@ function mostrarMensaje(texto, tipo) {
 init();
 </script>
 </body>
-</html> 
+</html>
