@@ -225,6 +225,12 @@ async function iniciarSesion() {
 function loginGoogle() {
   window.location.href = `${SUPABASE_URL}/auth/v1/authorize?provider=google&redirect_to=https://deliverymap-theta.vercel.app/index.html`;
 }
+function mostrarMensaje(texto, tipo) {
+  const msg = document.getElementById('mensaje');
+  msg.textContent = texto;
+  msg.className = `mensaje ${tipo}`;
+  msg.style.display = 'block';
+}
 </script>
 </body>
 </html>
