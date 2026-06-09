@@ -297,7 +297,9 @@ fetch(`${SUPABASE_URL}/rest/v1/local_fotos?local_id=eq.${l.id}&select=url&limit=
 .then(r => r.json())
 .then(data => {
   if (data && data.length > 0) {
-    sheetFoto.innerHTML = `<img src="${data[0].url}" style="width:100%; height:180px; object-fit:cover; cursor:pointer;" onclick="abrirLightbox('${data[0].url}')" />`;
+    const fotoUrl = data[0].url;
+sheetFoto.innerHTML = `<img src="${fotoUrl}" style="width:100%; height:180px; object-fit:cover; cursor:pointer;" />`;
+sheetFoto.querySelector('img').addEventListener('click', () => abrirLightbox(fotoUrl));
   }
 });
 
