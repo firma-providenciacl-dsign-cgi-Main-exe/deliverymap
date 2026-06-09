@@ -546,7 +546,10 @@ async function enviarResetPassword() {
   const res = await fetch(`${SUPABASE_URL}/auth/v1/recover`, {
     method: 'POST',
     headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email })
+    body: JSON.stringify({ 
+  email,
+  redirect_to: 'https://deliverymap.cl/cambiar-password.html'
+})
   });
 
   if (res.ok) {
