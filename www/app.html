@@ -919,6 +919,7 @@ async function reportarComentario(comentarioId, apodoAutor) {
   const user = localStorage.getItem('dm_user');
   if (!token || !user) { window.location.href = 'login.html'; return; }
 
+  // Guardar el reporte
   await fetch(`${SUPABASE_URL}/rest/v1/reportes`, {
     method: 'POST',
     headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
@@ -929,6 +930,28 @@ async function reportarComentario(comentarioId, apodoAutor) {
       fecha: new Date().toISOString()
     })
   });
+
+  // Buscar el user_id del autor del comentario
+  const resComent = await fetch(
+    `${SUPABASE_URL}/rest/v1/comentarios?id=eq.${comentarioId}&select=user_id`,
+    { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Accept': 'application/json' }}
+  );
+  const comentData = await resComent.json();
+
+  // Enviar notificación al autor
+  if (comentData && comentData.length > 0) {
+    await fetch(`${SUPABASE_URL}/rest/v1/notificaciones`, {
+      method: 'POST',
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+      body: JSON.stringify({
+        user_id: comentData[0].user_id,
+        tipo: 'comentario_reportado',
+        mensaje: '⚠️ Uno de tus comentarios fue reportado por la comunidad. Recuerda mantener un tono respetuoso y útil para los riders.',
+        leida: false
+      })
+    });
+  }
+
   alert('✅ Comentario reportado. Lo revisaremos pronto.');
 }
 verificarSesion();
