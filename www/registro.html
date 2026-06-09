@@ -256,7 +256,7 @@ async function registrarse() {
 
   const data = await res.json();
 
-  if (res.ok && data.user) {
+ if (res.ok) {
     mostrarMensaje(`✅ Cuenta creada como "${apodoFinal}". Revisa tu email para confirmar y luego inicia sesión.`, 'exito');
     btn.textContent = 'Crear cuenta';
     btn.disabled = false;
