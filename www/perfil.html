@@ -289,7 +289,7 @@
 
     <div class="steam-section">
       <div class="steam-section-title">Seguridad</div>
-      <button class="btn-secondary" onclick="toggleCambiarPassword()">🔒 Cambiar contraseña</button>
+      <button class="btn-secondary" id="btnCambiarPass" onclick="toggleCambiarPassword()">🔒 Cambiar contraseña</button>
       <div id="seccionPassword" style="display:none; margin-top:8px;">
         <input type="password" id="inputPass1" placeholder="Nueva contraseña"/>
         <input type="password" id="inputPass2" placeholder="Confirmar nueva contraseña"/>
@@ -428,6 +428,12 @@ async function init() {
 
   await cargarStats();
   await cargarPerfil();
+
+  // Ocultar cambiar contraseña si entró con Google
+  const proveedores = user.app_metadata?.providers || [];
+  if (proveedores.includes('google')) {
+    document.getElementById('btnCambiarPass').style.display = 'none';
+  }
 
   document.getElementById('cargando').style.display = 'none';
   document.getElementById('contenido').style.display = 'block';
