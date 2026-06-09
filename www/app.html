@@ -772,7 +772,7 @@ async function cargarLikesYComentarios(localId) {
       const esPropio = userId && c.user_id === userId;
       return `
         <div class="comentario-item" id="comentario-${c.id}">
-          <div class="comentario-apodo" style="cursor:pointer;" onclick="window.location.href='perfil-publico.html?id=${c.user_id}'">${c.apodo}</div>
+          <div class="comentario-apodo" style="cursor:pointer;" onclick="(function(){ const token = localStorage.getItem('dm_token'); const u = localStorage.getItem('dm_user'); const me = u ? JSON.parse(u).id : null; window.location.href = (me === '${c.user_id}') ? 'perfil.html' : 'perfil-publico.html?id=${c.user_id}'; })()">${c.apodo}</div>
           <div class="comentario-texto">${c.texto}</div>
           <div class="comentario-footer">
             <span class="comentario-fecha">${tiempoTranscurrido(c.creado_en)}</span>
