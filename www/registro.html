@@ -215,7 +215,7 @@ async function registrarse() {
   const password2 = document.getElementById('password2').value;
   const btn      = document.getElementById('btnRegistro');
 
-  if (!apodo || !email || !password || !password2) {
+  if (!email || !password || !password2) {
     mostrarMensaje('Completa todos los campos.', 'error');
     return;
   }
@@ -231,23 +231,33 @@ async function registrarse() {
   btn.disabled = true;
   btn.textContent = 'Creando cuenta...';
 
+  let apodoFinal = apodo;
+  if (!apodo) {
+    const resConfig = await fetch(`${SUPABASE_URL}/rest/v1/config?clave=eq.ultimo_delivery_num&select=valor`, {
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Accept': 'application/json' }
+    });
+    const configData = await resConfig.json();
+    const numActual = parseInt(configData?.[0]?.valor || '9');
+    const numNuevo = numActual + 1;
+    apodoFinal = `Delivery${numNuevo}`;
+
+    await fetch(`${SUPABASE_URL}/rest/v1/config?clave=eq.ultimo_delivery_num`, {
+      method: 'PATCH',
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+      body: JSON.stringify({ valor: String(numNuevo) })
+    });
+  }
+
   const res = await fetch(`${SUPABASE_URL}/auth/v1/signup`, {
     method: 'POST',
-    headers: {
-      'apikey': SUPABASE_KEY,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      email,
-      password,
-      data: { apodo }
-    })
+    headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password, data: { apodo: apodoFinal } })
   });
 
   const data = await res.json();
 
   if (res.ok && data.user) {
-    mostrarMensaje('✅ Cuenta creada. Revisa tu email para confirmar tu cuenta y luego inicia sesión.', 'exito');
+    mostrarMensaje(`✅ Cuenta creada como "${apodoFinal}". Revisa tu email para confirmar y luego inicia sesión.`, 'exito');
     btn.textContent = 'Crear cuenta';
     btn.disabled = false;
   } else {
