@@ -5,6 +5,63 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Sugerir local — DeliveryMap</title>
   <style>
+    #popupCuenta {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  z-index: 9999;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.popup-box {
+  background: #1a1a1a;
+  border: 1px solid #4a90e2;
+  border-radius: 16px;
+  padding: 28px 24px;
+  max-width: 380px;
+  width: 100%;
+  text-align: center;
+}
+.popup-icon { font-size: 36px; margin-bottom: 12px; }
+.popup-titulo {
+  font-size: 18px;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 10px;
+}
+.popup-texto {
+  font-size: 14px;
+  color: #888;
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+.popup-texto span { color: #4a90e2; font-weight: 600; }
+.popup-btn-primary {
+  display: block;
+  width: 100%;
+  padding: 13px;
+  background: #4a90e2;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+  margin-bottom: 10px;
+}
+.popup-btn-secondary {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  background: transparent;
+  color: #555;
+  border: none;
+  font-size: 13px;
+  cursor: pointer;
+}
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       background: #0a0a0a;
@@ -181,7 +238,7 @@
         })
       });
 
-      if (res.ok) {
+if (res.ok) {
         msg.textContent = '✅ ¡Sugerencia enviada! La revisaremos pronto.';
         msg.className = 'mensaje exito';
         msg.style.display = 'block';
@@ -190,6 +247,13 @@
         document.getElementById('nota').value = '';
         btn.textContent = '📍 Enviar sugerencia';
         btn.disabled = false;
+        // Mostrar popup solo si no tiene sesión
+        const token = localStorage.getItem('dm_token');
+        if (!token) {
+          setTimeout(() => {
+            document.getElementById('popupCuenta').style.display = 'flex';
+          }, 800);
+        }
       } else {
         msg.textContent = '😕 No se pudo enviar. Intenta de nuevo.';
         msg.className = 'mensaje error';
@@ -198,7 +262,18 @@
         btn.disabled = false;
       }
     }
+    <div id="popupCuenta">
+  <div class="popup-box">
+    <div class="popup-icon">🎖️</div>
+    <div class="popup-titulo">¡Gracias por aportar!</div>
+    <p class="popup-texto">
+      Con una cuenta puedes ganar <span>monedas</span> por cada local que aportes,
+      personalizar tu perfil y acceder a funciones exclusivas para riders.
+    </p>
+    <a href="login.html" class="popup-btn-primary">Crear cuenta gratis</a>
+    <button class="popup-btn-secondary" onclick="document.getElementById('popupCuenta').style.display='none'">Ahora no</button>
+  </div>
+</div>
   </script>
-
 </body>
 </html>
