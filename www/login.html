@@ -172,9 +172,12 @@
     Continuar con Google
   </button>
 
-  <div class="links">
+<div class="links">
     ¿No tienes cuenta? <a href="registro.html">Crear cuenta</a>
-  </div>
+</div>
+<div class="links" style="margin-top:10px;">
+    ¿Olvidaste tu contraseña? <a href="#" onclick="olvideMiPassword()">Restablecer</a>
+</div>
 
   <a class="volver" href="app.html">← Volver al mapa</a>
 
@@ -230,6 +233,23 @@ function mostrarMensaje(texto, tipo) {
   msg.textContent = texto;
   msg.className = `mensaje ${tipo}`;
   msg.style.display = 'block';
+}
+async function olvideMiPassword() {
+  const email = document.getElementById('email').value.trim();
+  if (!email) {
+    mostrarMensaje('Escribe tu email arriba primero.', 'error');
+    return;
+  }
+  const res = await fetch(`${SUPABASE_URL}/auth/v1/recover`, {
+    method: 'POST',
+    headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email })
+  });
+  if (res.ok) {
+    mostrarMensaje(`✅ Te enviamos un email a ${email} con el link para restablecer tu contraseña.`, 'exito');
+  } else {
+    mostrarMensaje('No se pudo enviar el email. Intenta de nuevo.', 'error');
+  }
 }
 </script>
 </body>
