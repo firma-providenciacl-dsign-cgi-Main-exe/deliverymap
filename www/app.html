@@ -689,18 +689,19 @@ async function cargarLikesYComentarios(localId) {
   const token = localStorage.getItem('dm_token');
   const user = localStorage.getItem('dm_user');
   const userId = user ? JSON.parse(user).id : null;
+  const authHeader = token ? `Bearer ${token}` : `Bearer ${SUPABASE_KEY}`;
 
-  // Likes
-  const resLikes = await fetch(`${SUPABASE_URL}/rest/v1/likes?local_id=eq.${localId}`, {
-    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
-  });
+  // LIKES
+  const resLikes = await fetch(
+    `${SUPABASE_URL}/rest/v1/likes?local_id=eq.${localId}&select=*`,
+    { headers: { 'apikey': SUPABASE_KEY, 'Authorization': authHeader, 'Accept': 'application/json' }}
+  );
   const likes = await resLikes.json();
   const totalLikes = likes.filter(l => l.tipo === 'like').length;
   const totalDislikes = likes.filter(l => l.tipo === 'dislike').length;
   document.getElementById('contLikes').textContent = totalLikes;
   document.getElementById('contDislikes').textContent = totalDislikes;
 
-  // Estado del like propio
   const btnLike = document.getElementById('btnLike');
   const btnDislike = document.getElementById('btnDislike');
   btnLike.className = 'like-btn';
@@ -711,18 +712,15 @@ async function cargarLikesYComentarios(localId) {
     if (propio?.tipo === 'dislike') btnDislike.className = 'like-btn activo-dislike';
   }
 
-  // Comentarios
- const resComent = await fetch(`${SUPABASE_URL}/rest/v1/comentarios?local_id=eq.${localId}&order=creado_en.desc`, {
-    headers: { 
-      'apikey': SUPABASE_KEY, 
-      'Authorization': `Bearer ${SUPABASE_KEY}`,
-      'Accept': 'application/json'
-    }
-  });
+  // COMENTARIOS
+  const resComent = await fetch(
+    `${SUPABASE_URL}/rest/v1/comentarios?local_id=eq.${localId}&order=creado_en.desc&select=*`,
+    { headers: { 'apikey': SUPABASE_KEY, 'Authorization': authHeader, 'Accept': 'application/json' }}
+  );
   const comentarios = await resComent.json();
   const lista = document.getElementById('listaComentarios');
 
-  if (comentarios.length === 0) {
+  if (!Array.isArray(comentarios) || comentarios.length === 0) {
     lista.innerHTML = '<div class="sin-comentarios">Sin comentarios aún. ¡Sé el primero!</div>';
   } else {
     lista.innerHTML = comentarios.map(c => {
@@ -744,7 +742,7 @@ async function cargarLikesYComentarios(localId) {
     }).join('');
   }
 
-  // Input de comentario
+  // INPUT COMENTARIO
   const inputWrap = document.getElementById('comentarioInput');
   if (token && userId) {
     inputWrap.innerHTML = `
