@@ -376,6 +376,42 @@
 <script>
 
 // SPLASH
+async function supaFetch(url, options = {}) {
+  let token = localStorage.getItem('dm_token');
+  
+  // Inyectar token actual
+  options.headers = {
+    ...options.headers,
+    'apikey': SUPABASE_KEY,
+    'Authorization': `Bearer ${token || SUPABASE_KEY}`
+  };
+
+  let res = await fetch(url, options);
+
+  // Si 401, intentar refrescar token y reintentar
+  if (res.status === 401) {
+    const refreshToken = localStorage.getItem('dm_refresh');
+    if (refreshToken) {
+      const resRefresh = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=refresh_token`, {
+        method: 'POST',
+        headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refresh_token: refreshToken })
+      });
+      if (resRefresh.ok) {
+        const newData = await resRefresh.json();
+        localStorage.setItem('dm_token', newData.access_token);
+        localStorage.setItem('dm_user', JSON.stringify(newData.user));
+        if (newData.refresh_token) localStorage.setItem('dm_refresh', newData.refresh_token);
+
+        // Reintentar con token nuevo
+        options.headers['Authorization'] = `Bearer ${newData.access_token}`;
+        res = await fetch(url, options);
+      }
+    }
+  }
+
+  return res;
+}
 setTimeout(() => {
   const splash = document.getElementById('splash');
   splash.style.opacity = '0';
@@ -740,9 +776,9 @@ async function cargarLikesYComentarios(localId) {
   const authHeader = token ? `Bearer ${token}` : `Bearer ${SUPABASE_KEY}`;
 
   // LIKES
-  const resLikes = await fetch(
+  const resLikes = await supaFetch(
     `${SUPABASE_URL}/rest/v1/likes?local_id=eq.${localId}&select=*`,
-    { headers: { 'apikey': SUPABASE_KEY, 'Authorization': authHeader, 'Accept': 'application/json' }}
+    { headers: { 'Accept': 'application/json' }}
   );
   const likes = await resLikes.json();
   const totalLikes = likes.filter(l => l.tipo === 'like').length;
@@ -761,9 +797,9 @@ async function cargarLikesYComentarios(localId) {
   }
 
   // COMENTARIOS
-  const resComent = await fetch(
+  const resComent = await supaFetch(
     `${SUPABASE_URL}/rest/v1/comentarios?local_id=eq.${localId}&order=creado_en.desc&select=*`,
-    { headers: { 'apikey': SUPABASE_KEY, 'Authorization': authHeader, 'Accept': 'application/json' }}
+    { headers: { 'Accept': 'application/json' }}
   );
   const comentarios = await resComent.json();
   const lista = document.getElementById('listaComentarios');
@@ -815,9 +851,9 @@ async function toggleLike(tipo) {
   const user = JSON.parse(userStr);
   const localId = localActivo.id;
 
-  const resCheck = await fetch(
+  const resCheck = await supaFetch(
     `${SUPABASE_URL}/rest/v1/likes?local_id=eq.${localId}&user_id=eq.${user.id}&select=*`,
-    { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' }}
+    { headers: { 'Accept': 'application/json' }}
   );
   
   if (!resCheck.ok) {
