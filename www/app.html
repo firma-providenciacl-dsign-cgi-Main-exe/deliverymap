@@ -619,17 +619,14 @@ function abrirLightbox(url) {
 function cerrarLightbox() {
   document.getElementById('lightbox').classList.remove('visible');
 }
-function verificarSesion() {
+async function verificarSesion() {
   const hash = window.location.hash;
   if (hash && hash.includes('access_token')) {
     const params = new URLSearchParams(hash.substring(1));
     const token = params.get('access_token');
     if (token) {
       fetch(`${SUPABASE_URL}/auth/v1/user`, {
-        headers: {
-          'apikey': SUPABASE_KEY,
-          'Authorization': `Bearer ${token}`
-        }
+        headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${token}` }
       })
       .then(r => r.json())
       .then(user => {
@@ -641,6 +638,33 @@ function verificarSesion() {
       return;
     }
   }
+
+  // Refrescar token si expiró
+  const userStr = localStorage.getItem('dm_user');
+  const token = localStorage.getItem('dm_token');
+  if (userStr && token) {
+    try {
+      const userData = JSON.parse(userStr);
+      const expiry = userData.expires_at ? new Date(userData.expires_at * 1000) : null;
+      if (expiry && expiry < new Date()) {
+        const refreshToken = localStorage.getItem('dm_refresh');
+        if (refreshToken) {
+          const resRefresh = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=refresh_token`, {
+            method: 'POST',
+            headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ refresh_token: refreshToken })
+          });
+          if (resRefresh.ok) {
+            const newData = await resRefresh.json();
+            localStorage.setItem('dm_token', newData.access_token);
+            localStorage.setItem('dm_user', JSON.stringify(newData.user));
+            if (newData.refresh_token) localStorage.setItem('dm_refresh', newData.refresh_token);
+          }
+        }
+      }
+    } catch(e) {}
+  }
+
   mostrarBotonUsuario();
 }
 
