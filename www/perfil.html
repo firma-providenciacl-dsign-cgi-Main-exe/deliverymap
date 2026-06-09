@@ -420,17 +420,16 @@ async function init() {
 }
 
 async function cargarStats() {
-  const resSug = await fetch(`${SUPABASE_URL}/rest/v1/sugerencias?select=count`, {
+  const resSug = await fetch(`${SUPABASE_URL}/rest/v1/sugerencias?user_id=eq.${userId}&select=count`, {
     headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${token}`, 'Prefer': 'count=exact' }
   });
   document.getElementById('statSugerencias').textContent = resSug.headers.get('content-range')?.split('/')[1] || '0';
 
-  const resRep = await fetch(`${SUPABASE_URL}/rest/v1/reportes?select=count`, {
+  const resRep = await fetch(`${SUPABASE_URL}/rest/v1/reportes?user_id=eq.${userId}&select=count`, {
     headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${token}`, 'Prefer': 'count=exact' }
   });
   document.getElementById('statReportes').textContent = resRep.headers.get('content-range')?.split('/')[1] || '0';
 }
-
 async function cargarPerfil() {
   const res = await fetch(`${SUPABASE_URL}/rest/v1/perfiles?user_id=eq.${userId}&select=*`, {
     headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' }

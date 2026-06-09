@@ -221,11 +221,12 @@
       btn.disabled = true;
       btn.textContent = 'Enviando...';
 
+      const tokenActual = localStorage.getItem('dm_token') || SUPABASE_KEY;
       const res = await fetch(`${SUPABASE_URL}/rest/v1/sugerencias`, {
         method: 'POST',
         headers: {
           'apikey': SUPABASE_KEY,
-          'Authorization': `Bearer ${SUPABASE_KEY}`,
+          'Authorization': `Bearer ${tokenActual}`,
           'Content-Type': 'application/json',
           'Prefer': 'return=minimal'
         },
@@ -234,7 +235,8 @@
           comuna,
           nota,
           estado: 'pendiente',
-          fecha: new Date().toISOString()
+          fecha: new Date().toISOString(),
+          user_id: localStorage.getItem('dm_user') ? JSON.parse(localStorage.getItem('dm_user')).id : null
         })
       });
 
