@@ -6,6 +6,124 @@
   <title>DeliveryMap™</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
   <style>
+    /* LIKES Y COMENTARIOS */
+#sheetLikes {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-top: 1px solid #222;
+}
+.like-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 20px;
+  border: 1px solid #333;
+  background: #222;
+  color: #aaa;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.like-btn.activo-like { border-color: #4a90e2; color: #4a90e2; background: #0d1f3c; }
+.like-btn.activo-dislike { border-color: #ff4444; color: #ff4444; background: #2e0f0f; }
+#sheetComentarios {
+  padding: 0 16px 16px;
+  border-top: 1px solid #222;
+}
+.comentarios-titulo {
+  font-size: 13px;
+  color: #555;
+  padding: 12px 0 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.comentario-item {
+  background: #222;
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  position: relative;
+}
+.comentario-apodo {
+  font-size: 12px;
+  color: #4a90e2;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.comentario-texto {
+  font-size: 14px;
+  color: #ccc;
+  line-height: 1.5;
+}
+.comentario-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 6px;
+}
+.comentario-fecha {
+  font-size: 11px;
+  color: #444;
+}
+.comentario-acciones {
+  display: flex;
+  gap: 8px;
+}
+.btn-comentario-accion {
+  background: none;
+  border: none;
+  font-size: 11px;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+.btn-borrar-comentario { color: #ff4444; }
+.btn-reportar-comentario { color: #555; }
+.btn-reportar-comentario:hover { color: #ff9500; }
+.comentario-input-wrap {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+#inputComentario {
+  flex: 1;
+  background: #222;
+  border: 1px solid #333;
+  border-radius: 10px;
+  color: white;
+  font-size: 14px;
+  padding: 10px 12px;
+  outline: none;
+  font-family: sans-serif;
+}
+#inputComentario:focus { border-color: #4a90e2; }
+#btnEnviarComentario {
+  background: #4a90e2;
+  border: none;
+  border-radius: 10px;
+  color: white;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 10px 14px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.sin-comentarios {
+  font-size: 13px;
+  color: #444;
+  text-align: center;
+  padding: 16px 0;
+}
+.login-para-comentar {
+  font-size: 13px;
+  color: #555;
+  text-align: center;
+  padding: 12px 0;
+}
+.login-para-comentar a { color: #4a90e2; text-decoration: none; }
     /* MARCADOR CON FOTO */
 .marker-foto {
   width: 48px;
@@ -229,7 +347,21 @@
     <a id="btnWaze" class="sheetBtn" target="_blank">Abrir en Waze</a>
     <a id="btnGmaps" class="sheetBtn" target="_blank">Abrir en Google Maps</a>
     <button id="btnReporte" class="sheetBtn" onclick="reportarError()">⚠️ Reportar error en este local</button>
-  </div>
+
+</div>
+
+<div id="sheetLikes">
+  <button class="like-btn" id="btnLike" onclick="toggleLike('like')">👍 <span id="contLikes">0</span></button>
+  <button class="like-btn" id="btnDislike" onclick="toggleLike('dislike')">👎 <span id="contDislikes">0</span></button>
+</div>
+
+<div id="sheetComentarios">
+  <div class="comentarios-titulo">💬 Comentarios</div>
+  <div id="listaComentarios"></div>
+  <div id="comentarioInput"></div>
+</div>
+
+<div style="height:20px;"></div>
 </div>
 
 <div style="position:fixed; bottom:30px; right:14px; z-index:999; display:flex; flex-direction:column; gap:8px; align-items:flex-end;">
@@ -347,6 +479,7 @@ pinActivo = L.marker([l.lat, l.lng]).addTo(mapa);
       const fotoUrl = data[0].url;
       sheetFoto.innerHTML = `<img src="${fotoUrl}" style="width:100%; height:180px; object-fit:cover; cursor:pointer;" />`;
       sheetFoto.querySelector('img').addEventListener('click', () => abrirLightbox(fotoUrl));
+      cargarLikesYComentarios(l.id);
     }
   });
 
@@ -551,7 +684,151 @@ async function cerrarSesion() {
   localStorage.removeItem('dm_user');
   await mostrarBotonUsuario();
 }
+// LIKES Y COMENTARIOS
+async function cargarLikesYComentarios(localId) {
+  const token = localStorage.getItem('dm_token');
+  const user = localStorage.getItem('dm_user');
+  const userId = user ? JSON.parse(user).id : null;
 
+  // Likes
+  const resLikes = await fetch(`${SUPABASE_URL}/rest/v1/likes?local_id=eq.${localId}`, {
+    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+  });
+  const likes = await resLikes.json();
+  const totalLikes = likes.filter(l => l.tipo === 'like').length;
+  const totalDislikes = likes.filter(l => l.tipo === 'dislike').length;
+  document.getElementById('contLikes').textContent = totalLikes;
+  document.getElementById('contDislikes').textContent = totalDislikes;
+
+  // Estado del like propio
+  const btnLike = document.getElementById('btnLike');
+  const btnDislike = document.getElementById('btnDislike');
+  btnLike.className = 'like-btn';
+  btnDislike.className = 'like-btn';
+  if (userId) {
+    const propio = likes.find(l => l.user_id === userId);
+    if (propio?.tipo === 'like') btnLike.className = 'like-btn activo-like';
+    if (propio?.tipo === 'dislike') btnDislike.className = 'like-btn activo-dislike';
+  }
+
+  // Comentarios
+  const resComent = await fetch(`${SUPABASE_URL}/rest/v1/comentarios?local_id=eq.${localId}&order=creado_en.desc`, {
+    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+  });
+  const comentarios = await resComent.json();
+  const lista = document.getElementById('listaComentarios');
+
+  if (comentarios.length === 0) {
+    lista.innerHTML = '<div class="sin-comentarios">Sin comentarios aún. ¡Sé el primero!</div>';
+  } else {
+    lista.innerHTML = comentarios.map(c => {
+      const esPropio = userId && c.user_id === userId;
+      return `
+        <div class="comentario-item" id="comentario-${c.id}">
+          <div class="comentario-apodo">${c.apodo}</div>
+          <div class="comentario-texto">${c.texto}</div>
+          <div class="comentario-footer">
+            <span class="comentario-fecha">${tiempoTranscurrido(c.creado_en)}</span>
+            <div class="comentario-acciones">
+              ${esPropio
+                ? `<button class="btn-comentario-accion btn-borrar-comentario" onclick="borrarComentario(${c.id})">🗑 Borrar</button>`
+                : `<button class="btn-comentario-accion btn-reportar-comentario" onclick="reportarComentario(${c.id}, '${c.apodo}')">⚑ Reportar</button>`
+              }
+            </div>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  // Input de comentario
+  const inputWrap = document.getElementById('comentarioInput');
+  if (token && userId) {
+    inputWrap.innerHTML = `
+      <div class="comentario-input-wrap">
+        <input id="inputComentario" type="text" placeholder="Escribe un comentario..." maxlength="200" />
+        <button id="btnEnviarComentario" onclick="enviarComentario(${localId})">Enviar</button>
+      </div>`;
+  } else {
+    inputWrap.innerHTML = `<div class="login-para-comentar"><a href="login.html">Inicia sesión</a> para comentar</div>`;
+  }
+}
+
+async function toggleLike(tipo) {
+  const token = localStorage.getItem('dm_token');
+  if (!token) { window.location.href = 'login.html'; return; }
+  const user = JSON.parse(localStorage.getItem('dm_user'));
+  const localId = localActivo.id;
+
+  const resCheck = await fetch(`${SUPABASE_URL}/rest/v1/likes?local_id=eq.${localId}&user_id=eq.${user.id}`, {
+    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${token}` }
+  });
+  const existing = await resCheck.json();
+
+  if (existing.length > 0) {
+    // Borrar like existente
+    await fetch(`${SUPABASE_URL}/rest/v1/likes?local_id=eq.${localId}&user_id=eq.${user.id}`, {
+      method: 'DELETE',
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${token}` }
+    });
+    // Si era distinto tipo, insertar el nuevo
+    if (existing[0].tipo !== tipo) {
+      await fetch(`${SUPABASE_URL}/rest/v1/likes`, {
+        method: 'POST',
+        headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+        body: JSON.stringify({ local_id: localId, user_id: user.id, tipo })
+      });
+    }
+  } else {
+    await fetch(`${SUPABASE_URL}/rest/v1/likes`, {
+      method: 'POST',
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+      body: JSON.stringify({ local_id: localId, user_id: user.id, tipo })
+    });
+  }
+  cargarLikesYComentarios(localId);
+}
+
+async function enviarComentario(localId) {
+  const token = localStorage.getItem('dm_token');
+  const user = JSON.parse(localStorage.getItem('dm_user'));
+  const apodo = user.user_metadata?.apodo || user.email?.split('@')[0] || 'Rider';
+  const texto = document.getElementById('inputComentario').value.trim();
+  if (!texto) return;
+
+  await fetch(`${SUPABASE_URL}/rest/v1/comentarios`, {
+    method: 'POST',
+    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+    body: JSON.stringify({ local_id: localId, user_id: user.id, apodo, texto })
+  });
+  cargarLikesYComentarios(localId);
+}
+
+async function borrarComentario(comentarioId) {
+  const token = localStorage.getItem('dm_token');
+  await fetch(`${SUPABASE_URL}/rest/v1/comentarios?id=eq.${comentarioId}`, {
+    method: 'DELETE',
+    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${token}` }
+  });
+  cargarLikesYComentarios(localActivo.id);
+}
+
+async function reportarComentario(comentarioId, apodoAutor) {
+  const token = localStorage.getItem('dm_token');
+  const user = localStorage.getItem('dm_user');
+  if (!token || !user) { window.location.href = 'login.html'; return; }
+
+  await fetch(`${SUPABASE_URL}/rest/v1/reportes`, {
+    method: 'POST',
+    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+    body: JSON.stringify({
+      local_nombre: `Comentario de ${apodoAutor}`,
+      local_comuna: '',
+      mensaje: `Comentario ID ${comentarioId} reportado como inapropiado`,
+      fecha: new Date().toISOString()
+    })
+  });
+  alert('✅ Comentario reportado. Lo revisaremos pronto.');
+}
 verificarSesion();
 </script>
 <div id="lightbox" onclick="cerrarLightbox()">
