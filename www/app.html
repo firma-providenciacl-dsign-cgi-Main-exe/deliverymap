@@ -758,36 +758,52 @@ async function cargarLikesYComentarios(localId) {
 
 async function toggleLike(tipo) {
   const token = localStorage.getItem('dm_token');
-  if (!token) { window.location.href = 'login.html'; return; }
-  const user = JSON.parse(localStorage.getItem('dm_user'));
+  const userStr = localStorage.getItem('dm_user');
+  
+  if (!token || !userStr) { 
+    window.location.href = 'login.html'; 
+    return; 
+  }
+  
+  const user = JSON.parse(userStr);
   const localId = localActivo.id;
 
-  const resCheck = await fetch(`${SUPABASE_URL}/rest/v1/likes?local_id=eq.${localId}&user_id=eq.${user.id}`, {
-    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${token}` }
-  });
+  const resCheck = await fetch(
+    `${SUPABASE_URL}/rest/v1/likes?local_id=eq.${localId}&user_id=eq.${user.id}&select=*`,
+    { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' }}
+  );
+  
+  if (!resCheck.ok) {
+    alert('Error al leer likes: ' + resCheck.status);
+    return;
+  }
+  
   const existing = await resCheck.json();
 
   if (existing.length > 0) {
-    // Borrar like existente
-    await fetch(`${SUPABASE_URL}/rest/v1/likes?local_id=eq.${localId}&user_id=eq.${user.id}`, {
-      method: 'DELETE',
-      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${token}` }
-    });
-    // Si era distinto tipo, insertar el nuevo
+    const resDel = await fetch(
+      `${SUPABASE_URL}/rest/v1/likes?local_id=eq.${localId}&user_id=eq.${user.id}`,
+      { method: 'DELETE', headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${token}` }}
+    );
+    if (!resDel.ok) { alert('Error al borrar like: ' + resDel.status); return; }
+    
     if (existing[0].tipo !== tipo) {
-      await fetch(`${SUPABASE_URL}/rest/v1/likes`, {
+      const resIns = await fetch(`${SUPABASE_URL}/rest/v1/likes`, {
         method: 'POST',
         headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
         body: JSON.stringify({ local_id: localId, user_id: user.id, tipo })
       });
+      if (!resIns.ok) { alert('Error al insertar like: ' + resIns.status); return; }
     }
   } else {
-    await fetch(`${SUPABASE_URL}/rest/v1/likes`, {
+    const resIns = await fetch(`${SUPABASE_URL}/rest/v1/likes`, {
       method: 'POST',
       headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
       body: JSON.stringify({ local_id: localId, user_id: user.id, tipo })
     });
+    if (!resIns.ok) { alert('Error al insertar like: ' + resIns.status); return; }
   }
+  
   cargarLikesYComentarios(localId);
 }
 
