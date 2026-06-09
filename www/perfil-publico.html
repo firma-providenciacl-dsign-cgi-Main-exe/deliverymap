@@ -6,39 +6,104 @@
   <title>Perfil — DeliveryMap</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { background: #0a0a0a; color: #ccc; font-family: sans-serif; min-height: 100vh; padding: 24px 20px 60px; max-width: 480px; margin: 0 auto; }
-    .logo { font-size: 22px; font-weight: 900; letter-spacing: 3px; color: white; text-shadow: 0 0 10px #4a90e2; margin-bottom: 4px; }
+    body {
+      background: #1b2838;
+      color: #c6d4df;
+      font-family: sans-serif;
+      min-height: 100vh;
+      max-width: 480px;
+      margin: 0 auto;
+      padding-bottom: 40px;
+    }
+    .steam-topbar {
+      background: #171a21;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #4a90e233;
+    }
+    .logo { font-size: 18px; font-weight: 900; letter-spacing: 3px; color: white; text-shadow: 0 0 8px #4a90e2; }
     .logo span { color: #4a90e2; }
-    .subtitulo { font-size: 11px; color: #555; letter-spacing: 2px; margin-bottom: 32px; }
-    .avatar-container { display: flex; flex-direction: column; align-items: center; margin-bottom: 20px; }
-    .avatar { width: 90px; height: 90px; border-radius: 50%; background: #1a1a1a; border: 2px solid #333; display: flex; align-items: center; justify-content: center; font-size: 36px; overflow: hidden; }
+    .steam-header {
+      background: #316282;
+      padding: 20px 16px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      border-bottom: 2px solid #4a90e2;
+    }
+    .avatar {
+      width: 72px; height: 72px;
+      border-radius: 6px;
+      background: #1b2838;
+      border: 2px solid #4a90e2;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 30px;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
     .avatar img { width: 100%; height: 100%; object-fit: cover; }
-    .apodo { font-size: 22px; font-weight: 700; color: white; margin-top: 12px; }
-    .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; letter-spacing: 1px; margin-top: 6px; text-transform: uppercase; }
-    .badge-founder { background: linear-gradient(90deg, #4a90e2, #00f0ff); color: #0a0a0a; }
-    .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 28px; }
-    .stat { background: #1a1a1a; border: 0.5px solid #333; border-radius: 12px; padding: 14px; text-align: center; }
-    .stat-numero { font-size: 28px; font-weight: 700; color: #4a90e2; }
-    .stat-label { font-size: 11px; color: #555; margin-top: 4px; }
-    .rider-desde { font-size: 12px; color: #444; text-align: center; margin-bottom: 24px; }
-    .volver { display: block; text-align: center; margin-top: 20px; color: #444; text-decoration: none; font-size: 13px; }
-    #cargando { text-align: center; color: #444; font-size: 14px; padding: 40px 0; }
+    .steam-header-info { flex: 1; }
+    .steam-nombre { font-size: 18px; font-weight: 700; color: white; margin-bottom: 4px; }
+    .steam-since { font-size: 11px; color: #8f98a0; margin-bottom: 4px; }
+    .badge-founder {
+      display: inline-block;
+      background: #4a90e2;
+      color: #c6d4df;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 2px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+    .steam-body { padding: 0 16px; }
+    .steam-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      padding: 14px 0;
+      border-bottom: 1px solid #4a90e233;
+    }
+    .stat {
+      background: #16202d;
+      border-radius: 4px;
+      padding: 12px;
+      border: 1px solid #4a90e233;
+    }
+    .stat-numero { font-size: 26px; font-weight: 700; color: #4a90e2; }
+    .stat-label { font-size: 10px; color: #8f98a0; margin-top: 2px; text-transform: uppercase; letter-spacing: 1px; }
+    .steam-footer {
+      padding: 16px;
+      text-align: center;
+    }
+    .volver { color: #4a5566; text-decoration: none; font-size: 12px; display: block; margin-top: 12px; }
+    .terminos { color: #4a5566; text-decoration: none; font-size: 11px; }
+    #cargando { text-align: center; color: #4a5566; font-size: 14px; padding: 60px 0; }
   </style>
 </head>
 <body>
+
+<div class="steam-topbar">
   <div class="logo">DELIVERY<span>MAP</span></div>
-  <div class="subtitulo">// CHILE DELIVERY NETWORK //</div>
+  <div style="font-size:11px; color:#8f98a0; letter-spacing:2px;">// PERFIL //</div>
+</div>
 
-  <div id="cargando">Cargando perfil...</div>
+<div id="cargando">Cargando perfil...</div>
 
-  <div id="contenido" style="display:none;">
-    <div class="avatar-container">
-      <div class="avatar" id="avatarDiv"><span>🛵</span></div>
-      <div class="apodo" id="apodoDiv"></div>
+<div id="contenido" style="display:none;">
+  <div class="steam-header">
+    <div class="avatar" id="avatarDiv"><span>🛵</span></div>
+    <div class="steam-header-info">
+      <div class="steam-nombre" id="apodoDiv">Rider</div>
+      <div class="steam-since" id="riderDesde"></div>
       <div id="badgeDiv"></div>
     </div>
+  </div>
 
-    <div class="stats">
+  <div class="steam-body">
+    <div class="steam-stats">
       <div class="stat">
         <div class="stat-numero" id="statSugerencias">0</div>
         <div class="stat-label">Locales sugeridos</div>
@@ -48,12 +113,13 @@
         <div class="stat-label">Errores reportados</div>
       </div>
     </div>
-
-    <div class="rider-desde" id="riderDesde"></div>
   </div>
+</div>
 
-  <a class="volver" href="app.html">← Volver al mapa</a>
-  <a href="terminos.html" style="display:block; text-align:center; margin-top:12px; color:#333; text-decoration:none; font-size:12px;">Términos de uso</a>
+<div class="steam-footer">
+  <a href="app.html" class="volver">← Volver al mapa</a>
+  <a href="terminos.html" class="terminos" style="display:block; margin-top:8px;">Términos de uso</a>
+</div>
 
 <script>
 const SUPABASE_URL = 'https://zxwwffnjrrkmtsxzvswa.supabase.co';
@@ -74,57 +140,48 @@ async function init() {
   if (perfil?.foto_url) {
     document.getElementById('avatarDiv').innerHTML = `<img src="${perfil.foto_url}" alt="foto"/>`;
   }
+
   if (perfil?.apodo) {
     document.getElementById('apodoDiv').textContent = perfil.apodo;
   } else {
-    const resApodo = await fetch(
-      `${SUPABASE_URL}/rest/v1/rpc/get_apodo_publico`,
-      { method: 'POST',
-        headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ uid: userId })
-      }
-    );
+    const resApodo = await fetch(`${SUPABASE_URL}/rest/v1/rpc/get_apodo_publico`, {
+      method: 'POST',
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ uid: userId })
+    });
     const apodo = await resApodo.json();
     document.getElementById('apodoDiv').textContent = apodo || 'Rider';
   }
+
   if (perfil?.badge) {
-    const badgeLabels = { 'founder': '⚡ Fundador' };
-    const badgeClasses = { 'founder': 'badge-founder' };
-    document.getElementById('badgeDiv').innerHTML = `<div class="badge ${badgeClasses[perfil.badge] || ''}">${badgeLabels[perfil.badge] || perfil.badge}</div>`;
+    const badgeLabels = { 'founder': '⚡ FUNDADOR' };
+    document.getElementById('badgeDiv').innerHTML = `<span class="badge-founder">${badgeLabels[perfil.badge] || perfil.badge}</span>`;
   }
 
-  // Stats
-  const resSug = await fetch(`${SUPABASE_URL}/rest/v1/sugerencias?select=count`, {
+  // Stats filtradas por user_id
+  const resSug = await fetch(`${SUPABASE_URL}/rest/v1/sugerencias?user_id=eq.${userId}&select=count`, {
     headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Prefer': 'count=exact' }
   });
   document.getElementById('statSugerencias').textContent = resSug.headers.get('content-range')?.split('/')[1] || '0';
 
-  const resRep = await fetch(`${SUPABASE_URL}/rest/v1/reportes?select=count`, {
+  const resRep = await fetch(`${SUPABASE_URL}/rest/v1/reportes?user_id=eq.${userId}&select=count`, {
     headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Prefer': 'count=exact' }
   });
   document.getElementById('statReportes').textContent = resRep.headers.get('content-range')?.split('/')[1] || '0';
-// Fecha de registro desde auth via función
-  const resDesde = await fetch(
-    `${SUPABASE_URL}/rest/v1/rpc/get_apodo_publico`,
-    { method: 'POST',
-      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ uid: userId })
-    }
-  );
+
   // Fecha de registro
-  const resFecha = await fetch(
-    `${SUPABASE_URL}/rest/v1/rpc/get_fecha_registro`,
-    { method: 'POST',
-      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ uid: userId })
-    }
-  );
+  const resFecha = await fetch(`${SUPABASE_URL}/rest/v1/rpc/get_fecha_registro`, {
+    method: 'POST',
+    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ uid: userId })
+  });
   const fechaReg = await resFecha.json();
   if (fechaReg) {
     const fecha = new Date(fechaReg);
     const opciones = { year: 'numeric', month: 'long', day: 'numeric' };
-    document.getElementById('riderDesde').textContent = `🛵 Rider desde ${fecha.toLocaleDateString('es-CL', opciones)}`;
+    document.getElementById('riderDesde').textContent = `Rider desde ${fecha.toLocaleDateString('es-CL', opciones)}`;
   }
+
   document.getElementById('cargando').style.display = 'none';
   document.getElementById('contenido').style.display = 'block';
 }
