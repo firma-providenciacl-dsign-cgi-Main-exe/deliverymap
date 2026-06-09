@@ -291,9 +291,17 @@ async function buscar(q) {
   if (!resultado || resultado.length === 0) {
     dropdown.innerHTML = '<div class="no-resultado">No se encontró ese local 😕</div>';
   } else {
-    dropdown.innerHTML = resultado.map((l) => `
+dropdown.innerHTML = resultado.map((l) => `
       <div class="result-item" onclick="seleccionar(${JSON.stringify(l).replace(/"/g, '&quot;')})">
-        <div class="result-emoji">${l.emoji || '📍'}</div>
+        <div class="result-emoji" style="overflow:hidden; padding:0; background:#1a1a1a;">
+          <img src="" 
+            data-id="${l.id}"
+            style="width:40px; height:40px; object-fit:cover; border-radius:10px; display:none;"
+            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+            onload="this.style.display='block'; this.nextElementSibling.style.display='none';"
+          />
+          <span style="display:flex; align-items:center; justify-content:center; width:40px; height:40px;">📍</span>
+        </div>
         <div>
           <div class="result-nombre">${l.nombre}</div>
           <div class="result-mall">${l.comuna}</div>
@@ -301,6 +309,20 @@ async function buscar(q) {
         </div>
       </div>
     `).join('');
+
+// Cargar fotos de los resultados
+resultado.forEach(l => {
+  fetch(`${SUPABASE_URL}/rest/v1/local_fotos?local_id=eq.${l.id}&select=url&limit=1`, {
+    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data && data.length > 0) {
+      const img = dropdown.querySelector(`img[data-id="${l.id}"]`);
+      if (img) img.src = data[0].url;
+    }
+  });
+});
   }
   dropdown.style.display = 'block';
 }
