@@ -479,6 +479,7 @@ pinActivo = L.marker([l.lat, l.lng]).addTo(mapa);
       const fotoUrl = data[0].url;
       sheetFoto.innerHTML = `<img src="${fotoUrl}" style="width:100%; height:180px; object-fit:cover; cursor:pointer;" />`;
       sheetFoto.querySelector('img').addEventListener('click', () => abrirLightbox(fotoUrl));
+      localStorage.setItem('dm_ultimo_local', JSON.stringify(l));
       cargarLikesYComentarios(l.id);
     }
   });
@@ -830,6 +831,14 @@ async function reportarComentario(comentarioId, apodoAutor) {
   alert('✅ Comentario reportado. Lo revisaremos pronto.');
 }
 verificarSesion();
+// Reabrir último local si existe
+const ultimoLocal = localStorage.getItem('dm_ultimo_local');
+if (ultimoLocal) {
+  try {
+    const l = JSON.parse(ultimoLocal);
+    setTimeout(() => seleccionar(l), 2500);
+  } catch(e) {}
+}
 </script>
 <div id="lightbox" onclick="cerrarLightbox()">
   <button id="lightboxCerrar" onclick="cerrarLightbox()">✕</button>
