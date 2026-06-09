@@ -5,6 +5,72 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Mi perfil — DeliveryMap</title>
   <style>
+    /* BADGE */
+.badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  margin-top: 6px;
+  text-transform: uppercase;
+}
+.badge-founder {
+  background: linear-gradient(90deg, #4a90e2, #00f0ff);
+  color: #0a0a0a;
+}
+/* CAMPANITA */
+.notif-wrap {
+  position: relative;
+  display: inline-block;
+}
+.notif-badge {
+  position: absolute;
+  top: -6px; right: -6px;
+  background: #ff4444;
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  display: none;
+}
+.btn-notif {
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 10px;
+  color: #aaa;
+  font-size: 20px;
+  padding: 10px 14px;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  margin-bottom: 12px;
+}
+.notif-item {
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-bottom: 8px;
+  font-size: 13px;
+  color: #ccc;
+  line-height: 1.5;
+}
+.notif-item.no-leida { border-color: #4a90e2; }
+.notif-fecha {
+  font-size: 11px;
+  color: #444;
+  margin-top: 4px;
+}
+.notif-vacia {
+  font-size: 13px;
+  color: #444;
+  text-align: center;
+  padding: 20px 0;
+}
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       background: #0a0a0a;
@@ -221,7 +287,17 @@
     </div>
 
     <button class="btn-primary" id="btnGuardar" onclick="guardarPerfil()">Guardar cambios</button>
-    <button class="btn-danger" onclick="cerrarSesion()">Cerrar sesión</button>
+    <div class="notif-wrap" style="width:100%;">
+  <button class="btn-notif" onclick="toggleNotificaciones()">
+    🔔 Notificaciones <span id="notifBadge" class="notif-badge">0</span>
+  </button>
+</div>
+
+<div id="seccionNotificaciones" style="display:none; margin-bottom:16px;">
+  <div id="listaNotificaciones"></div>
+</div>
+
+<button class="btn-danger" onclick="cerrarSesion()">Cerrar sesión</button>
 
   </div>
 
@@ -235,7 +311,55 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 let token = null;
 let userId = null;
 let fotoNueva = null;
+async function cargarNotificaciones() {
+  const res = await fetch(
+    `${SUPABASE_URL}/rest/v1/notificaciones?user_id=eq.${userId}&order=creado_en.desc&select=*`,
+    { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' }}
+  );
+  const notifs = await res.json();
+  if (!Array.isArray(notifs)) return;
 
+  const noLeidas = notifs.filter(n => !n.leida).length;
+  const badge = document.getElementById('notifBadge');
+  if (noLeidas > 0) {
+    badge.textContent = noLeidas;
+    badge.style.display = 'flex';
+  } else {
+    badge.style.display = 'none';
+  }
+
+  const lista = document.getElementById('listaNotificaciones');
+  if (notifs.length === 0) {
+    lista.innerHTML = '<div class="notif-vacia">Sin notificaciones aún</div>';
+  } else {
+    lista.innerHTML = notifs.map(n => `
+      <div class="notif-item ${n.leida ? '' : 'no-leida'}">
+        ${n.mensaje}
+        <div class="notif-fecha">${tiempoTranscurrido(n.creado_en)}</div>
+      </div>`).join('');
+  }
+
+  // Marcar todas como leídas
+  if (noLeidas > 0) {
+    await fetch(
+      `${SUPABASE_URL}/rest/v1/notificaciones?user_id=eq.${userId}&leida=eq.false`,
+      { method: 'PATCH',
+        headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+        body: JSON.stringify({ leida: true })
+      }
+    );
+  }
+}
+
+function toggleNotificaciones() {
+  const sec = document.getElementById('seccionNotificaciones');
+  if (sec.style.display === 'none') {
+    sec.style.display = 'block';
+    cargarNotificaciones();
+  } else {
+    sec.style.display = 'none';
+  }
+}
 async function init() {
   // Refrescar token si es necesario
 const userStr2 = localStorage.getItem('dm_user');
@@ -307,13 +431,27 @@ async function cargarStats(email) {
 }
 
 async function cargarPerfil() {
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/perfiles?user_id=eq.${userId}`, {
-    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${token}` }
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/perfiles?user_id=eq.${userId}&select=*`, {
+    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' }
   });
   const data = await res.json();
-  if (data && data.length > 0 && data[0].foto_url) {
-    const avatarDiv = document.getElementById('avatarDiv');
-    avatarDiv.innerHTML = `<img src="${data[0].foto_url}" alt="foto"/>`;
+  if (data && data.length > 0) {
+    if (data[0].foto_url) {
+      const avatarDiv = document.getElementById('avatarDiv');
+      avatarDiv.innerHTML = `<img src="${data[0].foto_url}" alt="foto"/>`;
+    }
+    if (data[0].badge) {
+      const badgeLabels = {
+        'founder': '⚡ Fundador'
+      };
+      const badgeClasses = {
+        'founder': 'badge-founder'
+      };
+      const badgeDiv = document.createElement('div');
+      badgeDiv.className = `badge ${badgeClasses[data[0].badge] || ''}`;
+      badgeDiv.textContent = badgeLabels[data[0].badge] || data[0].badge;
+      document.querySelector('.avatar-container').appendChild(badgeDiv);
+    }
   }
 }
 
