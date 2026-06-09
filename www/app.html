@@ -136,6 +136,34 @@
     #btnWaze  { background: #33ccff; color: white; }
     #btnGmaps { background: #4a90e2; color: white; }
     #btnReporte { background: #1a1a1a; color: #ff9500; border: 1px solid #ff9500; }
+    /* LIGHTBOX */
+#lightbox {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.92);
+  z-index: 9998;
+  align-items: center;
+  justify-content: center;
+}
+#lightbox.visible {
+  display: flex;
+}
+#lightbox img {
+  max-width: 95vw;
+  max-height: 90vh;
+  object-fit: contain;
+  border-radius: 8px;
+  box-shadow: 0 0 40px rgba(74,144,226,0.3);
+}
+#lightboxCerrar {
+  position: absolute;
+  top: 16px; right: 16px;
+  background: #333; border: none; color: white;
+  width: 36px; height: 36px; border-radius: 50%;
+  font-size: 18px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
   </style>
   <script defer src="https://cloud.umami.is/script.js" data-website-id="0c032f6f-45ed-461a-a58b-f49d1e159bff"></script>
 </head>
@@ -269,7 +297,7 @@ fetch(`${SUPABASE_URL}/rest/v1/local_fotos?local_id=eq.${l.id}&select=url&limit=
 .then(r => r.json())
 .then(data => {
   if (data && data.length > 0) {
-    sheetFoto.innerHTML = `<img src="${data[0].url}" style="width:100%; height:180px; object-fit:cover;" />`;
+    sheetFoto.innerHTML = `<img src="${data[0].url}" style="width:100%; height:180px; object-fit:cover; cursor:pointer;" onclick="abrirLightbox('${data[0].url}')" />`;
   }
 });
 
@@ -401,6 +429,13 @@ function tiempoTranscurrido(fecha) {
   return `hace ${Math.floor(diff / 2592000)} meses`;
 }
 // SESIÓN
+function abrirLightbox(url) {
+  document.getElementById('lightboxImg').src = url;
+  document.getElementById('lightbox').classList.add('visible');
+}
+function cerrarLightbox() {
+  document.getElementById('lightbox').classList.remove('visible');
+}
 function verificarSesion() {
   const hash = window.location.hash;
   if (hash && hash.includes('access_token')) {
@@ -470,5 +505,9 @@ async function cerrarSesion() {
 
 verificarSesion();
 </script>
+<div id="lightbox" onclick="cerrarLightbox()">
+  <button id="lightboxCerrar" onclick="cerrarLightbox()">✕</button>
+  <img id="lightboxImg" src="" />
+</div>
 </body>
 </html>
