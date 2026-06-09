@@ -5,261 +5,255 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Mi perfil — DeliveryMap</title>
   <style>
-    /* BADGE */
-.badge {
-  display: inline-block;
-  padding: 3px 10px;
-  border-radius: 20px;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 1px;
-  margin-top: 6px;
-  text-transform: uppercase;
-}
-.badge-founder {
-  background: linear-gradient(90deg, #4a90e2, #00f0ff);
-  color: #0a0a0a;
-}
-/* CAMPANITA */
-.notif-wrap {
-  position: relative;
-  display: inline-block;
-}
-.notif-badge {
-  position: absolute;
-  top: -6px; right: -6px;
-  background: #ff4444;
-  color: white;
-  font-size: 10px;
-  font-weight: 700;
-  width: 18px; height: 18px;
-  border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  display: none;
-}
-.btn-notif {
-  background: #1a1a1a;
-  border: 1px solid #333;
-  border-radius: 10px;
-  color: #aaa;
-  font-size: 20px;
-  padding: 10px 14px;
-  cursor: pointer;
-  width: 100%;
-  text-align: left;
-  margin-bottom: 12px;
-}
-.notif-item {
-  background: #1a1a1a;
-  border: 1px solid #333;
-  border-radius: 10px;
-  padding: 12px 14px;
-  margin-bottom: 8px;
-  font-size: 13px;
-  color: #ccc;
-  line-height: 1.5;
-}
-.notif-item.no-leida { border-color: #4a90e2; }
-.notif-fecha {
-  font-size: 11px;
-  color: #444;
-  margin-top: 4px;
-}
-.notif-vacia {
-  font-size: 13px;
-  color: #444;
-  text-align: center;
-  padding: 20px 0;
-}
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      background: #0a0a0a;
-      color: #ccc;
+      background: #1b2838;
+      color: #c6d4df;
       font-family: sans-serif;
       min-height: 100vh;
-      padding: 24px 20px 60px;
       max-width: 480px;
       margin: 0 auto;
+      padding-bottom: 40px;
     }
-    .logo {
-      font-size: 22px;
-      font-weight: 900;
-      letter-spacing: 3px;
-      color: white;
-      text-shadow: 0 0 10px #4a90e2;
-      margin-bottom: 4px;
-    }
-    .logo span { color: #4a90e2; }
-    .subtitulo {
-      font-size: 11px;
-      color: #555;
-      letter-spacing: 2px;
-      margin-bottom: 32px;
-    }
-    .avatar-container {
+
+    /* HEADER STEAM */
+    .steam-topbar {
+      background: #171a21;
+      padding: 14px 16px;
       display: flex;
-      flex-direction: column;
       align-items: center;
-      margin-bottom: 28px;
+      justify-content: space-between;
+      border-bottom: 1px solid #4a90e233;
+    }
+    .logo { font-size: 18px; font-weight: 900; letter-spacing: 3px; color: white; text-shadow: 0 0 8px #4a90e2; }
+    .logo span { color: #4a90e2; }
+
+    /* HEADER PERFIL */
+    .steam-header {
+      background: #316282;
+      padding: 20px 16px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      border-bottom: 2px solid #4a90e2;
     }
     .avatar {
-      width: 90px;
-      height: 90px;
-      border-radius: 50%;
-      background: #1a1a1a;
-      border: 2px solid #333;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 36px;
-      margin-bottom: 12px;
-      overflow: hidden;
+      width: 72px; height: 72px;
+      border-radius: 6px;
+      background: #1b2838;
+      border: 2px solid #4a90e2;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 30px;
       cursor: pointer;
+      overflow: hidden;
+      flex-shrink: 0;
       position: relative;
     }
-    .avatar img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
+    .avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .avatar-edit-hint {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      background: rgba(0,0,0,0.6);
+      font-size: 9px; color: #c6d4df;
+      text-align: center; padding: 3px 0;
+      letter-spacing: 1px;
     }
-    .avatar-hint {
-      font-size: 12px;
-      color: #555;
-    }
-    .stats {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-bottom: 28px;
-    }
-    .stat {
-      background: #1a1a1a;
-      border: 0.5px solid #333;
-      border-radius: 12px;
-      padding: 14px;
-      text-align: center;
-    }
-    .stat-numero {
-      font-size: 28px;
+    .steam-header-info { flex: 1; }
+    .steam-nombre { font-size: 18px; font-weight: 700; color: white; margin-bottom: 4px; }
+    .steam-since { font-size: 11px; color: #8f98a0; }
+    .badge-founder {
+      display: inline-block;
+      background: #4a90e2;
+      color: #c6d4df;
+      font-size: 10px;
       font-weight: 700;
-      color: #4a90e2;
-    }
-    .stat-label {
-      font-size: 11px;
-      color: #555;
+      padding: 2px 8px;
+      border-radius: 2px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
       margin-top: 4px;
     }
-    .seccion {
-      margin-bottom: 24px;
+
+    /* BODY */
+    .steam-body { padding: 0 16px; }
+
+    /* STATS */
+    .steam-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      padding: 14px 0;
+      border-bottom: 1px solid #4a90e233;
+    }
+    .stat {
+      background: #16202d;
+      border-radius: 4px;
+      padding: 12px;
+      border: 1px solid #4a90e233;
+    }
+    .stat-numero { font-size: 26px; font-weight: 700; color: #4a90e2; }
+    .stat-label { font-size: 10px; color: #8f98a0; margin-top: 2px; text-transform: uppercase; letter-spacing: 1px; }
+
+    /* SECCIONES */
+    .steam-section {
+      padding: 14px 0;
+      border-bottom: 1px solid #4a90e233;
+    }
+    .steam-section-title {
+      font-size: 10px;
+      font-weight: 700;
+      color: #8f98a0;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 10px;
     }
     label {
       display: block;
-      font-size: 12px;
-      color: #4a90e2;
-      font-weight: 700;
+      font-size: 10px;
+      color: #8f98a0;
       letter-spacing: 1px;
       text-transform: uppercase;
       margin-bottom: 6px;
     }
     input {
       width: 100%;
-      background: #1a1a1a;
-      border: 1px solid #333;
-      border-radius: 10px;
-      color: white;
-      font-size: 15px;
-      padding: 12px 14px;
+      background: #16202d;
+      border: 1px solid #4a90e233;
+      border-radius: 4px;
+      color: #c6d4df;
+      font-size: 14px;
+      padding: 10px 12px;
       outline: none;
-      margin-bottom: 4px;
+      margin-bottom: 8px;
       transition: border 0.2s;
     }
     input:focus { border-color: #4a90e2; }
-    input:disabled {
-      color: #555;
-      cursor: not-allowed;
-    }
-    .hint {
-      font-size: 12px;
-      color: #444;
-      margin-bottom: 16px;
-    }
-    .btn-primary {
-      width: 100%;
-      padding: 14px;
-      background: #4a90e2;
-      color: white;
-      border: none;
-      border-radius: 10px;
-      font-size: 16px;
-      font-weight: 700;
-      cursor: pointer;
-      margin-bottom: 12px;
-      transition: opacity 0.2s;
-    }
-    .btn-primary:active { opacity: 0.8; }
-    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
-    .btn-danger {
-      width: 100%;
-      padding: 13px;
-      background: transparent;
-      color: #f44336;
-      border: 1px solid #f44336;
-      border-radius: 10px;
-      font-size: 15px;
-      font-weight: 600;
-      cursor: pointer;
-      margin-bottom: 12px;
-    }
+    input:disabled { color: #4a5566; cursor: not-allowed; }
+    .hint { font-size: 11px; color: #4a5566; margin-bottom: 10px; }
+
+    /* MENSAJES */
     .mensaje {
-      padding: 12px;
-      border-radius: 10px;
-      font-size: 14px;
-      text-align: center;
-      margin-bottom: 16px;
+      padding: 10px 12px;
+      border-radius: 4px;
+      font-size: 13px;
+      margin-bottom: 12px;
       display: none;
     }
     .mensaje.error { background: #2e0f0f; color: #f44336; border: 1px solid #5c2a2a; }
     .mensaje.exito { background: #0f2e1a; color: #4caf50; border: 1px solid #2a5c35; }
-    .rider-desde {
-      font-size: 12px;
-      color: #444;
-      text-align: center;
-      margin-bottom: 24px;
-    }
-    .volver {
-      display: block;
-      text-align: center;
-      margin-top: 20px;
-      color: #444;
-      text-decoration: none;
+
+    /* BOTONES */
+    .btn-primary {
+      width: 100%;
+      padding: 11px;
+      background: #4a90e2;
+      color: white;
+      border: none;
+      border-radius: 3px;
       font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-bottom: 8px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      transition: opacity 0.2s;
     }
-    #cargando {
+    .btn-primary:active { opacity: 0.8; }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-secondary {
+      width: 100%;
+      padding: 10px;
+      background: #16202d;
+      color: #c6d4df;
+      border: 1px solid #4a90e233;
+      border-radius: 3px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-bottom: 8px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      text-align: left;
+      transition: border 0.2s;
+    }
+    .btn-secondary:hover { border-color: #4a90e2; }
+    .btn-danger {
+      width: 100%;
+      padding: 10px;
+      background: transparent;
+      color: #f44336;
+      border: 1px solid #f4433644;
+      border-radius: 3px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    /* NOTIFICACIONES */
+    .notif-item {
+      background: #16202d;
+      border: 1px solid #4a90e233;
+      border-radius: 4px;
+      padding: 10px 12px;
+      margin-bottom: 6px;
+      font-size: 13px;
+      color: #c6d4df;
+      line-height: 1.5;
+    }
+    .notif-item.no-leida { border-color: #4a90e2; }
+    .notif-fecha { font-size: 10px; color: #4a5566; margin-top: 4px; }
+    .notif-vacia { font-size: 12px; color: #4a5566; text-align: center; padding: 16px 0; }
+    .notif-badge-num {
+      display: inline-block;
+      background: #ff4444;
+      color: white;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 1px 6px;
+      border-radius: 10px;
+      margin-left: 6px;
+      display: none;
+    }
+
+    /* FOOTER */
+    .steam-footer {
+      padding: 16px;
       text-align: center;
-      color: #444;
-      font-size: 14px;
-      padding: 40px 0;
     }
+    .volver { color: #4a5566; text-decoration: none; font-size: 12px; display: block; margin-top: 12px; }
+    .terminos { color: #4a5566; text-decoration: none; font-size: 11px; }
+
+    #cargando { text-align: center; color: #4a5566; font-size: 14px; padding: 60px 0; }
   </style>
 </head>
 <body>
 
+<div class="steam-topbar">
   <div class="logo">DELIVERY<span>MAP</span></div>
-  <div class="subtitulo">// CHILE DELIVERY NETWORK //</div>
+  <div style="font-size:11px; color:#8f98a0; letter-spacing:2px;">// PERFIL //</div>
+</div>
 
-  <div id="cargando">Cargando perfil...</div>
+<div id="cargando">Cargando perfil...</div>
 
-  <div id="contenido" style="display:none;">
+<div id="contenido" style="display:none;">
 
-    <div class="avatar-container">
-      <div class="avatar" id="avatarDiv" onclick="document.getElementById('inputFoto').click()">
-        <span id="avatarEmoji">🛵</span>
-      </div>
-      <div class="avatar-hint">Toca para cambiar foto</div>
-      <input type="file" id="inputFoto" accept="image/*" style="display:none;" onchange="previsualizarFoto(event)"/>
+  <div class="steam-header">
+    <div class="avatar" id="avatarDiv" onclick="document.getElementById('inputFoto').click()">
+      <span id="avatarEmoji">🛵</span>
+      <div class="avatar-edit-hint">CAMBIAR</div>
     </div>
+    <div class="steam-header-info">
+      <div class="steam-nombre" id="nombreDisplay">Rider</div>
+      <div class="steam-since" id="riderDesde"></div>
+      <div id="badgeDiv"></div>
+    </div>
+  </div>
+  <input type="file" id="inputFoto" accept="image/*" style="display:none;" onchange="previsualizarFoto(event)"/>
 
-    <div class="stats">
+  <div class="steam-body">
+
+    <div class="steam-stats">
       <div class="stat">
         <div class="stat-numero" id="statSugerencias">0</div>
         <div class="stat-label">Locales sugeridos</div>
@@ -270,39 +264,41 @@
       </div>
     </div>
 
-    <div class="rider-desde" id="riderDesde"></div>
-
-    <div id="mensaje" class="mensaje"></div>
-
-    <div class="seccion">
+    <div class="steam-section">
+      <div class="steam-section-title">Editar perfil</div>
+      <div id="mensaje" class="mensaje"></div>
       <label for="inputApodo">Apodo</label>
       <input type="text" id="inputApodo" placeholder="Tu apodo de rider" maxlength="30"/>
       <p class="hint">Así te verán otros riders.</p>
-    </div>
-
-    <div class="seccion">
       <label>Email</label>
       <input type="email" id="inputEmail" disabled/>
       <p class="hint">El email no se puede cambiar.</p>
+      <button class="btn-primary" id="btnGuardar" onclick="guardarPerfil()">Guardar cambios</button>
     </div>
 
-    <button class="btn-primary" id="btnGuardar" onclick="guardarPerfil()">Guardar cambios</button>
-    <div class="notif-wrap" style="width:100%;">
-  <button class="btn-notif" onclick="toggleNotificaciones()">
-    🔔 Notificaciones <span id="notifBadge" class="notif-badge">0</span>
-  </button>
-</div>
+    <div class="steam-section">
+      <div class="steam-section-title">
+        Notificaciones
+        <span id="notifBadgeNum" class="notif-badge-num">0</span>
+      </div>
+      <button class="btn-secondary" onclick="toggleNotificaciones()">🔔 Ver notificaciones</button>
+      <div id="seccionNotificaciones" style="display:none; margin-top:8px;">
+        <div id="listaNotificaciones"></div>
+      </div>
+    </div>
 
-<div id="seccionNotificaciones" style="display:none; margin-bottom:16px;">
-  <div id="listaNotificaciones"></div>
-</div>
-
-<button class="btn-danger" onclick="cerrarSesion()">Cerrar sesión</button>
+    <div class="steam-section">
+      <button class="btn-danger" onclick="cerrarSesion()">Cerrar sesión</button>
+    </div>
 
   </div>
 
-  <a href="terminos.html" style="display:block; text-align:center; margin-top:16px; color:#333; text-decoration:none; font-size:12px;">Términos de uso</a>
-  <a class="volver" href="app.html">← Volver al mapa</a>
+  <div class="steam-footer">
+    <a href="terminos.html" class="terminos">Términos de uso</a>
+    <a class="volver" href="app.html">← Volver al mapa</a>
+  </div>
+
+</div>
 
 <script>
 const SUPABASE_URL = 'https://zxwwffnjrrkmtsxzvswa.supabase.co';
@@ -311,6 +307,18 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 let token = null;
 let userId = null;
 let fotoNueva = null;
+
+function tiempoTranscurrido(fecha) {
+  const ahora = new Date();
+  const entonces = new Date(fecha);
+  const diff = Math.floor((ahora - entonces) / 1000);
+  if (diff < 60) return 'hace unos segundos';
+  if (diff < 3600) return `hace ${Math.floor(diff / 60)} minutos`;
+  if (diff < 86400) return `hace ${Math.floor(diff / 3600)} horas`;
+  if (diff < 2592000) return `hace ${Math.floor(diff / 86400)} días`;
+  return `hace ${Math.floor(diff / 2592000)} meses`;
+}
+
 async function cargarNotificaciones() {
   const res = await fetch(
     `${SUPABASE_URL}/rest/v1/notificaciones?user_id=eq.${userId}&order=creado_en.desc&select=*`,
@@ -320,10 +328,10 @@ async function cargarNotificaciones() {
   if (!Array.isArray(notifs)) return;
 
   const noLeidas = notifs.filter(n => !n.leida).length;
-  const badge = document.getElementById('notifBadge');
+  const badge = document.getElementById('notifBadgeNum');
   if (noLeidas > 0) {
     badge.textContent = noLeidas;
-    badge.style.display = 'flex';
+    badge.style.display = 'inline-block';
   } else {
     badge.style.display = 'none';
   }
@@ -339,7 +347,6 @@ async function cargarNotificaciones() {
       </div>`).join('');
   }
 
-  // Marcar todas como leídas
   if (noLeidas > 0) {
     await fetch(
       `${SUPABASE_URL}/rest/v1/notificaciones?user_id=eq.${userId}&leida=eq.false`,
@@ -348,6 +355,7 @@ async function cargarNotificaciones() {
         body: JSON.stringify({ leida: true })
       }
     );
+    badge.style.display = 'none';
   }
 }
 
@@ -360,74 +368,67 @@ function toggleNotificaciones() {
     sec.style.display = 'none';
   }
 }
+
 async function init() {
-  // Refrescar token si es necesario
-const userStr2 = localStorage.getItem('dm_user');
-if (userStr2) {
-  const userData = JSON.parse(userStr2);
-  const expiry = new Date(userData.expires_at * 1000);
-  if (expiry < new Date()) {
-    const refreshToken = userData.refresh_token || localStorage.getItem('dm_refresh');
-    if (refreshToken) {
-      const resRefresh = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=refresh_token`, {
-        method: 'POST',
-        headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ refresh_token: refreshToken })
-      });
-      if (resRefresh.ok) {
-        const newData = await resRefresh.json();
-        localStorage.setItem('dm_token', newData.access_token);
-        localStorage.setItem('dm_user', JSON.stringify(newData.user));
-        token = newData.access_token;
+  const userStr2 = localStorage.getItem('dm_user');
+  if (userStr2) {
+    const userData = JSON.parse(userStr2);
+    const expiry = new Date(userData.expires_at * 1000);
+    if (expiry < new Date()) {
+      const refreshToken = userData.refresh_token || localStorage.getItem('dm_refresh');
+      if (refreshToken) {
+        const resRefresh = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=refresh_token`, {
+          method: 'POST',
+          headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ refresh_token: refreshToken })
+        });
+        if (resRefresh.ok) {
+          const newData = await resRefresh.json();
+          localStorage.setItem('dm_token', newData.access_token);
+          localStorage.setItem('dm_user', JSON.stringify(newData.user));
+          token = newData.access_token;
+        }
       }
     }
   }
-}
+
   token = localStorage.getItem('dm_token');
   const userStr = localStorage.getItem('dm_user');
-
-  if (!token || !userStr) {
-    window.location.href = 'login.html';
-    return;
-  }
+  if (!token || !userStr) { window.location.href = 'login.html'; return; }
 
   const user = JSON.parse(userStr);
   userId = user.id;
 
+  const apodo = user.user_metadata?.apodo || user.email?.split('@')[0] || 'Rider';
+  document.getElementById('nombreDisplay').textContent = apodo;
   document.getElementById('inputEmail').value = user.email || '';
   document.getElementById('inputApodo').value = user.user_metadata?.apodo || '';
 
-  // Fecha de registro
   if (user.created_at) {
     const fecha = new Date(user.created_at);
     const opciones = { year: 'numeric', month: 'long', day: 'numeric' };
-    document.getElementById('riderDesde').textContent = `🛵 Rider desde ${fecha.toLocaleDateString('es-CL', opciones)}`;
+    document.getElementById('riderDesde').textContent = `Rider desde ${fecha.toLocaleDateString('es-CL', opciones)}`;
   }
 
-  // Cargar stats
-  await cargarStats(user.email);
-
-  // Cargar perfil desde tabla perfiles
+  await cargarStats();
   await cargarPerfil();
 
   document.getElementById('cargando').style.display = 'none';
   document.getElementById('contenido').style.display = 'block';
+
+  cargarNotificaciones();
 }
 
-async function cargarStats(email) {
-  // Contar sugerencias
+async function cargarStats() {
   const resSug = await fetch(`${SUPABASE_URL}/rest/v1/sugerencias?select=count`, {
     headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${token}`, 'Prefer': 'count=exact' }
   });
-  const countSug = resSug.headers.get('content-range')?.split('/')[1] || '0';
-  document.getElementById('statSugerencias').textContent = countSug;
+  document.getElementById('statSugerencias').textContent = resSug.headers.get('content-range')?.split('/')[1] || '0';
 
-  // Contar reportes
   const resRep = await fetch(`${SUPABASE_URL}/rest/v1/reportes?select=count`, {
     headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${token}`, 'Prefer': 'count=exact' }
   });
-  const countRep = resRep.headers.get('content-range')?.split('/')[1] || '0';
-  document.getElementById('statReportes').textContent = countRep;
+  document.getElementById('statReportes').textContent = resRep.headers.get('content-range')?.split('/')[1] || '0';
 }
 
 async function cargarPerfil() {
@@ -437,20 +438,13 @@ async function cargarPerfil() {
   const data = await res.json();
   if (data && data.length > 0) {
     if (data[0].foto_url) {
-      const avatarDiv = document.getElementById('avatarDiv');
-      avatarDiv.innerHTML = `<img src="${data[0].foto_url}" alt="foto"/>`;
+      document.getElementById('avatarDiv').innerHTML = `<img src="${data[0].foto_url}" alt="foto"/><div class="avatar-edit-hint">CAMBIAR</div>`;
+      document.getElementById('avatarDiv').onclick = () => document.getElementById('inputFoto').click();
     }
     if (data[0].badge) {
-      const badgeLabels = {
-        'founder': '⚡ Fundador'
-      };
-      const badgeClasses = {
-        'founder': 'badge-founder'
-      };
-      const badgeDiv = document.createElement('div');
-      badgeDiv.className = `badge ${badgeClasses[data[0].badge] || ''}`;
-      badgeDiv.textContent = badgeLabels[data[0].badge] || data[0].badge;
-      document.querySelector('.avatar-container').appendChild(badgeDiv);
+      const badgeLabels = { 'founder': '⚡ FUNDADOR' };
+      const badgeDiv = document.getElementById('badgeDiv');
+      badgeDiv.innerHTML = `<span class="badge-founder">${badgeLabels[data[0].badge] || data[0].badge}</span>`;
     }
   }
 }
@@ -461,8 +455,8 @@ function previsualizarFoto(event) {
   fotoNueva = file;
   const reader = new FileReader();
   reader.onload = (e) => {
-    const avatarDiv = document.getElementById('avatarDiv');
-    avatarDiv.innerHTML = `<img src="${e.target.result}" alt="foto"/>`;
+    document.getElementById('avatarDiv').innerHTML = `<img src="${e.target.result}" alt="foto"/><div class="avatar-edit-hint">CAMBIAR</div>`;
+    document.getElementById('avatarDiv').onclick = () => document.getElementById('inputFoto').click();
   };
   reader.readAsDataURL(file);
 }
@@ -470,62 +464,40 @@ function previsualizarFoto(event) {
 async function guardarPerfil() {
   const apodo = document.getElementById('inputApodo').value.trim();
   const btn = document.getElementById('btnGuardar');
-
-  if (!apodo) {
-    mostrarMensaje('El apodo no puede estar vacío.', 'error');
-    return;
-  }
+  if (!apodo) { mostrarMensaje('El apodo no puede estar vacío.', 'error'); return; }
 
   btn.disabled = true;
   btn.textContent = 'Guardando...';
-
   let foto_url = null;
 
-  // Subir foto si hay una nueva
   if (fotoNueva) {
     const ext = fotoNueva.name.split('.').pop();
     const fileName = `${userId}.${ext}`;
     const resFoto = await fetch(`${SUPABASE_URL}/storage/v1/object/Avatares/${fileName}`, {
       method: 'POST',
-      headers: {
-        'apikey': SUPABASE_KEY,
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': fotoNueva.type,
-        'x-upsert': 'true'
-      },
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${token}`, 'Content-Type': fotoNueva.type, 'x-upsert': 'true' },
       body: fotoNueva
     });
-
     if (resFoto.ok) {
       foto_url = `${SUPABASE_URL}/storage/v1/object/public/Avatares/${fileName}`;
-      // Guardar en tabla perfiles
       await fetch(`${SUPABASE_URL}/rest/v1/perfiles`, {
         method: 'POST',
-        headers: {
-          'apikey': SUPABASE_KEY,
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-          'Prefer': 'resolution=merge-duplicates'
-        },
+        headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', 'Prefer': 'resolution=merge-duplicates' },
         body: JSON.stringify({ user_id: userId, foto_url, apodo })
       });
     }
   }
 
-  // Actualizar apodo en auth
   const resAuth = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
     method: 'PUT',
-    headers: {
-      'apikey': SUPABASE_KEY,
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json'
-    },
+    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({ data: { apodo } })
   });
 
   if (resAuth.ok) {
     const updatedUser = await resAuth.json();
     localStorage.setItem('dm_user', JSON.stringify(updatedUser));
+    document.getElementById('nombreDisplay').textContent = apodo;
     mostrarMensaje('✅ Perfil actualizado.', 'exito');
   } else {
     mostrarMensaje('Error al guardar. Intenta de nuevo.', 'error');
