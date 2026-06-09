@@ -493,6 +493,13 @@
 </head>
 <body>
 
+  <script>
+  // Interceptar recovery de contraseña
+  if (window.location.hash.includes('type=recovery')) {
+    window.location.href = 'cambiar-password.html' + window.location.hash;
+  }
+</script>
+
 <!-- NAV -->
 <nav>
   <div class="nav-logo">DELIVERY<span>MAP</span>™</div>
