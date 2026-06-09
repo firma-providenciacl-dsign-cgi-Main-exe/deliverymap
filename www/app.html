@@ -479,9 +479,10 @@ pinActivo = L.marker([l.lat, l.lng]).addTo(mapa);
       const fotoUrl = data[0].url;
       sheetFoto.innerHTML = `<img src="${fotoUrl}" style="width:100%; height:180px; object-fit:cover; cursor:pointer;" />`;
       sheetFoto.querySelector('img').addEventListener('click', () => abrirLightbox(fotoUrl));
-      setTimeout(() => cargarLikesYComentarios(l.id), 300);
     }
   });
+
+setTimeout(() => cargarLikesYComentarios(l.id), 300);
 
   document.getElementById('sheetNombre').textContent = l.nombre;
   document.getElementById('sheetComuna').textContent = l.comuna;
