@@ -365,7 +365,10 @@
 </div>
 
 <div style="position:fixed; bottom:30px; right:14px; z-index:999; display:flex; flex-direction:column; gap:8px; align-items:flex-end;">
-  <div id="btnUsuario"></div>
+  <div style="position:relative; display:inline-block;">
+    <div id="btnUsuario"></div>
+    <div id="campanaNotif" style="display:none; position:absolute; top:-4px; right:-4px; background:#ff4444; color:white; font-size:10px; font-weight:700; width:16px; height:16px; border-radius:50%; display:none; align-items:center; justify-content:center; z-index:1001;" onclick="window.location.href='perfil.html'">0</div>
+  </div>
   <a href="sugerir.html" style="font-size:11px; color:#4a90e2; text-decoration:none; background:#1a1a1a; padding:4px 10px; border-radius:6px; border:1px solid #333;">Sugerir local</a>
 </div>
 <script src="supabase.js"></script>
@@ -702,6 +705,23 @@ async function mostrarBotonUsuario() {
   } else {
     btn.innerHTML = `<a href="login.html" style="font-size:11px; color:#fff; text-decoration:none; background:#4a90e2; padding:4px 10px; border-radius:6px;">Iniciar sesión</a>`;
   }
+  // Campanita notificaciones
+if (token && user) {
+  const u = JSON.parse(user);
+  fetch(`${SUPABASE_URL}/rest/v1/notificaciones?user_id=eq.${u.id}&leida=eq.false&select=id`, {
+    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' }
+  })
+  .then(r => r.json())
+  .then(notifs => {
+    const campana = document.getElementById('campanaNotif');
+    if (Array.isArray(notifs) && notifs.length > 0) {
+      campana.textContent = notifs.length;
+      campana.style.display = 'flex';
+    } else {
+      campana.style.display = 'none';
+    }
+  });
+}
 }
 
 async function cerrarSesion() {
@@ -752,7 +772,7 @@ async function cargarLikesYComentarios(localId) {
       const esPropio = userId && c.user_id === userId;
       return `
         <div class="comentario-item" id="comentario-${c.id}">
-          <div class="comentario-apodo">${c.apodo}</div>
+          <div class="comentario-apodo" style="cursor:pointer;" onclick="window.location.href='perfil-publico.html?id=${c.user_id}'">${c.apodo}</div>
           <div class="comentario-texto">${c.texto}</div>
           <div class="comentario-footer">
             <span class="comentario-fecha">${tiempoTranscurrido(c.creado_en)}</span>
