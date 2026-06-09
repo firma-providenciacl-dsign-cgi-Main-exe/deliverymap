@@ -289,13 +289,8 @@
 
     <div class="steam-section">
       <div class="steam-section-title">Seguridad</div>
-      <button class="btn-secondary" id="btnCambiarPass" onclick="toggleCambiarPassword()">🔒 Cambiar contraseña</button>
-      <div id="seccionPassword" style="display:none; margin-top:8px;">
-        <input type="password" id="inputPass1" placeholder="Nueva contraseña"/>
-        <input type="password" id="inputPass2" placeholder="Confirmar nueva contraseña"/>
-        <button class="btn-primary" onclick="cambiarPassword()">Guardar nueva contraseña</button>
-        <div id="mensajePassword" class="mensaje"></div>
-      </div>
+  <button class="btn-secondary" id="btnCambiarPass" onclick="enviarResetPassword()">🔒 Cambiar contraseña</button>
+<div id="mensajePassword" class="mensaje"></div>
     </div>
 
     <div class="steam-section">
@@ -540,41 +535,32 @@ function mostrarMensaje(texto, tipo) {
   msg.className = `mensaje ${tipo}`;
   msg.style.display = 'block';
 }
-function toggleCambiarPassword() {
-  const sec = document.getElementById('seccionPassword');
-  sec.style.display = sec.style.display === 'none' ? 'block' : 'none';
-}
-
-async function cambiarPassword() {
-  const pass1 = document.getElementById('inputPass1').value;
-  const pass2 = document.getElementById('inputPass2').value;
+async function enviarResetPassword() {
+  const btn = document.getElementById('btnCambiarPass');
   const msg = document.getElementById('mensajePassword');
-  if (!pass1 || !pass2) {
-    msg.textContent = 'Completa ambos campos.';
-    msg.className = 'mensaje error'; msg.style.display = 'block'; return;
-  }
-  if (pass1.length < 6) {
-    msg.textContent = 'Mínimo 6 caracteres.';
-    msg.className = 'mensaje error'; msg.style.display = 'block'; return;
-  }
-  if (pass1 !== pass2) {
-    msg.textContent = 'Las contraseñas no coinciden.';
-    msg.className = 'mensaje error'; msg.style.display = 'block'; return;
-  }
-  const res = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
-    method: 'PUT',
-    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ password: pass1 })
+  const email = document.getElementById('inputEmail').value;
+
+  btn.disabled = true;
+  btn.textContent = 'Enviando...';
+
+  const res = await fetch(`${SUPABASE_URL}/auth/v1/recover`, {
+    method: 'POST',
+    headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email })
   });
+
   if (res.ok) {
-    msg.textContent = '✅ Contraseña actualizada.';
-    msg.className = 'mensaje exito'; msg.style.display = 'block';
-    document.getElementById('inputPass1').value = '';
-    document.getElementById('inputPass2').value = '';
+    msg.textContent = `✅ Te enviamos un email a ${email} con el link para cambiar tu contraseña.`;
+    msg.className = 'mensaje exito';
+    msg.style.display = 'block';
   } else {
-    msg.textContent = 'Error al cambiar la contraseña.';
-    msg.className = 'mensaje error'; msg.style.display = 'block';
+    msg.textContent = 'No se pudo enviar el email. Intenta de nuevo.';
+    msg.className = 'mensaje error';
+    msg.style.display = 'block';
   }
+
+  btn.disabled = false;
+  btn.textContent = '🔒 Cambiar contraseña';
 }
 
 async function confirmarEliminarCuenta() {
