@@ -595,7 +595,8 @@ async function reportarError() {
       local_nombre: localActivo.nombre,
       local_comuna: localActivo.comuna,
       mensaje: 'Error reportado por rider',
-      fecha: new Date().toISOString()
+      fecha: new Date().toISOString(),
+      user_id: localStorage.getItem('dm_user') ? JSON.parse(localStorage.getItem('dm_user')).id : null
     })
   });
   if (res.ok) {
