@@ -239,12 +239,12 @@
     #mapa { position: fixed; top: 58px; left: 0; right: 0; bottom: 0; z-index: 1; }
 
     /* BOTTOM SHEET */
-    #bottomSheet {
-      position: fixed; left: 0; right: 0; bottom: -100%;
-      background: #1a1a1a; border-radius: 20px 20px 0 0;
-      z-index: 2000; max-height: 90vh; overflow-y: auto;
-      transition: bottom 0.4s ease; touch-action: pan-x;
-    }
+#bottomSheet {
+  position: fixed; left: 0; right: 0; bottom: -100%;
+  background: #1a1a1a; border-radius: 20px 20px 0 0;
+  z-index: 2000; max-height: 90vh; overflow-y: auto;
+  transition: bottom 0.4s ease; touch-action: pan-y;
+}
     #bottomSheet.medio    { bottom: -47vh; }
     #bottomSheet.abierto  { bottom: 0; }
     #sheetHandle {
