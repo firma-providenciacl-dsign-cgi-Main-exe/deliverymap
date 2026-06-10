@@ -618,6 +618,9 @@ async function confirmarEliminarCuenta() {
     body: JSON.stringify({})
   });
 
+  console.log('Status eliminar:', res.status);
+  const resData = await res.text();
+  console.log('Respuesta eliminar:', resData);
   if (res.ok) {
     localStorage.removeItem('dm_token');
     localStorage.removeItem('dm_user');
