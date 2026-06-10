@@ -544,7 +544,7 @@ async function guardarPerfil() {
     document.getElementById('nombreDisplay').textContent = apodo;
     mostrarMensaje('✅ Perfil actualizado.', 'exito');
   } else {
-    mostrarMensaje('Error al guardar. Intenta de nuevo.', 'error');
+    mostrarMensaje('Error al guardar. Intenta de nuevo o contacta al soporte.', 'error');
   }
 
   btn.disabled = false;
@@ -585,7 +585,7 @@ async function enviarResetPassword() {
     msg.className = 'mensaje exito';
     msg.style.display = 'block';
   } else {
-    msg.textContent = 'No se pudo enviar el email. Intenta de nuevo.';
+    msg.textContent = 'No se pudo enviar el email. Intenta de nuevo o contacta al soporte.';
     msg.className = 'mensaje error';
     msg.style.display = 'block';
   }
@@ -609,7 +609,7 @@ async function confirmarEliminarCuenta() {
     msg.className = 'mensaje error'; msg.style.display = 'block'; return;
   }
 
-  const confirma = confirm('¿Estás seguro? Esta acción es irreversible.');
+  const confirma = confirm('¿Estás seguro/a? Esta acción es irreversible.');
   if (!confirma) return;
 
   // Verificar credenciales primero
@@ -642,10 +642,10 @@ async function confirmarEliminarCuenta() {
     localStorage.removeItem('dm_token');
     localStorage.removeItem('dm_user');
     localStorage.removeItem('dm_refresh');
-    alert('Cuenta eliminada. Hasta pronto.');
+    alert('Lamentamos que hayas decidido eliminar tu cuenta. Esperamos verte pronto.');
     window.location.href = 'index.html';
   } else {
-    msg.textContent = 'No se pudo eliminar la cuenta. Intenta de nuevo.';
+    msg.textContent = 'No se pudo eliminar la cuenta. Intenta de nuevo, o contacta al soporte.';
     msg.className = 'mensaje error'; msg.style.display = 'block';
   }
 }
