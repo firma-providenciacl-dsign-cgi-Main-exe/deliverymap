@@ -264,8 +264,8 @@
 
     /* MAPA */
      #mapa { position: fixed; top: 58px; left: 0; right: 0; bottom: 0; z-index: 1; }
-#mapa .leaflet-tile-pane { filter: hue-rotate(200deg) saturate(1.3) brightness(0.9); transform: translateZ(0); }
-    /* BOTTOM SHEET */
+#mapa .leaflet-tile-pane { transform: translateZ(0); }
+#mapa .leaflet-tile { filter: hue-rotate(200deg) saturate(1.3) brightness(0.9); margin: -1px; padding: 1px; }
      #bottomSheet {
   position: fixed; left: 0; right: 0; bottom: -100%;
   background: #1a1a1a; border-radius: 20px 20px 0 0;
