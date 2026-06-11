@@ -312,7 +312,7 @@
     .dbi-sub { font-size: 10px; color: #555; margin-top: 1px; }
 
     /* MAPA */
-     #mapa { position: fixed; top: 58px; left: 0; right: 0; bottom: 60px; z-index: 1; }
+     #mapa { position: fixed; top: 58px; left: 0; right: 0; bottom: 90px; z-index: 1; }
 
      #bottomSheet {
   position: fixed; left: 0; right: 0; bottom: -100%;
@@ -359,9 +359,10 @@
     #btnReporte { background: #1a1a1a; color: #ff9500; border: 1px solid #ff9500; }
     /* NAV INFERIOR */
 #navInferior {
-  position: fixed; bottom: 0; left: 0; right: 0;
-  background: rgba(10,10,10,0.97);
-  border-top: 1px solid #4a90e244;
+  position: fixed; bottom: 16px; left: 16px; right: 16px;
+  background: rgba(15,15,15,0.97);
+  border: 1px solid #4a90e222;
+  border-radius: 20px;
   backdrop-filter: blur(10px);
   display: flex; align-items: center;
   z-index: 3000; height: 60px;
@@ -479,7 +480,7 @@
   </a>
 </div>
 <div id="mapa"></div>
-<div style="position:fixed; top:58px; left:0; right:0; bottom:60px; background:rgba(0,20,80,0.25); z-index:2; pointer-events:none;"></div>
+<div style="position:fixed; top:58px; left:0; right:0; bottom:90px; background:rgba(0,20,80,0.25); z-index:2; pointer-events:none;"></div>
 
 <div id="bottomSheet">
   <div id="sheetHandle"></div>
