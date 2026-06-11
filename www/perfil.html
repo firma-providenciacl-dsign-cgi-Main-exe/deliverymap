@@ -7,319 +7,385 @@
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      background: #1b2838;
-      color: #c6d4df;
+      background: #0a0a0a;
+      color: #ccc;
       font-family: sans-serif;
       min-height: 100vh;
       max-width: 480px;
       margin: 0 auto;
-      padding-bottom: 40px;
+      padding-bottom: 100px;
     }
 
-    /* HEADER STEAM */
-    .steam-topbar {
-      background: #171a21;
-      padding: 14px 16px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      border-bottom: 1px solid #4a90e233;
+    #header {
+      background: rgba(10,10,10,0.97);
+      padding: 12px 16px;
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid #4a90e222;
+      position: sticky; top: 0; z-index: 100;
     }
-    .logo { font-size: 18px; font-weight: 900; letter-spacing: 3px; color: white; text-shadow: 0 0 8px #4a90e2; }
-    .logo span { color: #4a90e2; }
+    #logoArea { display: flex; align-items: center; gap: 8px; text-decoration: none; }
+    #logoTexto { font-size: 13px; font-weight: 900; letter-spacing: 2px; color: white; }
+    #logoTexto span { color: #4a90e2; }
+    #headerRight { font-size: 10px; color: #4a90e2; letter-spacing: 2px; }
 
-    /* HEADER PERFIL */
-    .steam-header {
-      background: #316282;
+    #heroCard {
+      margin: 14px 16px;
+      background: #0d1f3c;
+      border: 1px solid #4a90e233;
+      border-radius: 16px;
       padding: 20px 16px;
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      border-bottom: 2px solid #4a90e2;
+      position: relative; overflow: hidden;
     }
+    #heroCard::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image: radial-gradient(circle, #4a90e2 1px, transparent 1px), radial-gradient(circle, #4a90e2 1px, transparent 1px);
+      background-size: 60px 60px, 100px 100px;
+      background-position: 10px 10px, 40px 40px;
+      opacity: 0.06; pointer-events: none;
+    }
+    #heroRow { display: flex; align-items: center; gap: 16px; position: relative; }
     .avatar {
-      width: 72px; height: 72px;
-      border-radius: 6px;
-      background: #1b2838;
-      border: 2px solid #4a90e2;
+      width: 76px; height: 76px; border-radius: 12px;
+      background: #111; border: 2px solid #4a90e2;
       display: flex; align-items: center; justify-content: center;
-      font-size: 30px;
-      cursor: pointer;
-      overflow: hidden;
-      flex-shrink: 0;
-      position: relative;
+      font-size: 36px; cursor: pointer; overflow: hidden;
+      flex-shrink: 0; position: relative;
+      box-shadow: 0 0 12px #4a90e233;
     }
     .avatar img { width: 100%; height: 100%; object-fit: cover; }
     .avatar-edit-hint {
       position: absolute; bottom: 0; left: 0; right: 0;
-      background: rgba(0,0,0,0.6);
-      font-size: 9px; color: #c6d4df;
-      text-align: center; padding: 3px 0;
-      letter-spacing: 1px;
+      background: rgba(0,0,0,0.7); font-size: 8px; color: #4a90e2;
+      text-align: center; padding: 3px 0; letter-spacing: 1px;
     }
-    .steam-header-info { flex: 1; }
-    .steam-nombre { font-size: 18px; font-weight: 700; color: white; margin-bottom: 4px; }
-    .steam-since { font-size: 11px; color: #8f98a0; }
+    #heroInfo { flex: 1; }
+    #nombreDisplay { font-size: 20px; font-weight: 900; color: white; letter-spacing: 1px; margin-bottom: 4px; }
+    #badgeRow { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
+    .badge-rider {
+      background: #4a90e233; color: #4a90e2;
+      font-size: 9px; font-weight: 700; padding: 2px 8px;
+      border-radius: 4px; letter-spacing: 2px; text-transform: uppercase;
+      border: 1px solid #4a90e244;
+    }
     .badge-founder {
-      display: inline-block;
-      background: #4a90e2;
-      color: #c6d4df;
-      font-size: 10px;
-      font-weight: 700;
-      padding: 2px 8px;
-      border-radius: 2px;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      margin-top: 4px;
+      background: linear-gradient(135deg, #f0a500, #e07b00); color: white;
+      font-size: 9px; font-weight: 700; padding: 2px 8px;
+      border-radius: 4px; letter-spacing: 2px; text-transform: uppercase;
+    }
+    #riderDesde { font-size: 11px; color: #4a5566; }
+
+    #statsRow { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 0 16px 14px; }
+    .stat-card {
+      background: #111; border: 1px solid #4a90e211;
+      border-radius: 12px; padding: 14px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .stat-icono {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: #0d1f3c; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .stat-numero { font-size: 22px; font-weight: 700; color: #4a90e2; line-height: 1; }
+    .stat-label { font-size: 10px; color: #555; margin-top: 2px; text-transform: uppercase; letter-spacing: 1px; }
+
+    .seccion { margin: 0 16px 12px; }
+    .seccion-titulo {
+      font-size: 10px; font-weight: 700; color: #555;
+      letter-spacing: 2px; text-transform: uppercase;
+      margin-bottom: 8px; padding-left: 4px;
     }
 
-    /* BODY */
-    .steam-body { padding: 0 16px; }
+    .input-group {
+      background: #111; border: 1px solid #4a90e211;
+      border-radius: 12px; padding: 12px 14px;
+      margin-bottom: 8px; display: flex; align-items: center; gap: 12px;
+    }
+    .input-group:focus-within { border-color: #4a90e244; }
+    .input-icono {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: #0d1f3c; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .input-inner { flex: 1; min-width: 0; }
+    .input-label { font-size: 9px; color: #4a90e2; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 3px; }
+    .input-inner input {
+      width: 100%; background: none; border: none; color: white;
+      font-size: 14px; outline: none; padding: 0; font-family: sans-serif;
+    }
+    .input-inner input:disabled { color: #444; cursor: not-allowed; }
+    .input-preview { font-size: 14px; color: #888; }
+    .hint { font-size: 11px; color: #333; margin: -4px 0 8px 4px; }
 
-    /* STATS */
-    .steam-stats {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      padding: 14px 0;
-      border-bottom: 1px solid #4a90e233;
-    }
-    .stat {
-      background: #16202d;
-      border-radius: 4px;
-      padding: 12px;
-      border: 1px solid #4a90e233;
-    }
-    .stat-numero { font-size: 26px; font-weight: 700; color: #4a90e2; }
-    .stat-label { font-size: 10px; color: #8f98a0; margin-top: 2px; text-transform: uppercase; letter-spacing: 1px; }
-
-    /* SECCIONES */
-    .steam-section {
-      padding: 14px 0;
-      border-bottom: 1px solid #4a90e233;
-    }
-    .steam-section-title {
-      font-size: 10px;
-      font-weight: 700;
-      color: #8f98a0;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      margin-bottom: 10px;
-    }
-    label {
-      display: block;
-      font-size: 10px;
-      color: #8f98a0;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      margin-bottom: 6px;
-    }
-    input {
-      width: 100%;
-      background: #16202d;
-      border: 1px solid #4a90e233;
-      border-radius: 4px;
-      color: #c6d4df;
-      font-size: 14px;
-      padding: 10px 12px;
-      outline: none;
-      margin-bottom: 8px;
-      transition: border 0.2s;
-    }
-    input:focus { border-color: #4a90e2; }
-    input:disabled { color: #4a5566; cursor: not-allowed; }
-    .hint { font-size: 11px; color: #4a5566; margin-bottom: 10px; }
-
-    /* MENSAJES */
-    .mensaje {
-      padding: 10px 12px;
-      border-radius: 4px;
-      font-size: 13px;
-      margin-bottom: 12px;
-      display: none;
-    }
+    .mensaje { padding: 10px 14px; border-radius: 10px; font-size: 13px; margin-bottom: 10px; display: none; }
     .mensaje.error { background: #2e0f0f; color: #f44336; border: 1px solid #5c2a2a; }
     .mensaje.exito { background: #0f2e1a; color: #4caf50; border: 1px solid #2a5c35; }
 
-    /* BOTONES */
     .btn-primary {
-      width: 100%;
-      padding: 11px;
-      background: #4a90e2;
-      color: white;
-      border: none;
-      border-radius: 3px;
-      font-size: 13px;
-      font-weight: 700;
-      cursor: pointer;
-      margin-bottom: 8px;
-      letter-spacing: 1px;
-      text-transform: uppercase;
+      width: 100%; padding: 14px; background: #4a90e2; color: white;
+      border: none; border-radius: 12px; font-size: 14px; font-weight: 700;
+      cursor: pointer; letter-spacing: 1px; text-transform: uppercase;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
       transition: opacity 0.2s;
     }
     .btn-primary:active { opacity: 0.8; }
     .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
-    .btn-secondary {
-      width: 100%;
-      padding: 10px;
-      background: #16202d;
-      color: #c6d4df;
-      border: 1px solid #4a90e233;
-      border-radius: 3px;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      margin-bottom: 8px;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      text-align: left;
-      transition: border 0.2s;
-    }
-    .btn-secondary:hover { border-color: #4a90e2; }
-    .btn-danger {
-      width: 100%;
-      padding: 10px;
-      background: transparent;
-      color: #f44336;
-      border: 1px solid #f4433644;
-      border-radius: 3px;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-    }
 
-    /* NOTIFICACIONES */
+    .btn-row {
+      background: #111; border: 1px solid #4a90e211;
+      border-radius: 12px; padding: 14px;
+      display: flex; align-items: center; gap: 12px;
+      cursor: pointer; margin-bottom: 8px;
+      text-decoration: none; width: 100%; text-align: left;
+    }
+    .btn-row:active { background: #0d1f3c; }
+    .btn-row-icono {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: #0d1f3c; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .btn-row-texto { flex: 1; font-size: 13px; font-weight: 600; color: white; }
+    .btn-row-flecha { color: #4a90e2; font-size: 16px; }
+    .btn-row.danger { border-color: #f4433622; }
+    .btn-row.danger .btn-row-icono { background: #2e0f0f; }
+    .btn-row.danger .btn-row-texto { color: #f44336; }
+    .btn-row.danger .btn-row-flecha { color: #f44336; }
+
     .notif-item {
-      background: #16202d;
-      border: 1px solid #4a90e233;
-      border-radius: 4px;
-      padding: 10px 12px;
-      margin-bottom: 6px;
-      font-size: 13px;
-      color: #c6d4df;
-      line-height: 1.5;
+      background: #111; border: 1px solid #4a90e211;
+      border-radius: 10px; padding: 12px 14px;
+      margin-bottom: 6px; font-size: 13px; color: #ccc; line-height: 1.5;
     }
-    .notif-item.no-leida { border-color: #4a90e2; }
-    .notif-fecha { font-size: 10px; color: #4a5566; margin-top: 4px; }
-    .notif-vacia { font-size: 12px; color: #4a5566; text-align: center; padding: 16px 0; }
+    .notif-item.no-leida { border-color: #4a90e244; }
+    .notif-fecha { font-size: 10px; color: #444; margin-top: 4px; }
+    .notif-vacia { font-size: 12px; color: #444; text-align: center; padding: 16px 0; }
     .notif-badge-num {
-      display: inline-block;
-      background: #ff4444;
-      color: white;
-      font-size: 10px;
-      font-weight: 700;
-      padding: 1px 6px;
-      border-radius: 10px;
-      margin-left: 6px;
-      display: none;
+      display: none; background: #ff4444; color: white;
+      font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 10px; margin-left: 6px;
     }
 
-    /* FOOTER */
-    .steam-footer {
-      padding: 16px;
-      text-align: center;
+    .eliminar-form {
+      display: none; margin-top: 10px;
+      background: #111; border: 1px solid #f4433622;
+      border-radius: 12px; padding: 14px;
     }
-    .volver { color: #4a5566; text-decoration: none; font-size: 12px; display: block; margin-top: 12px; }
-    .terminos { color: #4a5566; text-decoration: none; font-size: 11px; }
+    .eliminar-form p { font-size: 12px; color: #666; margin-bottom: 12px; }
 
-    #cargando { text-align: center; color: #4a5566; font-size: 14px; padding: 60px 0; }
+    .footer { text-align: center; padding: 16px; margin-top: 8px; }
+    .footer a { color: #333; text-decoration: none; font-size: 11px; display: block; margin-bottom: 6px; }
+
+    #cargando { text-align: center; color: #444; font-size: 14px; padding: 60px 0; }
+
+    #navInferior {
+      position: fixed; bottom: 16px; left: 16px; right: 16px;
+      background: rgba(15,15,15,0.97); border-radius: 20px;
+      backdrop-filter: blur(10px);
+      display: flex; align-items: center;
+      z-index: 3000; height: 60px;
+    }
+    .nav-tab {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 10px 0; gap: 4px;
+      cursor: pointer; text-decoration: none; opacity: 0.4; transition: opacity 0.2s;
+    }
+    .nav-tab.activo { opacity: 1; }
+    .nav-tab svg { width: 22px; height: 22px; }
+    .nav-tab span { font-size: 10px; letter-spacing: 0.5px; color: #4a90e2; font-weight: 500; }
+    .nav-tab.activo svg { stroke: #4a90e2; }
+    .nav-tab:not(.activo) svg { stroke: #555; }
+    .nav-tab:not(.activo) span { color: #555; }
   </style>
   <script defer src="https://cloud.umami.is/script.js" data-website-id="568d65a7-876b-405a-a4b2-3b6a35d3d8f9"></script>
 </head>
 <body>
 
-<div class="steam-topbar">
-  <div class="logo">DELIVERY<span>MAP</span></div>
-  <div style="font-size:11px; color:#8f98a0; letter-spacing:2px;">// PERFIL //</div>
+<div id="header">
+  <a id="logoArea" href="app.html">
+    <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
+      <rect width="32" height="32" rx="6" fill="#0d1f3c"/>
+      <path d="M6 16 L16 6 L26 16" stroke="#4a90e2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      <path d="M6 16 L16 26 L26 16" stroke="#4a90e2" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" fill="none" opacity="0.4"/>
+      <circle cx="16" cy="16" r="3" fill="#4a90e2"/>
+      <line x1="16" y1="9" x2="16" y2="13" stroke="#4a90e2" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>
+    <div id="logoTexto">DELIVERY<span>MAP</span></div>
+  </a>
+  <div id="headerRight">// PERFIL //</div>
 </div>
 
 <div id="cargando">Cargando perfil...</div>
 
 <div id="contenido" style="display:none;">
 
-  <div class="steam-header">
-    <div class="avatar" id="avatarDiv" onclick="document.getElementById('inputFoto').click()">
-      <span id="avatarEmoji">🛵</span>
-      <div class="avatar-edit-hint">CAMBIAR</div>
-    </div>
-    <div class="steam-header-info">
-      <div class="steam-nombre" id="nombreDisplay">Rider</div>
-      <div class="steam-since" id="riderDesde"></div>
-      <div id="badgeDiv"></div>
+  <div id="heroCard">
+    <div id="heroRow">
+      <div class="avatar" id="avatarDiv" onclick="document.getElementById('inputFoto').click()">
+        <span id="avatarEmoji">🛵</span>
+        <div class="avatar-edit-hint">CAMBIAR</div>
+      </div>
+      <div id="heroInfo">
+        <div id="nombreDisplay">Rider</div>
+        <div id="badgeRow">
+          <span class="badge-rider">RIDER</span>
+          <div id="badgeDiv"></div>
+        </div>
+        <div id="riderDesde"></div>
+      </div>
     </div>
   </div>
   <input type="file" id="inputFoto" accept="image/*" style="display:none;" onchange="previsualizarFoto(event)"/>
 
-  <div class="steam-body">
-
-    <div class="steam-stats">
-      <div class="stat">
+  <div id="statsRow">
+    <div class="stat-card">
+      <div class="stat-icono">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4a90e2" stroke-width="2" stroke-linecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      </div>
+      <div>
         <div class="stat-numero" id="statSugerencias">0</div>
         <div class="stat-label">Locales sugeridos</div>
       </div>
-      <div class="stat">
+    </div>
+    <div class="stat-card">
+      <div class="stat-icono">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4a90e2" stroke-width="2" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      </div>
+      <div>
         <div class="stat-numero" id="statReportes">0</div>
         <div class="stat-label">Errores reportados</div>
       </div>
     </div>
+  </div>
 
-    <div class="steam-section">
-      <div class="steam-section-title">Editar perfil</div>
-      <div id="mensaje" class="mensaje"></div>
-      <label for="inputApodo">Apodo</label>
-      <input type="text" id="inputApodo" placeholder="Tu apodo de rider" maxlength="30"/>
-      <p class="hint">Así te verán otros riders.</p>
-      <label>Email</label>
-      <input type="email" id="inputEmail" disabled/>
-      <p class="hint">El email no se puede cambiar.</p>
-      <button class="btn-primary" id="btnGuardar" onclick="guardarPerfil()">Guardar cambios</button>
-    </div>
+  <div class="seccion">
+    <div class="seccion-titulo">Editar perfil</div>
+    <div id="mensaje" class="mensaje"></div>
 
-    <div class="steam-section">
-      <div class="steam-section-title">
-        Notificaciones
-        <span id="notifBadgeNum" class="notif-badge-num">0</span>
+    <div class="input-group">
+      <div class="input-icono">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4a90e2" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
       </div>
-      <button class="btn-secondary" onclick="toggleNotificaciones()">🔔 Ver notificaciones</button>
-      <div id="seccionNotificaciones" style="display:none; margin-top:8px;">
-        <div id="listaNotificaciones"></div>
+      <div class="input-inner">
+        <div class="input-label">Apodo</div>
+        <input type="text" id="inputApodo" placeholder="Tu apodo de rider" maxlength="30" oninput="document.getElementById('apodoPreview').textContent=this.value||'—'"/>
       </div>
     </div>
 
-    <div class="steam-section">
-      <div class="steam-section-title">Seguridad</div>
-  <button class="btn-secondary" id="btnCambiarPass" onclick="enviarResetPassword()">🔒 Cambiar contraseña</button>
-<div id="mensajePassword" class="mensaje"></div>
+    <div class="input-group">
+      <div class="input-icono">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4a90e2" stroke-width="2" stroke-linecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      </div>
+      <div class="input-inner">
+        <div class="input-label">Email</div>
+        <input type="email" id="inputEmail" disabled/>
+      </div>
+    </div>
+    <p class="hint">El email no se puede cambiar.</p>
+
+    <div class="input-group">
+      <div class="input-icono">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4a90e2" stroke-width="2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      </div>
+      <div class="input-inner">
+        <div class="input-label">Así te verán otros riders</div>
+        <div class="input-preview" id="apodoPreview">—</div>
+      </div>
     </div>
 
-    <div class="steam-section">
-      <button class="btn-danger" onclick="cerrarSesion()">Cerrar sesión</button>
+    <button class="btn-primary" id="btnGuardar" onclick="guardarPerfil()" style="margin-top:4px;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+      Guardar cambios
+    </button>
+  </div>
+
+  <div class="seccion">
+    <div class="seccion-titulo">Notificaciones <span id="notifBadgeNum" class="notif-badge-num">0</span></div>
+    <button class="btn-row" onclick="toggleNotificaciones()">
+      <div class="btn-row-icono">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4a90e2" stroke-width="2" stroke-linecap="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      </div>
+      <div class="btn-row-texto">Ver notificaciones</div>
+      <div class="btn-row-flecha">›</div>
+    </button>
+    <div id="seccionNotificaciones" style="display:none; margin-top:4px;">
+      <div id="listaNotificaciones"></div>
     </div>
-
-<div class="steam-section">
-  <div class="steam-section-title" style="color:#f4433688;">Zona de peligro</div>
-  <button class="btn-danger" onclick="toggleEliminarCuenta()">Eliminar cuenta</button>
-  <div id="seccionEliminar" style="display:none; margin-top:12px;">
-    <p style="font-size:12px; color:#8f98a0; margin-bottom:10px;">Confirma tu identidad para continuar.</p>
-    <label>Email</label>
-    <input type="email" id="eliminarEmail" placeholder="tu@email.com"/>
-    <label>Contraseña</label>
-    <input type="password" id="eliminarPassword" placeholder="Tu contraseña"/>
-    <div id="mensajeEliminar" class="mensaje"></div>
-    <button class="btn-danger" style="margin-top:8px;" onclick="confirmarEliminarCuenta()">Confirmar eliminación</button>
   </div>
+
+  <div class="seccion">
+    <div class="seccion-titulo">Seguridad</div>
+    <button class="btn-row" id="btnCambiarPass" onclick="enviarResetPassword()">
+      <div class="btn-row-icono">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4a90e2" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      </div>
+      <div class="btn-row-texto">Cambiar contraseña</div>
+      <div class="btn-row-flecha">›</div>
+    </button>
+    <div id="mensajePassword" class="mensaje"></div>
+
+    <button class="btn-row danger" onclick="cerrarSesion()">
+      <div class="btn-row-icono">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f44336" stroke-width="2" stroke-linecap="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      </div>
+      <div class="btn-row-texto">Cerrar sesión</div>
+      <div class="btn-row-flecha">›</div>
+    </button>
+
+    <button class="btn-row danger" onclick="toggleEliminarCuenta()">
+      <div class="btn-row-icono">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f44336" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+      </div>
+      <div class="btn-row-texto">Eliminar cuenta</div>
+      <div class="btn-row-flecha">›</div>
+    </button>
+
+    <div class="eliminar-form" id="seccionEliminar">
+      <p>Confirma tu identidad para continuar. Esta acción es irreversible.</p>
+      <div class="input-group" style="margin-bottom:8px;">
+        <div class="input-inner">
+          <div class="input-label">Email</div>
+          <input type="email" id="eliminarEmail" placeholder="tu@email.com"/>
+        </div>
+      </div>
+      <div class="input-group" style="margin-bottom:8px;">
+        <div class="input-inner">
+          <div class="input-label">Contraseña</div>
+          <input type="password" id="eliminarPassword" placeholder="Tu contraseña"/>
+        </div>
+      </div>
+      <div id="mensajeEliminar" class="mensaje"></div>
+      <button class="btn-row danger" style="margin-top:4px;" onclick="confirmarEliminarCuenta()">
+        <div class="btn-row-icono">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f44336" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+        </div>
+        <div class="btn-row-texto">Confirmar eliminación</div>
+        <div class="btn-row-flecha">›</div>
+      </button>
+    </div>
+  </div>
+
+  <div class="footer">
+    <a href="terminos.html">Términos de uso</a>
+    <a href="app.html">← Volver al mapa</a>
+  </div>
+
 </div>
 
-  </div>
-
-  <div class="steam-footer">
-    <a href="terminos.html" class="terminos">Términos de uso</a>
-    <a class="volver" href="app.html">← Volver al mapa</a>
-  </div>
-
-</div>
+<nav id="navInferior">
+  <a class="nav-tab" href="app.html">
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/></svg>
+    <span>MAPA</span>
+  </a>
+  <a class="nav-tab" href="#">
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <span>LOCALES</span>
+  </a>
+  <a class="nav-tab" href="#">
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    <span>COMUNIDAD</span>
+  </a>
+  <a class="nav-tab activo" href="perfil.html">
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    <span>PERFIL</span>
+  </a>
+</nav>
 
 <script>
 const SUPABASE_URL = 'https://zxwwffnjrrkmtsxzvswa.supabase.co';
@@ -334,60 +400,43 @@ function tiempoTranscurrido(fecha) {
   const entonces = new Date(fecha);
   const diff = Math.floor((ahora - entonces) / 1000);
   if (diff < 60) return 'hace unos segundos';
-  if (diff < 3600) return `hace ${Math.floor(diff / 60)} minutos`;
-  if (diff < 86400) return `hace ${Math.floor(diff / 3600)} horas`;
-  if (diff < 2592000) return `hace ${Math.floor(diff / 86400)} días`;
-  return `hace ${Math.floor(diff / 2592000)} meses`;
+  if (diff < 3600) return 'hace ' + Math.floor(diff / 60) + ' minutos';
+  if (diff < 86400) return 'hace ' + Math.floor(diff / 3600) + ' horas';
+  if (diff < 2592000) return 'hace ' + Math.floor(diff / 86400) + ' días';
+  return 'hace ' + Math.floor(diff / 2592000) + ' meses';
 }
 
 async function cargarNotificaciones() {
   const res = await fetch(
-    `${SUPABASE_URL}/rest/v1/notificaciones?user_id=eq.${userId}&order=creado_en.desc&select=*`,
-    { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' }}
+    SUPABASE_URL + '/rest/v1/notificaciones?user_id=eq.' + userId + '&order=creado_en.desc&select=*',
+    { headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + token, 'Accept': 'application/json' }}
   );
   const notifs = await res.json();
   if (!Array.isArray(notifs)) return;
-
   const noLeidas = notifs.filter(n => !n.leida).length;
   const badge = document.getElementById('notifBadgeNum');
-  if (noLeidas > 0) {
-    badge.textContent = noLeidas;
-    badge.style.display = 'inline-block';
-  } else {
-    badge.style.display = 'none';
-  }
-
+  if (noLeidas > 0) { badge.textContent = noLeidas; badge.style.display = 'inline-block'; }
+  else { badge.style.display = 'none'; }
   const lista = document.getElementById('listaNotificaciones');
   if (notifs.length === 0) {
     lista.innerHTML = '<div class="notif-vacia">Sin notificaciones aún</div>';
   } else {
-    lista.innerHTML = notifs.map(n => `
-      <div class="notif-item ${n.leida ? '' : 'no-leida'}">
-        ${n.mensaje}
-        <div class="notif-fecha">${tiempoTranscurrido(n.creado_en)}</div>
-      </div>`).join('');
+    lista.innerHTML = notifs.map(n => '<div class="notif-item ' + (n.leida ? '' : 'no-leida') + '">' + n.mensaje + '<div class="notif-fecha">' + tiempoTranscurrido(n.creado_en) + '</div></div>').join('');
   }
-
   if (noLeidas > 0) {
-    await fetch(
-      `${SUPABASE_URL}/rest/v1/notificaciones?user_id=eq.${userId}&leida=eq.false`,
-      { method: 'PATCH',
-        headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
-        body: JSON.stringify({ leida: true })
-      }
-    );
+    await fetch(SUPABASE_URL + '/rest/v1/notificaciones?user_id=eq.' + userId + '&leida=eq.false', {
+      method: 'PATCH',
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+      body: JSON.stringify({ leida: true })
+    });
     badge.style.display = 'none';
   }
 }
 
 function toggleNotificaciones() {
   const sec = document.getElementById('seccionNotificaciones');
-  if (sec.style.display === 'none') {
-    sec.style.display = 'block';
-    cargarNotificaciones();
-  } else {
-    sec.style.display = 'none';
-  }
+  if (sec.style.display === 'none') { sec.style.display = 'block'; cargarNotificaciones(); }
+  else { sec.style.display = 'none'; }
 }
 
 async function init() {
@@ -398,7 +447,7 @@ async function init() {
     if (expiry < new Date()) {
       const refreshToken = userData.refresh_token || localStorage.getItem('dm_refresh');
       if (refreshToken) {
-        const resRefresh = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=refresh_token`, {
+        const resRefresh = await fetch(SUPABASE_URL + '/auth/v1/token?grant_type=refresh_token', {
           method: 'POST',
           headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json' },
           body: JSON.stringify({ refresh_token: refreshToken })
@@ -412,46 +461,33 @@ async function init() {
       }
     }
   }
-
   token = localStorage.getItem('dm_token');
   const userStr = localStorage.getItem('dm_user');
   if (!token || !userStr) { window.location.href = 'login.html'; return; }
-
   const user = JSON.parse(userStr);
   userId = user.id;
-
   const apodo = user.user_metadata?.apodo || user.email?.split('@')[0] || 'Rider';
   document.getElementById('nombreDisplay').textContent = apodo;
   document.getElementById('inputEmail').value = user.email || '';
   document.getElementById('inputApodo').value = user.user_metadata?.apodo || '';
-
+  document.getElementById('apodoPreview').textContent = apodo;
   if (user.created_at) {
     const fecha = new Date(user.created_at);
-    const opciones = { year: 'numeric', month: 'long', day: 'numeric' };
-    document.getElementById('riderDesde').textContent = `Rider desde ${fecha.toLocaleDateString('es-CL', opciones)}`;
+    document.getElementById('riderDesde').textContent = 'desde ' + fecha.toLocaleDateString('es-CL', { year: 'numeric', month: 'long', day: 'numeric' });
   }
-
   await cargarStats();
   await cargarPerfil();
-
-  // Ocultar cambiar contraseña si entró con Google
   const proveedores = user.app_metadata?.providers || [];
-if (proveedores.includes('google')) {
-  document.getElementById('btnCambiarPass').style.display = 'none';
-  document.querySelector('.steam-section-title[style*="f44336"]').style.display = 'none';
-}
-
+  if (proveedores.includes('google')) { document.getElementById('btnCambiarPass').style.display = 'none'; }
   document.getElementById('cargando').style.display = 'none';
   document.getElementById('contenido').style.display = 'block';
-
   cargarNotificaciones();
 }
 
 async function cargarStats() {
-  // Refrescar token antes de consultas
   const refreshToken = localStorage.getItem('dm_refresh');
   if (refreshToken) {
-    const resRefresh = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=refresh_token`, {
+    const resRefresh = await fetch(SUPABASE_URL + '/auth/v1/token?grant_type=refresh_token', {
       method: 'POST',
       headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json' },
       body: JSON.stringify({ refresh_token: refreshToken })
@@ -464,31 +500,29 @@ async function cargarStats() {
       if (newData.refresh_token) localStorage.setItem('dm_refresh', newData.refresh_token);
     }
   }
-
-  const resSug = await fetch(`${SUPABASE_URL}/rest/v1/sugerencias?user_id=eq.${userId}&select=count`, {
-    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${token}`, 'Prefer': 'count=exact' }
+  const resSug = await fetch(SUPABASE_URL + '/rest/v1/sugerencias?user_id=eq.' + userId + '&select=count', {
+    headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + token, 'Prefer': 'count=exact' }
   });
   document.getElementById('statSugerencias').textContent = resSug.headers.get('content-range')?.split('/')[1] || '0';
-
-  const resRep = await fetch(`${SUPABASE_URL}/rest/v1/reportes?user_id=eq.${userId}&select=count`, {
-    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${token}`, 'Prefer': 'count=exact' }
+  const resRep = await fetch(SUPABASE_URL + '/rest/v1/reportes?user_id=eq.' + userId + '&select=count', {
+    headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + token, 'Prefer': 'count=exact' }
   });
   document.getElementById('statReportes').textContent = resRep.headers.get('content-range')?.split('/')[1] || '0';
 }
+
 async function cargarPerfil() {
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/perfiles?user_id=eq.${userId}&select=*`, {
-    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' }
+  const res = await fetch(SUPABASE_URL + '/rest/v1/perfiles?user_id=eq.' + userId + '&select=*', {
+    headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + token, 'Accept': 'application/json' }
   });
   const data = await res.json();
   if (data && data.length > 0) {
     if (data[0].foto_url) {
-      document.getElementById('avatarDiv').innerHTML = `<img src="${data[0].foto_url}" alt="foto"/><div class="avatar-edit-hint">CAMBIAR</div>`;
+      document.getElementById('avatarDiv').innerHTML = '<img src="' + data[0].foto_url + '" alt="foto"/><div class="avatar-edit-hint">CAMBIAR</div>';
       document.getElementById('avatarDiv').onclick = () => document.getElementById('inputFoto').click();
     }
     if (data[0].badge) {
       const badgeLabels = { 'founder': '⚡ FUNDADOR' };
-      const badgeDiv = document.getElementById('badgeDiv');
-      badgeDiv.innerHTML = `<span class="badge-founder">${badgeLabels[data[0].badge] || data[0].badge}</span>`;
+      document.getElementById('badgeDiv').innerHTML = '<span class="badge-founder">' + (badgeLabels[data[0].badge] || data[0].badge) + '</span>';
     }
   }
 }
@@ -499,7 +533,7 @@ function previsualizarFoto(event) {
   fotoNueva = file;
   const reader = new FileReader();
   reader.onload = (e) => {
-    document.getElementById('avatarDiv').innerHTML = `<img src="${e.target.result}" alt="foto"/><div class="avatar-edit-hint">CAMBIAR</div>`;
+    document.getElementById('avatarDiv').innerHTML = '<img src="' + e.target.result + '" alt="foto"/><div class="avatar-edit-hint">CAMBIAR</div>';
     document.getElementById('avatarDiv').onclick = () => document.getElementById('inputFoto').click();
   };
   reader.readAsDataURL(file);
@@ -509,46 +543,41 @@ async function guardarPerfil() {
   const apodo = document.getElementById('inputApodo').value.trim();
   const btn = document.getElementById('btnGuardar');
   if (!apodo) { mostrarMensaje('El apodo no puede estar vacío.', 'error'); return; }
-
-  btn.disabled = true;
-  btn.textContent = 'Guardando...';
+  btn.disabled = true; btn.textContent = 'Guardando...';
   let foto_url = null;
-
   if (fotoNueva) {
     const ext = fotoNueva.name.split('.').pop();
-    const fileName = `${userId}.${ext}`;
-    const resFoto = await fetch(`${SUPABASE_URL}/storage/v1/object/Avatares/${fileName}`, {
+    const fileName = userId + '.' + ext;
+    const resFoto = await fetch(SUPABASE_URL + '/storage/v1/object/Avatares/' + fileName, {
       method: 'POST',
-      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${token}`, 'Content-Type': fotoNueva.type, 'x-upsert': 'true' },
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + token, 'Content-Type': fotoNueva.type, 'x-upsert': 'true' },
       body: fotoNueva
     });
     if (resFoto.ok) {
-      foto_url = `${SUPABASE_URL}/storage/v1/object/public/Avatares/${fileName}`;
-      await fetch(`${SUPABASE_URL}/rest/v1/perfiles`, {
+      foto_url = SUPABASE_URL + '/storage/v1/object/public/Avatares/' + fileName;
+      await fetch(SUPABASE_URL + '/rest/v1/perfiles', {
         method: 'POST',
-        headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', 'Prefer': 'resolution=merge-duplicates' },
+        headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json', 'Prefer': 'resolution=merge-duplicates' },
         body: JSON.stringify({ user_id: userId, foto_url, apodo })
       });
     }
   }
-
-  const resAuth = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
+  const resAuth = await fetch(SUPABASE_URL + '/auth/v1/user', {
     method: 'PUT',
-    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+    headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
     body: JSON.stringify({ data: { apodo } })
   });
-
   if (resAuth.ok) {
     const updatedUser = await resAuth.json();
     localStorage.setItem('dm_user', JSON.stringify(updatedUser));
     document.getElementById('nombreDisplay').textContent = apodo;
+    document.getElementById('apodoPreview').textContent = apodo;
     mostrarMensaje('✅ Perfil actualizado.', 'exito');
   } else {
-    mostrarMensaje('Error al guardar. Intenta de nuevo o contacta al soporte.', 'error');
+    mostrarMensaje('Error al guardar. Intenta de nuevo.', 'error');
   }
-
   btn.disabled = false;
-  btn.textContent = 'Guardar cambios';
+  btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg> Guardar cambios';
 }
 
 function cerrarSesion() {
@@ -559,39 +588,27 @@ function cerrarSesion() {
 
 function mostrarMensaje(texto, tipo) {
   const msg = document.getElementById('mensaje');
-  msg.textContent = texto;
-  msg.className = `mensaje ${tipo}`;
-  msg.style.display = 'block';
+  msg.textContent = texto; msg.className = 'mensaje ' + tipo; msg.style.display = 'block';
 }
+
 async function enviarResetPassword() {
   const btn = document.getElementById('btnCambiarPass');
   const msg = document.getElementById('mensajePassword');
   const email = document.getElementById('inputEmail').value;
-
   btn.disabled = true;
-  btn.textContent = 'Enviando...';
-
-  const res = await fetch(`${SUPABASE_URL}/auth/v1/recover`, {
+  const res = await fetch(SUPABASE_URL + '/auth/v1/recover', {
     method: 'POST',
     headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ 
-  email,
-  redirect_to: 'https://deliverymap.cl/cambiar-password.html'
-})
+    body: JSON.stringify({ email, redirect_to: 'https://deliverymap.cl/cambiar-password.html' })
   });
-
   if (res.ok) {
-    msg.textContent = `✅ Te enviamos un email a ${email} con el link para cambiar tu contraseña.`;
-    msg.className = 'mensaje exito';
-    msg.style.display = 'block';
+    msg.textContent = '✅ Te enviamos un email a ' + email + ' con el link para cambiar tu contraseña.';
+    msg.className = 'mensaje exito'; msg.style.display = 'block';
   } else {
-    msg.textContent = 'No se pudo enviar el email. Intenta de nuevo o contacta al soporte.';
-    msg.className = 'mensaje error';
-    msg.style.display = 'block';
+    msg.textContent = 'No se pudo enviar el email. Intenta de nuevo.';
+    msg.className = 'mensaje error'; msg.style.display = 'block';
   }
-
   btn.disabled = false;
-  btn.textContent = '🔒 Cambiar contraseña';
 }
 
 function toggleEliminarCuenta() {
@@ -603,52 +620,29 @@ async function confirmarEliminarCuenta() {
   const email = document.getElementById('eliminarEmail').value.trim();
   const password = document.getElementById('eliminarPassword').value;
   const msg = document.getElementById('mensajeEliminar');
-
-  if (!email || !password) {
-    msg.textContent = 'Completa email y contraseña.';
-    msg.className = 'mensaje error'; msg.style.display = 'block'; return;
-  }
-
+  if (!email || !password) { msg.textContent = 'Completa email y contraseña.'; msg.className = 'mensaje error'; msg.style.display = 'block'; return; }
   const confirma = confirm('¿Estás seguro/a? Esta acción es irreversible.');
   if (!confirma) return;
-
-  // Verificar credenciales primero
-  const resLogin = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
+  const resLogin = await fetch(SUPABASE_URL + '/auth/v1/token?grant_type=password', {
     method: 'POST',
     headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, password })
   });
-
-  if (!resLogin.ok) {
-    msg.textContent = 'Email o contraseña incorrectos.';
-    msg.className = 'mensaje error'; msg.style.display = 'block'; return;
-  }
-
-  // Credenciales correctas — eliminar via función SQL
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/eliminar_cuenta_propia`, {
+  if (!resLogin.ok) { msg.textContent = 'Email o contraseña incorrectos.'; msg.className = 'mensaje error'; msg.style.display = 'block'; return; }
+  const res = await fetch(SUPABASE_URL + '/rest/v1/rpc/eliminar_cuenta_propia', {
     method: 'POST',
-    headers: {
-      'apikey': SUPABASE_KEY,
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json'
-    },
+    headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
     body: JSON.stringify({})
   });
-
-  console.log('Status eliminar:', res.status);
-  const resData = await res.text();
-  console.log('Respuesta eliminar:', resData);
   if (res.ok) {
-    localStorage.removeItem('dm_token');
-    localStorage.removeItem('dm_user');
-    localStorage.removeItem('dm_refresh');
+    localStorage.removeItem('dm_token'); localStorage.removeItem('dm_user'); localStorage.removeItem('dm_refresh');
     alert('Lamentamos que hayas decidido eliminar tu cuenta. Esperamos verte pronto.');
     window.location.href = 'index.html';
   } else {
-    msg.textContent = 'No se pudo eliminar la cuenta. Intenta de nuevo, o contacta al soporte.';
-    msg.className = 'mensaje error'; msg.style.display = 'block';
+    msg.textContent = 'No se pudo eliminar la cuenta. Intenta de nuevo.'; msg.className = 'mensaje error'; msg.style.display = 'block';
   }
 }
+
 init();
 </script>
 </body>
