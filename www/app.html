@@ -187,16 +187,23 @@
     }
 
 /* HEADER */
-    #header {
-      background: rgba(10,10,10,0.95);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      padding: 10px 14px;
-      position: fixed; top: 0; left: 0; right: 0;
-      z-index: 1000;
-      display: flex; align-items: center; gap: 10px;
-      border-bottom: 1px solid #4a90e222;
-    }
+#header {
+  background: rgba(10,10,10,0.95);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  padding: 10px 14px;
+  position: fixed; top: 0; left: 0; right: 0;
+  z-index: 1000;
+  display: flex; align-items: center; gap: 8px;
+  border-bottom: 1px solid #4a90e222;
+}
+#logoTexto { font-size: 11px; font-weight: 900; letter-spacing: 2px; color: white; line-height: 1; }
+#searchWrapper { position: relative; flex: 1; min-width: 0; }
+#logoTexto {
+  font-size: 11px; font-weight: 900; letter-spacing: 2px;
+  color: white; line-height: 1;
+}
+#searchWrapper { position: relative; flex: 1; min-width: 0; }
     #logoArea {
       display: flex; align-items: center; gap: 8px;
       flex-shrink: 0; text-decoration: none;
@@ -217,12 +224,12 @@
       line-height: 1; display: none;
     }
     #searchWrapper { position: relative; flex: 1; }
-    #searchInput {
-      width: 100%; padding: 9px 14px 9px 36px;
-      border-radius: 20px; border: 1px solid #4a90e244; font-size: 14px;
-      outline: none; background: #111; color: #ccc;
-      transition: border 0.2s;
-    }
+#searchInput {
+  width: 100%; padding: 9px 14px 9px 36px;
+  border-radius: 20px; border: 1px solid #4a90e244; font-size: 14px;
+  outline: none; background: #111; color: #ccc;
+  transition: border 0.2s; min-width: 0;
+}
     #searchInput:focus { border-color: #4a90e2; }
     #searchInput::placeholder { color: #555; }
     #searchIcon {
@@ -256,10 +263,10 @@
     .no-resultado { padding: 16px; text-align: center; color: #aaa; font-size: 14px; }
 
     /* MAPA */
-#mapa { position: fixed; top: 58px; left: 0; right: 0; bottom: 0; z-index: 1; filter: hue-rotate(200deg) saturate(1.3) brightness(0.9); }
-
+     #mapa { position: fixed; top: 58px; left: 0; right: 0; bottom: 0; z-index: 1; }
+#mapa .leaflet-tile-pane { filter: hue-rotate(200deg) saturate(1.3) brightness(0.9); transform: translateZ(0); }
     /* BOTTOM SHEET */
-#bottomSheet {
+     #bottomSheet {
   position: fixed; left: 0; right: 0; bottom: -100%;
   background: #1a1a1a; border-radius: 20px 20px 0 0;
   z-index: 2000; max-height: 90vh; overflow-y: auto;
@@ -365,7 +372,11 @@
     <input id="searchInput" type="text" placeholder="Buscar local o mall..."
       oninput="buscar(this.value)" onkeyup="buscar(this.value)" autocomplete="off"/>
   </div>
-  <a href="perfil.html" id="campanaNotif" style="position:relative; background:#111; border:1px solid #4a90e244; border-radius:50%; width:34px; height:34px; display:flex; align-items:center; justify-content:center; font-size:15px; text-decoration:none; flex-shrink:0;">🔔<span id="campanaNum" style="display:none; position:absolute; top:-3px; right:-3px; background:#ff4444; color:white; font-size:9px; font-weight:700; width:14px; height:14px; border-radius:50%; align-items:center; justify-content:center;">0</span></a>
+<a href="perfil.html" id="campanaNotif" style="position:relative; background:#111; border:1px solid #4a90e244; border-radius:50%; width:34px; height:34px; min-width:34px; display:flex; align-items:center; justify-content:center; text-decoration:none; flex-shrink:0;">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4a90e2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+  <span id="campanaNum" style="display:none; position:absolute; top:-3px; right:-3px; background:#ff4444; color:white; font-size:9px; font-weight:700; width:14px; height:14px; border-radius:50%; align-items:center; justify-content:center;">0</span>
+</a>
+
   <div id="btnUsuario" style="flex-shrink:0;"></div>
 </div>
 
@@ -475,6 +486,13 @@ if (navigator.geolocation) {
 L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
   attribution: '© OpenStreetMap © CARTO'
 }).addTo(mapa);
+
+mapa.on('moveend zoomend', () => {
+  document.querySelectorAll('.leaflet-tile').forEach(tile => {
+    tile.style.width = (parseInt(tile.style.width) + 1) + 'px';
+    tile.style.height = (parseInt(tile.style.height) + 1) + 'px';
+  });
+});
 
 let pinActivo = null;
 
@@ -775,7 +793,7 @@ async function mostrarBotonUsuario() {
     }
 } else {
     btn.innerHTML = `<a href="login.html" style="display:flex; align-items:center; justify-content:center; width:34px; height:34px; border-radius:50%; border:1px solid #4a90e244; background:#111; text-decoration:none;">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4a90e2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4a90e2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
       </svg>
     </a>`;
