@@ -312,7 +312,7 @@
     .dbi-sub { font-size: 10px; color: #555; margin-top: 1px; }
 
     /* MAPA */
-     #mapa { position: fixed; top: 58px; left: 0; right: 0; bottom: 0; z-index: 1; }
+     #mapa { position: fixed; top: 58px; left: 0; right: 0; bottom: 60px; z-index: 1; }
 
      #bottomSheet {
   position: fixed; left: 0; right: 0; bottom: -100%;
@@ -357,6 +357,33 @@
     #btnWaze  { background: #33ccff; color: white; }
     #btnGmaps { background: #4a90e2; color: white; }
     #btnReporte { background: #1a1a1a; color: #ff9500; border: 1px solid #ff9500; }
+    /* NAV INFERIOR */
+#navInferior {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: rgba(10,10,10,0.97);
+  border-top: 1px solid #4a90e244;
+  backdrop-filter: blur(10px);
+  display: flex; align-items: center;
+  z-index: 3000; height: 60px;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.nav-tab {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 10px 0; gap: 4px;
+  cursor: pointer; text-decoration: none;
+  opacity: 0.4; transition: opacity 0.2s;
+}
+.nav-tab.activo { opacity: 1; }
+.nav-tab svg { width: 22px; height: 22px; }
+.nav-tab span {
+  font-size: 10px; letter-spacing: 0.5px;
+  color: #4a90e2; font-weight: 500;
+}
+.nav-tab.activo svg { stroke: #4a90e2; }
+.nav-tab:not(.activo) svg { stroke: #555; }
+.nav-tab:not(.activo) span { color: #555; }
+
     /* LIGHTBOX */
 #lightbox {
   display: none;
@@ -452,7 +479,7 @@
   </a>
 </div>
 <div id="mapa"></div>
-<div style="position:fixed; top:58px; left:0; right:0; bottom:0; background:rgba(0,20,80,0.25); z-index:2; pointer-events:none;"></div>
+<div style="position:fixed; top:58px; left:0; right:0; bottom:60px; background:rgba(0,20,80,0.25); z-index:2; pointer-events:none;"></div>
 
 <div id="bottomSheet">
   <div id="sheetHandle"></div>
@@ -1187,6 +1214,27 @@ verificarSesion();
 <div id="lightbox" onclick="cerrarLightbox()">
   <button id="lightboxCerrar" onclick="cerrarLightbox()">✕</button>
   <img id="lightboxImg" src="" />
+  
 </div>
+
+<nav id="navInferior">
+  <a class="nav-tab activo" href="app.html">
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/></svg>
+    <span>MAPA</span>
+  </a>
+  <a class="nav-tab" href="#">
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <span>LOCALES</span>
+  </a>
+  <a class="nav-tab" href="#">
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    <span>COMUNIDAD</span>
+  </a>
+  <a class="nav-tab" href="perfil.html">
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    <span>PERFIL</span>
+  </a>
+</nav>
+
 </body>
-</html>                             
+</html>
