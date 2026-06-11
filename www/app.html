@@ -2,8 +2,9 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&display=swap" rel="stylesheet"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>DeliveryMap™</title>
+  <title>DeliveryMap</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
   <style>
     /* LIKES Y COMENTARIOS */
@@ -166,19 +167,22 @@
 }
 #neon-delivery {
   display: block; font-size: 42px; font-weight: 900;
-  letter-spacing: 4px; color: white; opacity: 0;
-  text-shadow: 0 0 5px #fff, 0 0 15px #4a90e2, 0 0 30px #4a90e2;
+  letter-spacing: 4px; color: #ff00cc; opacity: 0;
+  font-family: 'Orbitron', sans-serif;
+  text-shadow: 0 0 5px #fff, 0 0 15px #ff00cc, 0 0 30px #ff00cc;
   animation: fadeUp 0.4s ease forwards 0s;
 }
 #neon-map {
   display: block; font-size: 42px; font-weight: 900;
   letter-spacing: 4px; color: #4a90e2; opacity: 0;
-  text-shadow: 0 0 5px #4a90e2, 0 0 20px #4a90e2, 0 0 40px #4a90e2;
+  font-family: 'Orbitron', sans-serif;
+  text-shadow: 0 0 5px #ff00cc, 0 0 20px #ff00cc, 0 0 40px #ff00cc;
   animation: fadeUp 0.4s ease forwards 0.3s;
 }
 #neon-sub {
-  font-size: 11px; letter-spacing: 3px; color: #4a90e2;
+  font-size: 11px; letter-spacing: 3px; color: #ff00cc;
   opacity: 0; margin-top: 8px; display: block;
+  font-family: 'Orbitron', sans-serif;
   animation: fadeUp 0.3s ease forwards 1.0s;
 }
 @keyframes fadeUp {
@@ -472,7 +476,7 @@ border-radius: 20px;
   <canvas id="splash-canvas"></canvas>
   <div id="splash-content">
     <span id="neon-delivery">DELIVERY</span>
-    <span id="neon-map">MAP™</span>
+    <span id="neon-map">MAP</span>
     <span id="neon-sub">// CHILE DELIVERY NETWORK //</span>
   </div>
 </div>
@@ -482,7 +486,7 @@ border-radius: 20px;
     <img src="logo-dm.png" style="height:38px; width:auto;" alt="DeliveryMap"/>
   </a>
     <div>
-      <div id="logoTexto">DELIVERY<span>MAP</span></div>
+      <div id="logoTexto"><span style="color:#ff00cc">DELIVERY</span><span>MAP</span></div>
       <div id="logoSub">// CHILE DELIVERY NETWORK //</div>
     </div>
   </a>
@@ -580,13 +584,15 @@ const splashCtx = splashCanvas.getContext('2d');
 splashCanvas.width = window.innerWidth;
 splashCanvas.height = window.innerHeight;
 
-const NUM_POINTS = 69;
+const NUM_POINTS = 130;
 const splashPoints = [];
 for (let i = 0; i < NUM_POINTS; i++) {
-  splashPoints.push({
+  const esMagenta = Math.random() > 0.5;
+splashPoints.push({
     x: Math.random() * splashCanvas.width,
     y: Math.random() * splashCanvas.height,
-    r: Math.random() * 2 + 1.5
+    r: Math.random() * 2 + 1.5,
+    color: esMagenta ? '255,0,204' : '74,144,226'
   });
 }
 
@@ -614,7 +620,9 @@ function drawSplash(ts) {
         splashCtx.beginPath();
         splashCtx.moveTo(splashPoints[i].x, splashPoints[i].y);
         splashCtx.lineTo(splashPoints[j].x, splashPoints[j].y);
-        splashCtx.strokeStyle = `rgba(74,144,226,${alpha})`;
+        const lineColor = splashPoints[i].color === splashPoints[j].color
+  ? splashPoints[i].color : '136,0,255';
+splashCtx.strokeStyle = `rgba(${lineColor},${alpha})`;
         splashCtx.lineWidth = 0.8;
         splashCtx.stroke();
       }
@@ -631,13 +639,14 @@ function drawSplash(ts) {
       const pulseA = (1 - pulsePhase) * 0.25 * pAlpha;
       splashCtx.beginPath();
       splashCtx.arc(p.x, p.y, pulseR, 0, Math.PI * 2);
-      splashCtx.fillStyle = `rgba(74,144,226,${pulseA})`;
+      splashCtx.fillStyle = `rgba(${p.color},${pulseA})`;
       splashCtx.fill();
     }
 
     splashCtx.beginPath();
     splashCtx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-    splashCtx.fillStyle = `rgba(74,144,226,${pAlpha})`;
+    splashCtx.fillStyle = `rgba(${p.color},${pAlpha})`;
+splashCtx.shadowColor = p.color === '255,0,204' ? '#ff00cc' : '#4a90e2';
     splashCtx.shadowColor = '#4a90e2';
     splashCtx.shadowBlur = 8;
     splashCtx.fill();

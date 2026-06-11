@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Splash Test — DeliveryMap</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #000; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+#splash {
+  width: 390px; height: 844px; position: relative;
+  background: #080010; overflow: hidden; border-radius: 16px;
+}
+#splash-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+#rec-btn {
+  position: absolute; bottom: 20px; left: 20px;
+  background: transparent; border: 1px solid #00f5ff44;
+  color: #00f5ff; font-size: 11px; letter-spacing: 2px;
+  padding: 7px 14px; border-radius: 2px; cursor: pointer;
+  font-family: sans-serif; transition: all 0.3s; z-index: 20;
+}
+#replay-btn {
+  position: absolute; bottom: 20px; right: 20px;
+  background: transparent; border: 1px solid #00f5ff44;
+  color: #00f5ff; font-size: 11px; letter-spacing: 2px;
+  padding: 7px 14px; border-radius: 2px; cursor: pointer;
+  font-family: sans-serif; opacity: 0; transition: opacity 0.4s; z-index: 20;
+}
+#rec-label {
+  position: absolute; bottom: 58px; left: 20px;
+  color: #ff00cc; font-size: 9px; letter-spacing: 2px;
+  font-family: sans-serif; opacity: 0; transition: opacity 0.3s; z-index: 20;
+}
+</style>
+</head>
+<body>
+<div id="splash">
+  <canvas id="splash-canvas"></canvas>
+  <button id="rec-btn">⏺ GRABAR</button>
+  <button id="replay-btn">[ REPLAY ]</button>
+  <span id="rec-label">● REC</span>
+</div>
+<script>
+const splash       = document.getElementById('splash');
+const splashCanvas = document.getElementById('splash-canvas');
+const splashCtx    = splashCanvas.getContext('2d');
+const replayBtn    = document.getElementById('replay-btn');
+const recBtn       = document.getElementById('rec-btn');
+const recLabel     = document.getElementById('rec-label');
+
+const LOCALES = [
+  'El Mundo de la Cachapa','Que Rico','Churrasco Planet Express',
+  'Shawarma Khalifa','Rollin Sushi','Tecniclic','Maison Cake 977',
+  'SPID Express Apoquindo','OXXO Av. Manquehue Sur','Miguelayo Diagonal Oriente',
+  'Melt Pizzas Pedro de Valdivia','Pollo Rey Nunoa','Dr. Pet Nunoa',
+  'Papa Johns Pedro de Valdivia','PuntoMascotas Pedro de Valdivia',
+  'Little Caesars Jose Domingo','StreetWrap Jose Domingo',
+  'Yin Hua Restaurant','El Vecino','Ytaka Sushi Valdovinos',
+  "Chaini's Santiaguillo",'Farmacias Cruz Verde Maipu',
+  'Doggis Heladeria Arauco',"Mc Donald's Arauco Maipu",
+  "Wendy's Arauco Maipu",'Burger King Arauco Maipu',
+  'Centro - Carmen 1323','Amus Buch - Nataniel Cox',
+  'Empanadas el Remanso','Pronto Copec',"Papa John's Providencia",
+  'Cevichitos','Dgusta','Amplifica','Tequeñomania',
+  'Etienne Marcel','UnderPizza San Eugenio','Kobo Sushi San Miguel',
+  'Irasshai','Botilleria BTS 24/7','KFC El Rosal',
+  "Wendy's El Rosal",'Factory Nine El Rosal',
+  "Mc Donald's Principe de Gales",'Fuente Mardoqueo',
+  'Pronto Copec Express Providencia','Burger King Carmen',
+  'Sushi Pop Las Condes','Pizza Hut Vitacura','Subway Providencia'
+];
+
+const NUM_POINTS   = 56;
+const SPLASH_TOTAL = 12000;
+const CYAN         = '0,245,255';
+const MAGENTA      = '255,0,204';
+const VIOLET       = '136,0,255';
+const GLITCH_CHARS = '!@#$%^&*<>?/|0123456789ABCDEF';
+
+// Texto en canvas — estado
+const canvasText = {
+  delivery: { alpha: 0, glitchChars: [], done: false },
+  map:      { alpha: 0, glitchChars: [], done: false },
+  sub:      { alpha: 0, glitchChars: [], done: false }
+};
+
+// Orbitron cargada via FontFace API
+let orbitronLoaded = false;
+const orbitronFont = new FontFace('Orbitron', 'url(https://fonts.gstatic.com/s/orbitron/v31/yMJMMIlzdpvBhQQL_SC3X9yhF25-T1nyGy6BoWgz.woff2)', { weight: '900' });
+orbitronFont.load().then(f => { document.fonts.add(f); orbitronLoaded = true; });
+
+function glitchStr(target, ratio) {
+  let result = '';
+  for (let i = 0; i < target.length; i++) {
+    if (target[i] === ' ' || target[i] === '/') { result += target[i]; continue; }
+    result += Math.random() < ratio
+      ? target[i]
+      : GLITCH_CHARS[Math.floor(Math.random() * GLITCH_CHARS.length)];
+  }
+  return result;
+}
+
+function drawCanvasText(elapsed, t, fadeOut) {
+  const cx = splashCanvas.width / 2;
+  const cy = splashCanvas.height / 2;
+  const font = orbitronLoaded ? 'Orbitron' : 'sans-serif';
+
+  // DELIVERY — empieza en t=0.26 (~1800ms)
+  const tDel = Math.max(0, (elapsed - 1800) / 600);
+  if (tDel > 0) {
+    canvasText.delivery.alpha = Math.min(1, tDel * 2) * (1 - fadeOut);
+    const txt = tDel < 1 ? glitchStr('DELIVERY', tDel) : 'DELIVERY';
+    splashCtx.save();
+    splashCtx.globalAlpha = canvasText.delivery.alpha;
+    splashCtx.font = `900 38px "${font}"`;
+    splashCtx.textAlign = 'center';
+    splashCtx.letterSpacing = '6px';
+    // Glow cian
+    splashCtx.shadowColor = '#00f5ff';
+    splashCtx.shadowBlur = 20;
+    splashCtx.fillStyle = '#00f5ff';
+    splashCtx.fillText(txt, cx, cy - 30);
+    splashCtx.shadowBlur = 40;
+    splashCtx.fillText(txt, cx, cy - 30);
+    splashCtx.shadowBlur = 0;
+    splashCtx.restore();
+  }
+
+  // MAP — empieza en t=0.37 (~2600ms)
+  const tMap = Math.max(0, (elapsed - 2600) / 500);
+  if (tMap > 0) {
+    const alpha = Math.min(1, tMap * 2) * (1 - fadeOut);
+    const txt = tMap < 1 ? glitchStr('MAP', tMap) : 'MAP';
+    splashCtx.save();
+    splashCtx.globalAlpha = alpha;
+    splashCtx.font = `900 38px "${font}"`;
+    splashCtx.textAlign = 'center';
+    splashCtx.shadowColor = '#ff00cc';
+    splashCtx.shadowBlur = 20;
+    splashCtx.fillStyle = '#ff00cc';
+    splashCtx.fillText(txt, cx, cy + 18);
+    splashCtx.shadowBlur = 40;
+    splashCtx.fillText(txt, cx, cy + 18);
+    splashCtx.shadowBlur = 0;
+    splashCtx.restore();
+  }
+
+  // Sub — empieza en t=0.49 (~3400ms)
+  const tSub = Math.max(0, (elapsed - 3400) / 700);
+  if (tSub > 0) {
+    const alpha = Math.min(1, tSub * 2) * (1 - fadeOut);
+    const txt = tSub < 1 ? glitchStr('// CHILE DELIVERY NETWORK //', tSub) : '// CHILE DELIVERY NETWORK //';
+    splashCtx.save();
+    splashCtx.globalAlpha = alpha;
+    splashCtx.font = `700 10px "${font}"`;
+    splashCtx.textAlign = 'center';
+    splashCtx.letterSpacing = '4px';
+    splashCtx.shadowColor = '#ff00cc';
+    splashCtx.shadowBlur = 10;
+    splashCtx.fillStyle = '#ff00cc';
+    splashCtx.fillText(txt, cx, cy + 35);
+    splashCtx.shadowBlur = 0;
+    splashCtx.restore();
+  }
+}
+
+// Label rotativos
+function makeLabel() {
+  const idx = Math.floor(Math.random() * LOCALES.length);
+  return {
+    nombreActual: LOCALES[idx], nombreSig: null, idxActual: idx,
+    estado: 'glitch_in', estadoStart: null,
+    glitchInDur: 600, visibleDur: 800, glitchOutDur: 400,
+    current: '', dist: (0.3 + Math.random() * 9.5).toFixed(1)
+  };
+}
+
+function tickLabel(lbl, elapsed) {
+  if (!lbl.estadoStart) lbl.estadoStart = elapsed;
+  const dt = elapsed - lbl.estadoStart;
+  if (lbl.estado === 'glitch_in') {
+    const ratio = Math.min(1, dt / lbl.glitchInDur);
+    lbl.current = glitchStr(lbl.nombreActual, ratio);
+    if (dt >= lbl.glitchInDur) { lbl.current = lbl.nombreActual; lbl.estado = 'visible'; lbl.estadoStart = elapsed; }
+  } else if (lbl.estado === 'visible') {
+    lbl.current = lbl.nombreActual;
+    if (dt >= lbl.visibleDur) {
+      let ni; do { ni = Math.floor(Math.random() * LOCALES.length); } while (ni === lbl.idxActual);
+      lbl.nombreSig = LOCALES[ni]; lbl.idxActual = ni;
+      lbl.dist = (0.3 + Math.random() * 9.5).toFixed(1);
+      lbl.estado = 'glitch_out'; lbl.estadoStart = elapsed;
+    }
+  } else if (lbl.estado === 'glitch_out') {
+    const ratio = Math.min(1, dt / lbl.glitchOutDur);
+    lbl.current = glitchStr(lbl.nombreActual, ratio);
+    if (dt >= lbl.glitchOutDur) { lbl.nombreActual = lbl.nombreSig; lbl.nombreSig = null; lbl.estado = 'glitch_in'; lbl.estadoStart = elapsed; }
+  }
+  return lbl.current;
+}
+
+let splashPoints = [], particles = [];
+let splashStart = null, rafId = null;
+let glitchActive = false, glitchUntil = 0;
+let hudLines = [];
+
+function initSplash() {
+  splashCanvas.width  = 390;
+  splashCanvas.height = 844;
+
+  splashPoints = [];
+  for (let i = 0; i < NUM_POINTS; i++) {
+    const x = Math.random() * splashCanvas.width;
+    const y = Math.random() * splashCanvas.height;
+    const isCyan = Math.random() > 0.45;
+    splashPoints.push({
+      x, y,
+      vx: (Math.random() - 0.5) * 0.13,
+      vy: (Math.random() - 0.5) * 0.13,
+      r: Math.random() * 2 + 2,
+      apareceEn:   Math.random() * 0.7,
+      fadeSpeed:   0.05 + Math.random() * 0.10,
+      pulseOffset: Math.random() * Math.PI * 2,
+      pulseSpeed:  0.0015 + Math.random() * 0.002,
+      blink:       Math.random() > 0.6,
+      blinkSpeed:  0.004 + Math.random() * 0.004,
+      blinkPhase:  Math.random() * Math.PI * 2,
+      color:       isCyan ? CYAN : MAGENTA,
+      colorHex:    isCyan ? '#00f5ff' : '#ff00cc',
+      label:       makeLabel(),
+      labelSide:   Math.random() > 0.5 ? 1 : -1,
+      labelStarted: false
+    });
+  }
+
+  particles = [];
+  for (let i = 0; i < 18; i++) {
+    particles.push({ progress: Math.random(), speed: 0.0012 + Math.random() * 0.0018 });
+  }
+
+  hudLines = [];
+  for (let i = 0; i < 7; i++) {
+    hudLines.push({
+      side: Math.random() < 0.5 ? 'left' : 'right',
+      y: 60 + Math.random() * 700,
+      current: '00000', lastUpdate: 0, interval: 400 + Math.random() * 800
+    });
+  }
+}
+
+function drawSplash(ts) {
+  if (!splashStart) splashStart = ts;
+  const elapsed = ts - splashStart;
+  const t = elapsed / SPLASH_TOTAL;
+
+  if (!glitchActive && Math.random() < 0.004) { glitchActive = true; glitchUntil = elapsed + 60 + Math.random() * 120; }
+  if (glitchActive && elapsed > glitchUntil) glitchActive = false;
+
+  splashCtx.clearRect(0, 0, splashCanvas.width, splashCanvas.height);
+  splashCtx.fillStyle = '#080010';
+  splashCtx.fillRect(0, 0, splashCanvas.width, splashCanvas.height);
+
+  const fadeOut = Math.min(1, Math.max(0, (t - 1.35) / 0.18));
+
+  // Aberración cromática
+  const aberAlpha = 0.04 * (1 - fadeOut);
+  splashCtx.fillStyle = `rgba(0,245,255,${aberAlpha})`;
+  splashCtx.fillRect(0, 0, 3, splashCanvas.height);
+  splashCtx.fillRect(splashCanvas.width-3, 0, 3, splashCanvas.height);
+  splashCtx.fillStyle = `rgba(255,0,204,${aberAlpha})`;
+  splashCtx.fillRect(1, 0, 2, splashCanvas.height);
+  splashCtx.fillRect(splashCanvas.width-4, 0, 2, splashCanvas.height);
+
+  // Grid diagonal
+  const gridAlpha = Math.min(0.05, t * 0.10) * (1 - fadeOut);
+  if (gridAlpha > 0) {
+    splashCtx.strokeStyle = `rgba(${VIOLET},${gridAlpha})`;
+    splashCtx.lineWidth = 0.4;
+    for (let x = -splashCanvas.height; x < splashCanvas.width + splashCanvas.height; x += 36) {
+      splashCtx.beginPath(); splashCtx.moveTo(x, 0); splashCtx.lineTo(x + splashCanvas.height, splashCanvas.height); splashCtx.stroke();
+    }
+  }
+
+  // HUD
+  const hudAlpha = Math.min(0.5, t * 1.2) * (1 - fadeOut);
+  if (hudAlpha > 0) {
+    splashCtx.font = '9px monospace';
+    hudLines.forEach(h => {
+      if (elapsed - h.lastUpdate > h.interval) { h.current = Math.floor(Math.random() * 99999).toString().padStart(5,'0'); h.lastUpdate = elapsed; }
+      splashCtx.fillStyle = `rgba(${CYAN},${hudAlpha * 0.5})`;
+      splashCtx.textAlign = h.side;
+      splashCtx.fillText(h.current, h.side === 'left' ? 10 : splashCanvas.width - 10, h.y);
+    });
+  }
+
+  // Mover puntos
+  splashPoints.forEach(p => {
+    p.x += p.vx; p.y += p.vy;
+    if (p.x < 0 || p.x > splashCanvas.width)  p.vx *= -1;
+    if (p.y < 0 || p.y > splashCanvas.height) p.vy *= -1;
+  });
+
+  // Líneas
+  let lineIndex = 0;
+  for (let i = 0; i < splashPoints.length; i++) {
+    for (let j = i + 1; j < splashPoints.length; j++) {
+      const dx = splashPoints[i].x - splashPoints[j].x;
+      const dy = splashPoints[i].y - splashPoints[j].y;
+      const dist = Math.sqrt(dx*dx + dy*dy);
+      if (dist < 160) {
+        const lineDelay    = Math.max(splashPoints[i].apareceEn, splashPoints[j].apareceEn);
+        const lineProgress = Math.min(1, Math.max(0, (t - lineDelay - 0.05) / 0.38));
+        if (lineProgress <= 0) { lineIndex++; continue; }
+        const ex = splashPoints[i].x + (splashPoints[j].x - splashPoints[i].x) * lineProgress;
+        const ey = splashPoints[i].y + (splashPoints[j].y - splashPoints[i].y) * lineProgress;
+        const sameColor = splashPoints[i].color === splashPoints[j].color;
+        const lineColor  = sameColor ? splashPoints[i].color : VIOLET;
+        const alpha = lineProgress * (1 - dist/160) * 0.18 * (1 - fadeOut);
+        if (alpha > 0.005) {
+          splashCtx.beginPath();
+          splashCtx.moveTo(splashPoints[i].x, splashPoints[i].y);
+          splashCtx.lineTo(ex, ey);
+          splashCtx.strokeStyle = `rgba(${lineColor},${alpha})`;
+          splashCtx.lineWidth = 0.8; splashCtx.stroke();
+          if (lineProgress < 0.97) {
+            splashCtx.beginPath(); splashCtx.arc(ex, ey, 1.8, 0, Math.PI*2);
+            splashCtx.fillStyle = `rgba(${lineColor},${alpha*5})`; splashCtx.fill();
+          }
+        }
+        if (lineProgress > 0.55) {
+          const p = particles[lineIndex % particles.length];
+          p.progress += p.speed; if (p.progress > 1) p.progress = 0;
+          const ppx = splashPoints[i].x + (splashPoints[j].x - splashPoints[i].x) * p.progress * lineProgress;
+          const ppy = splashPoints[i].y + (splashPoints[j].y - splashPoints[i].y) * p.progress * lineProgress;
+          if (isFinite(ppx) && isFinite(ppy)) {
+            splashCtx.beginPath(); splashCtx.arc(ppx, ppy, 1.3, 0, Math.PI*2);
+            splashCtx.fillStyle = `rgba(${lineColor},${0.5*(1-fadeOut)})`; splashCtx.fill();
+          }
+        }
+        lineIndex++;
+      }
+    }
+  }
+
+  // Puntos + labels
+  splashCtx.font = '7.5px monospace';
+  splashPoints.forEach((p) => {
+    const pAlpha = Math.min(1, Math.max(0, (t - p.apareceEn) / p.fadeSpeed)) * (1 - fadeOut);
+    if (pAlpha < 0.01 || !isFinite(p.x) || !isFinite(p.y)) return;
+    let blinkMult = 1;
+    if (p.blink) blinkMult = 0.4 + 0.6 * ((Math.sin(elapsed * p.blinkSpeed + p.blinkPhase) + 1) / 2);
+    const fa = pAlpha * blinkMult;
+    if (fa < 0.01) return;
+
+    const pulse = (Math.sin(elapsed * p.pulseSpeed + p.pulseOffset) + 1) / 2;
+    const ringR = p.r + 3 + pulse * 10;
+    const ringA = (1 - pulse) * 0.28 * fa;
+    if (ringA > 0.01) {
+      splashCtx.beginPath(); splashCtx.arc(p.x, p.y, ringR, 0, Math.PI*2);
+      splashCtx.strokeStyle = `rgba(${p.color},${ringA})`; splashCtx.lineWidth = 1; splashCtx.stroke();
+    }
+    try {
+      const halo = splashCtx.createRadialGradient(p.x, p.y, 0, p.x, p.y, Math.max(0.1, p.r*5));
+      halo.addColorStop(0,   `rgba(${p.color},${0.32*fa})`);
+      halo.addColorStop(0.5, `rgba(${p.color},${0.08*fa})`);
+      halo.addColorStop(1,   `rgba(${p.color},0)`);
+      splashCtx.beginPath(); splashCtx.arc(p.x, p.y, p.r*5, 0, Math.PI*2);
+      splashCtx.fillStyle = halo; splashCtx.fill();
+    } catch(e) {}
+
+    const s = p.r * 1.4;
+    splashCtx.save();
+    splashCtx.translate(p.x, p.y); splashCtx.rotate(Math.PI / 4);
+    splashCtx.shadowColor = p.colorHex; splashCtx.shadowBlur = 10;
+    splashCtx.fillStyle = `rgba(${p.color},${fa})`; splashCtx.fillRect(-s/2, -s/2, s, s);
+    splashCtx.shadowBlur = 0;
+    splashCtx.fillStyle = `rgba(255,255,255,${fa*0.85})`; splashCtx.fillRect(-s*0.2, -s*0.2, s*0.4, s*0.4);
+    splashCtx.restore();
+
+    if (pAlpha > 0.35) {
+      if (!p.labelStarted) { p.label.estadoStart = elapsed; p.labelStarted = true; }
+      const labelText = tickLabel(p.label, elapsed);
+      if (labelText) {
+        const offsetX = p.labelSide * (p.r * 2 + 9);
+        splashCtx.font = '7.5px monospace';
+        splashCtx.textAlign = p.labelSide > 0 ? 'left' : 'right';
+        splashCtx.fillStyle = `rgba(255,255,255,${fa * 0.60})`;
+        splashCtx.fillText(labelText, p.x + offsetX, p.y - 3);
+        splashCtx.fillStyle = `rgba(${p.color},${fa * 0.85})`;
+        splashCtx.fillText(p.label.dist + ' km', p.x + offsetX, p.y + 8);
+      }
+    }
+  });
+
+  // Texto principal en canvas
+  drawCanvasText(elapsed, t, fadeOut);
+
+  // Viñeta
+  try {
+    const vig = splashCtx.createRadialGradient(
+      splashCanvas.width/2, splashCanvas.height/2, splashCanvas.height*0.25,
+      splashCanvas.width/2, splashCanvas.height/2, splashCanvas.height*0.75
+    );
+    vig.addColorStop(0, 'rgba(0,0,0,0)');
+    vig.addColorStop(1, 'rgba(0,0,0,0.65)');
+    splashCtx.fillStyle = vig;
+    splashCtx.fillRect(0, 0, splashCanvas.width, splashCanvas.height);
+  } catch(e) {}
+
+  if (t < 1.5) {
+    rafId = requestAnimationFrame(drawSplash);
+  } else {
+    replayBtn.style.opacity = '1';
+  }
+}
+
+function start() {
+  if (rafId) cancelAnimationFrame(rafId);
+  splashStart = null;
+  replayBtn.style.opacity = '0';
+  initSplash();
+  rafId = requestAnimationFrame(drawSplash);
+}
+
+// GRABACIÓN
+let mediaRecorder = null, recordedChunks = [], isRecording = false;
+recBtn.addEventListener('click', () => {
+  if (isRecording) { mediaRecorder.stop(); return; }
+  recordedChunks = [];
+  const stream = splashCanvas.captureStream(60);
+  mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm;codecs=vp9', videoBitsPerSecond: 20000000 });
+  mediaRecorder.ondataavailable = e => { if (e.data.size > 0) recordedChunks.push(e.data); };
+  mediaRecorder.onstop = () => {
+    const blob = new Blob(recordedChunks, { type: 'video/webm' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href = url; a.download = 'deliverymap-splash.webm'; a.click();
+    URL.revokeObjectURL(url);
+    isRecording = false;
+    recBtn.textContent = '⏺ GRABAR';
+    recBtn.style.borderColor = '#00f5ff44'; recBtn.style.color = '#00f5ff';
+    recLabel.style.opacity = '0';
+  };
+  start();
+  mediaRecorder.start();
+  isRecording = true;
+  recBtn.textContent = '⏹ DETENER';
+  recBtn.style.borderColor = '#ff00cc88'; recBtn.style.color = '#ff00cc';
+  recLabel.style.opacity = '1';
+  setTimeout(() => { if (isRecording && mediaRecorder.state === 'recording') mediaRecorder.stop(); }, SPLASH_TOTAL + 500);
+});
+
+replayBtn.addEventListener('click', start);
+start();
+</script>
+</body>
+</html>
