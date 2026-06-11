@@ -1,0 +1,200 @@
+
+<style>
+body { margin: 0; }
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 8px 0; }
+.card { background: var(--color-background-secondary); border: 0.5px solid var(--color-border-tertiary); border-radius: 12px; padding: 16px; }
+.logo-area { background: #0a0a0a; border-radius: 8px; display: flex; align-items: center; justify-content: center; height: 120px; margin-bottom: 12px; }
+.concept-num { font-size: 10px; font-weight: 500; color: var(--color-text-tertiary); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 4px; }
+.concept-name { font-size: 14px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 6px; }
+.concept-desc { font-size: 12px; color: var(--color-text-secondary); line-height: 1.5; }
+.tag { display: inline-block; font-size: 10px; padding: 2px 8px; border-radius: 4px; margin-top: 6px; background: var(--color-background-info); color: var(--color-text-info); }
+</style>
+
+<div class="grid">
+
+<!-- C1: Nodo hexagonal -->
+<div class="card">
+  <div class="logo-area">
+    <svg viewBox="0 0 80 80" width="80" height="80">
+      <polygon points="40,8 66,23 66,57 40,72 14,57 14,23" fill="none" stroke="#4a90e2" stroke-width="2"/>
+      <circle cx="40" cy="40" r="6" fill="#4a90e2"/>
+      <line x1="40" y1="34" x2="40" y2="9" stroke="#4a90e2" stroke-width="1.2" opacity="0.6"/>
+      <line x1="40" y1="46" x2="40" y2="71" stroke="#4a90e2" stroke-width="1.2" opacity="0.6"/>
+      <line x1="34.8" y1="37" x2="14.5" y2="24" stroke="#4a90e2" stroke-width="1.2" opacity="0.6"/>
+      <line x1="45.2" y1="43" x2="65.5" y2="56" stroke="#4a90e2" stroke-width="1.2" opacity="0.6"/>
+      <line x1="45.2" y1="37" x2="65.5" y2="24" stroke="#4a90e2" stroke-width="1.2" opacity="0.6"/>
+      <line x1="34.8" y1="43" x2="14.5" y2="56" stroke="#4a90e2" stroke-width="1.2" opacity="0.6"/>
+      <circle cx="40" cy="9" r="2.5" fill="#4a90e2" opacity="0.8"/>
+      <circle cx="40" cy="71" r="2.5" fill="#4a90e2" opacity="0.8"/>
+      <circle cx="14.5" cy="24" r="2.5" fill="#4a90e2" opacity="0.8"/>
+      <circle cx="65.5" cy="56" r="2.5" fill="#4a90e2" opacity="0.8"/>
+      <circle cx="65.5" cy="24" r="2.5" fill="#4a90e2" opacity="0.8"/>
+      <circle cx="14.5" cy="56" r="2.5" fill="#4a90e2" opacity="0.8"/>
+    </svg>
+  </div>
+  <div class="concept-num">Concepto 01</div>
+  <div class="concept-name">Red hexagonal</div>
+  <div class="concept-desc">Nodo central conectado a 6 vértices. El hexágono es la figura más eficiente en la naturaleza — colmena, cristal. Proporción áurea en la relación radio/vértice. Representa red colaborativa perfectamente.</div>
+  <span class="tag">Red colaborativa</span>
+</div>
+
+<!-- C2: Espiral áurea -->
+<div class="card">
+  <div class="logo-area">
+    <svg viewBox="0 0 80 80" width="80" height="80">
+      <path d="M40,40 Q40,14 60,14 Q74,14 74,28 Q74,48 54,52 Q30,56 26,40 Q22,20 40,16" fill="none" stroke="#4a90e2" stroke-width="2.5" stroke-linecap="round"/>
+      <circle cx="40" cy="40" r="3.5" fill="#4a90e2"/>
+      <circle cx="40" cy="40" r="7" fill="none" stroke="#4a90e2" stroke-width="0.8" opacity="0.4"/>
+    </svg>
+  </div>
+  <div class="concept-num">Concepto 02</div>
+  <div class="concept-name">Espiral áurea</div>
+  <div class="concept-desc">La espiral de Fibonacci pura. Símbolo de crecimiento orgánico y eficiencia natural. Comunica expansión constante desde un núcleo. Muy reconocible, pero puede parecer genérico sin diferenciación.</div>
+  <span class="tag">Crecimiento</span>
+</div>
+
+<!-- C3: Pin de mapa minimalista -->
+<div class="card">
+  <div class="logo-area">
+    <svg viewBox="0 0 80 80" width="80" height="80">
+      <path d="M40,70 L40,44" stroke="#4a90e2" stroke-width="2.5" stroke-linecap="round"/>
+      <circle cx="40" cy="32" r="14" fill="none" stroke="#4a90e2" stroke-width="2.2"/>
+      <circle cx="40" cy="32" r="5" fill="#4a90e2"/>
+      <line x1="28" y1="20" x2="52" y2="44" stroke="#4a90e2" stroke-width="0.8" opacity="0.3"/>
+      <line x1="52" y1="20" x2="28" y2="44" stroke="#4a90e2" stroke-width="0.8" opacity="0.3"/>
+    </svg>
+  </div>
+  <div class="concept-num">Concepto 03</div>
+  <div class="concept-name">Pin seccionado</div>
+  <div class="concept-desc">Pin de mapa con cruz interna — referencia directa a navegación pero con layers de información. El círculo exterior en proporción 1:1.618 con el interior. Riesgo: demasiado parecido a Google Maps.</div>
+  <span class="tag">Navegación</span>
+</div>
+
+<!-- C4: Nodos en triángulo -->
+<div class="card">
+  <div class="logo-area">
+    <svg viewBox="0 0 80 80" width="80" height="80">
+      <line x1="40" y1="14" x2="18" y2="62" stroke="#4a90e2" stroke-width="1.5" opacity="0.7"/>
+      <line x1="40" y1="14" x2="62" y2="62" stroke="#4a90e2" stroke-width="1.5" opacity="0.7"/>
+      <line x1="18" y1="62" x2="62" y2="62" stroke="#4a90e2" stroke-width="1.5" opacity="0.7"/>
+      <line x1="40" y1="14" x2="40" y2="62" stroke="#4a90e2" stroke-width="1" opacity="0.4"/>
+      <line x1="18" y1="62" x2="51" y2="38" stroke="#4a90e2" stroke-width="1" opacity="0.4"/>
+      <line x1="62" y1="62" x2="29" y2="38" stroke="#4a90e2" stroke-width="1" opacity="0.4"/>
+      <circle cx="40" cy="14" r="5" fill="#4a90e2"/>
+      <circle cx="18" cy="62" r="5" fill="#4a90e2"/>
+      <circle cx="62" cy="62" r="5" fill="#4a90e2"/>
+      <circle cx="40" cy="38" r="3.5" fill="#4a90e2" opacity="0.7"/>
+    </svg>
+  </div>
+  <div class="concept-num">Concepto 04</div>
+  <div class="concept-name">Triángulo de conocimiento</div>
+  <div class="concept-desc">Tres nodos interconectados formando triángulo áureo (ángulos 36-72-72). Cada nodo es un rider. El nodo central es el conocimiento compartido. Simple, escalable, memorable.</div>
+  <span class="tag">Comunidad</span>
+</div>
+
+<!-- C5: DM monograma -->
+<div class="card">
+  <div class="logo-area">
+    <svg viewBox="0 0 80 80" width="80" height="80">
+      <text x="40" y="52" text-anchor="middle" font-family="'Arial', sans-serif" font-weight="900" font-size="38" fill="none" stroke="#4a90e2" stroke-width="1.5" letter-spacing="-4">DM</text>
+      <line x1="14" y1="62" x2="66" y2="62" stroke="#4a90e2" stroke-width="1.5" opacity="0.5"/>
+      <circle cx="14" cy="62" r="2" fill="#4a90e2"/>
+      <circle cx="66" cy="62" r="2" fill="#4a90e2"/>
+    </svg>
+  </div>
+  <div class="concept-num">Concepto 05</div>
+  <div class="concept-name">Monograma DM</div>
+  <div class="concept-desc">Iniciales como símbolo puro. Proporciones basadas en ratio áureo para el kerning. Funciona perfectamente como icono de app. Riesgo: poco diferenciador sin contexto previo de marca.</div>
+  <span class="tag">Identidad tipográfica</span>
+</div>
+
+<!-- C6: Ruta de puntos -->
+<div class="card">
+  <div class="logo-area">
+    <svg viewBox="0 0 80 80" width="80" height="80">
+      <path d="M14,60 Q20,30 40,25 Q60,20 66,40" fill="none" stroke="#4a90e2" stroke-width="2" stroke-dasharray="3 3" opacity="0.5"/>
+      <circle cx="14" cy="60" r="4" fill="#4a90e2" opacity="0.6"/>
+      <circle cx="28" cy="38" r="3" fill="#4a90e2" opacity="0.7"/>
+      <circle cx="40" cy="25" r="4" fill="#4a90e2" opacity="0.8"/>
+      <circle cx="54" cy="28" r="3" fill="#4a90e2" opacity="0.7"/>
+      <circle cx="66" cy="40" r="6" fill="#4a90e2"/>
+      <line x1="62" y1="36" x2="70" y2="44" stroke="#0a0a0a" stroke-width="1.5"/>
+      <line x1="70" y1="36" x2="62" y2="44" stroke="#0a0a0a" stroke-width="1.5"/>
+    </svg>
+  </div>
+  <div class="concept-num">Concepto 06</div>
+  <div class="concept-name">Ruta colectiva</div>
+  <div class="concept-desc">Puntos de conocimiento conectados por una ruta. El punto final tiene una X — no de error, sino de "destino marcado". Proporción áurea en el espaciado entre puntos. Muy narrativo.</div>
+  <span class="tag">Navegación + conocimiento</span>
+</div>
+
+<!-- C7: Escudo minimal -->
+<div class="card">
+  <div class="logo-area">
+    <svg viewBox="0 0 80 80" width="80" height="80">
+      <path d="M40,12 L64,24 L64,46 Q64,62 40,70 Q16,62 16,46 L16,24 Z" fill="none" stroke="#4a90e2" stroke-width="2"/>
+      <path d="M40,22 L54,30 L54,46 Q54,56 40,62 Q26,56 26,46 L26,30 Z" fill="#4a90e2" opacity="0.15"/>
+      <circle cx="40" cy="44" r="4" fill="#4a90e2"/>
+      <line x1="40" y1="30" x2="40" y2="40" stroke="#4a90e2" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+  </div>
+  <div class="concept-num">Concepto 07</div>
+  <div class="concept-name">Escudo de red</div>
+  <div class="concept-desc">Escudo como símbolo de confianza y comunidad protegida. Interior con pin minimalista. Ratio del escudo basado en sección áurea. Comunica seguridad, pertenencia y verificación colectiva.</div>
+  <span class="tag">Confianza</span>
+</div>
+
+<!-- C8: Ojo que ve -->
+<div class="card">
+  <div class="logo-area">
+    <svg viewBox="0 0 80 80" width="80" height="80">
+      <path d="M10,40 Q25,18 40,18 Q55,18 70,40 Q55,62 40,62 Q25,62 10,40 Z" fill="none" stroke="#4a90e2" stroke-width="2"/>
+      <circle cx="40" cy="40" r="10" fill="none" stroke="#4a90e2" stroke-width="1.8"/>
+      <circle cx="40" cy="40" r="4" fill="#4a90e2"/>
+      <circle cx="37" cy="37" r="1.5" fill="#cccccc" opacity="0.6"/>
+    </svg>
+  </div>
+  <div class="concept-num">Concepto 08</div>
+  <div class="concept-name">El ojo del rider</div>
+  <div class="concept-desc">Ojo como símbolo de conocimiento y observación colectiva. "Los riders que ya fueron te muestran el camino." Proporciones del iris en ratio áureo. Poderoso pero puede sentirse demasiado vigilante.</div>
+  <span class="tag">Conocimiento</span>
+</div>
+
+<!-- C9: Punto cardinal moderno -->
+<div class="card">
+  <div class="logo-area">
+    <svg viewBox="0 0 80 80" width="80" height="80">
+      <line x1="40" y1="12" x2="40" y2="68" stroke="#4a90e2" stroke-width="1.5" opacity="0.4"/>
+      <line x1="12" y1="40" x2="68" y2="40" stroke="#4a90e2" stroke-width="1.5" opacity="0.4"/>
+      <polygon points="40,12 44,28 40,24 36,28" fill="#4a90e2"/>
+      <circle cx="40" cy="40" r="8" fill="none" stroke="#4a90e2" stroke-width="2"/>
+      <circle cx="40" cy="40" r="3" fill="#4a90e2"/>
+      <circle cx="68" cy="40" r="3" fill="#4a90e2" opacity="0.5"/>
+      <circle cx="12" cy="40" r="3" fill="#4a90e2" opacity="0.5"/>
+      <circle cx="40" cy="68" r="3" fill="#4a90e2" opacity="0.5"/>
+    </svg>
+  </div>
+  <div class="concept-num">Concepto 09</div>
+  <div class="concept-name">Rosa de los vientos</div>
+  <div class="concept-desc">Brújula minimalista con un solo norte destacado. Comunica orientación y dirección. El norte es siempre el conocimiento de la comunidad. Proporción áurea en el radio del círculo vs la longitud de los ejes.</div>
+  <span class="tag">Orientación</span>
+</div>
+
+<!-- C10: Señal de red -->
+<div class="card">
+  <div class="logo-area">
+    <svg viewBox="0 0 80 80" width="80" height="80">
+      <path d="M40,68 Q10,50 10,32 Q10,14 40,14 Q70,14 70,32 Q70,50 40,68 Z" fill="none" stroke="#4a90e2" stroke-width="0.8" opacity="0.3"/>
+      <path d="M40,68 Q20,52 20,36 Q20,22 40,22 Q60,22 60,36 Q60,52 40,68 Z" fill="none" stroke="#4a90e2" stroke-width="1" opacity="0.5"/>
+      <path d="M40,68 Q30,54 30,42 Q30,32 40,32 Q50,32 50,42 Q50,54 40,68 Z" fill="none" stroke="#4a90e2" stroke-width="1.5" opacity="0.8"/>
+      <circle cx="40" cy="68" r="3.5" fill="#4a90e2"/>
+      <circle cx="40" cy="42" r="2.5" fill="#4a90e2" opacity="0.8"/>
+    </svg>
+  </div>
+  <div class="concept-num">Concepto 10</div>
+  <div class="concept-name">Señal de conocimiento</div>
+  <div class="concept-desc">Señal de WiFi invertida — apunta hacia abajo como un pin, pero emite hacia arriba como una red. Metáfora perfecta: el conocimiento se irradia desde un punto hacia la comunidad. Muy original y moderno.</div>
+  <span class="tag">Red + lugar</span>
+</div>
+
+</div>

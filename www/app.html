@@ -244,6 +244,8 @@
   background: #1a1a1a; border-radius: 20px 20px 0 0;
   z-index: 2000; max-height: 90vh; overflow-y: auto;
   transition: bottom 0.4s ease; touch-action: pan-y;
+  will-change: transform;
+  -webkit-overflow-scrolling: touch;
 }
     #bottomSheet.medio    { bottom: -47vh; }
     #bottomSheet.abierto  { bottom: 0; }
@@ -440,8 +442,8 @@ if (navigator.geolocation) {
     () => {}
   );
 }
-L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-  attribution: '© OpenStreetMap © CARTO'
+L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png', {
+  attribution: '© Stadia Maps © OpenStreetMap'
 }).addTo(mapa);
 
 let pinActivo = null;
@@ -573,7 +575,9 @@ function onMove(y) {
   if (!isDragging) return;
   const dy = y - startY;
   const newY = Math.min(window.innerHeight * 0.88, Math.max(0, currentY + dy));
-  sheet.style.transform = `translateY(${newY}px)`;
+  requestAnimationFrame(() => {
+    sheet.style.transform = `translateY(${newY}px)`;
+  });
 }
 
 function onEnd(y) {
