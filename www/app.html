@@ -376,6 +376,33 @@
       align-items: center; justify-content: center; gap: 6px;
       margin-bottom: 10px;
     }
+
+#sheetHeader {
+      display: flex; gap: 12px; padding: 14px 16px 10px; align-items: flex-start;
+    }
+    #sheetFoto {
+      width: 110px; height: 110px; border-radius: 10px;
+      background: #222; flex-shrink: 0; overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+    }
+    #sheetFoto img { width: 100%; height: 100%; object-fit: cover; border-radius: 10px; }
+    #sheetInfo { flex: 1; padding-top: 2px; }
+    #sheetNombre { font-size: 16px; font-weight: 700; color: white; margin-bottom: 4px; }
+    #sheetComuna {
+      font-size: 12px; color: #888; margin-bottom: 6px;
+      display: flex; align-items: center; gap: 4px;
+    }
+    #sheetFecha {
+      font-size: 11px; color: #4a90e2;
+      display: flex; align-items: center; gap: 4px;
+    }
+    #sheetCuerpo { padding: 0 16px 8px; }
+    #sheetNota {
+      font-size: 13px; color: #ccc; line-height: 1.6; margin-bottom: 14px;
+      padding: 12px; background: #222; border-radius: 10px;
+      border-left: 3px solid #4a90e2;
+    }
+
     /* NAV INFERIOR */
 #navInferior {
   position: fixed; bottom: 16px; left: 16px; right: 16px;
@@ -508,11 +535,17 @@ border-radius: 20px;
 <div id="bottomSheet">
   <div id="sheetHandle"></div>
   <button id="btnCerrarX" onclick="cerrarSheet()">✕</button>
-  <div id="sheetFoto">📸 Sin foto aún</div>
-  <div id="sheetInfo">
-    <div id="sheetNombre"></div>
-    <div id="sheetComuna"></div>
-    <div id="sheetFecha"></div>
+  <div id="sheetHeader">
+    <div id="sheetFoto">
+      <span style="font-size:13px; color:#555;">📸 Sin foto aún</span>
+    </div>
+    <div id="sheetInfo">
+      <div id="sheetNombre"></div>
+      <div id="sheetComuna"></div>
+      <div id="sheetFecha"></div>
+    </div>
+  </div>
+  <div id="sheetCuerpo">
     <div id="sheetNota"></div>
     <div id="sheetBtnsNav">
       <a id="btnWaze" class="sheetBtn" target="_blank">
@@ -525,8 +558,7 @@ border-radius: 20px;
       </a>
     </div>
     <button id="btnReporte" onclick="reportarError()">⚠️ Reportar error en este local</button>
-
-</div>
+  </div>
 
 <div id="sheetLikes">
   <button class="like-btn" id="btnLike" onclick="toggleLike('like')">👍 <span id="contLikes">0</span></button>
