@@ -5,279 +5,318 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Sugerir local — DeliveryMap</title>
   <style>
-    #popupCuenta {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.85);
-  z-index: 9999;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
-}
-.popup-box {
-  background: #1a1a1a;
-  border: 1px solid #4a90e2;
-  border-radius: 16px;
-  padding: 28px 24px;
-  max-width: 380px;
-  width: 100%;
-  text-align: center;
-}
-.popup-icon { font-size: 36px; margin-bottom: 12px; }
-.popup-titulo {
-  font-size: 18px;
-  font-weight: 700;
-  color: white;
-  margin-bottom: 10px;
-}
-.popup-texto {
-  font-size: 14px;
-  color: #888;
-  line-height: 1.6;
-  margin-bottom: 24px;
-}
-.popup-texto span { color: #4a90e2; font-weight: 600; }
-.popup-btn-primary {
-  display: block;
-  width: 100%;
-  padding: 13px;
-  background: #4a90e2;
-  color: white;
-  border: none;
-  border-radius: 10px;
-  font-size: 15px;
-  font-weight: 700;
-  cursor: pointer;
-  text-decoration: none;
-  margin-bottom: 10px;
-}
-.popup-btn-secondary {
-  display: block;
-  width: 100%;
-  padding: 10px;
-  background: transparent;
-  color: #555;
-  border: none;
-  font-size: 13px;
-  cursor: pointer;
-}
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      background: #0a0a0a;
-      color: #ccc;
-      font-family: sans-serif;
-      font-size: 15px;
-      line-height: 1.7;
-      padding: 24px 20px 60px;
-      max-width: 480px;
-      margin: 0 auto;
+      background: #0a0a0a; color: #ccc;
+      font-family: sans-serif; min-height: 100vh;
+      max-width: 480px; margin: 0 auto;
+      padding-bottom: 40px;
     }
-    .logo {
-      font-size: 22px;
-      font-weight: 900;
-      letter-spacing: 3px;
-      color: white;
-      text-shadow: 0 0 10px #4a90e2;
-      margin-bottom: 4px;
+
+    /* HEADER */
+    #header {
+      background: rgba(10,10,10,0.97);
+      padding: 12px 16px;
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid #4a90e222;
+      position: sticky; top: 0; z-index: 100;
     }
-    .logo span { color: #4a90e2; }
-    .subtitulo {
-      font-size: 11px;
-      color: #555;
-      letter-spacing: 2px;
-      margin-bottom: 32px;
+    #logoArea { display: flex; align-items: center; gap: 8px; text-decoration: none; }
+    #logoTexto { font-size: 13px; font-weight: 900; letter-spacing: 2px; color: white; }
+    #logoTexto span { color: #4a90e2; }
+    #btnMenu {
+      background: #111; border: 1px solid #4a90e233;
+      border-radius: 10px; width: 36px; height: 36px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
     }
-    h1 {
-      font-size: 20px;
-      color: white;
-      margin-bottom: 6px;
+
+    /* HERO */
+    #hero {
+      display: flex; align-items: center; gap: 16px;
+      padding: 20px 16px 16px;
     }
-    .desc {
-      font-size: 13px;
-      color: #666;
-      margin-bottom: 28px;
-      line-height: 1.6;
+    #heroIcono {
+      width: 64px; height: 64px; border-radius: 14px;
+      background: #0d1f3c; border: 1px solid #4a90e233;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
     }
-    label {
-      display: block;
-      font-size: 12px;
-      color: #4a90e2;
-      font-weight: 700;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      margin-bottom: 6px;
+    #heroTitulo { font-size: 22px; font-weight: 900; color: white; margin-bottom: 4px; }
+    #heroDesc { font-size: 13px; color: #555; line-height: 1.5; }
+
+    /* FORMULARIO */
+    #formulario { padding: 0 16px; }
+
+    .campo {
+      background: #111; border: 1px solid #4a90e211;
+      border-radius: 14px; padding: 14px;
+      margin-bottom: 10px;
+      display: flex; align-items: flex-start; gap: 12px;
     }
-    input, textarea {
-      width: 100%;
-      background: #1a1a1a;
-      border: 1px solid #333;
-      border-radius: 10px;
-      color: white;
-      font-size: 15px;
-      padding: 12px 14px;
-      outline: none;
-      margin-bottom: 20px;
-      font-family: sans-serif;
+    .campo:focus-within { border-color: #4a90e244; }
+    .campo-icono {
+      width: 36px; height: 36px; border-radius: 10px;
+      background: #0d1f3c; display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; margin-top: 2px;
+    }
+    .campo-inner { flex: 1; min-width: 0; }
+    .campo-label {
+      font-size: 9px; font-weight: 700; color: #4a90e2;
+      letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px;
+    }
+    .campo-inner input, .campo-inner textarea {
+      width: 100%; background: #1a1a1a; border: 1px solid #222;
+      border-radius: 8px; color: white; font-size: 14px;
+      padding: 10px 12px; outline: none; font-family: sans-serif;
       transition: border 0.2s;
     }
-    input:focus, textarea:focus {
-      border-color: #4a90e2;
+    .campo-inner input:focus, .campo-inner textarea:focus { border-color: #4a90e2; }
+    .campo-inner textarea { height: 90px; resize: none; }
+
+    .hint-campo {
+      font-size: 11px; color: #333; margin: -4px 0 10px 16px;
+      display: flex; align-items: flex-start; gap: 6px; line-height: 1.5;
     }
-    textarea {
-      height: 100px;
-      resize: none;
+
+    /* BOTÓN */
+    #btnEnviar {
+      width: 100%; padding: 16px;
+      background: #4a90e2; color: white;
+      border: none; border-radius: 14px;
+      font-size: 15px; font-weight: 700; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      letter-spacing: 1px; text-transform: uppercase;
+      margin-bottom: 12px; transition: opacity 0.2s;
     }
-    .hint {
-      font-size: 12px;
-      color: #555;
-      margin-top: -16px;
-      margin-bottom: 20px;
-      line-height: 1.5;
-    }
-    button {
-      width: 100%;
-      padding: 14px;
-      background: #4a90e2;
-      color: white;
-      border: none;
-      border-radius: 10px;
-      font-size: 16px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: opacity 0.2s;
-    }
-    button:active { opacity: 0.8; }
-    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    #btnEnviar:active { opacity: 0.8; }
+    #btnEnviar:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* MENSAJE */
     .mensaje {
-      margin-top: 20px;
-      padding: 14px;
-      border-radius: 10px;
-      font-size: 14px;
-      text-align: center;
-      display: none;
+      padding: 12px 14px; border-radius: 10px;
+      font-size: 13px; margin-bottom: 12px; display: none;
     }
-    .mensaje.exito {
-      background: #0f2e1a;
-      color: #4caf50;
-      border: 1px solid #2a5c35;
+    .mensaje.exito { background: #0f2e1a; color: #4caf50; border: 1px solid #2a5c35; }
+    .mensaje.error { background: #2e0f0f; color: #f44336; border: 1px solid #5c2a2a; }
+
+    /* CARD INFO */
+    #cardInfo {
+      background: #111; border: 1px solid #4a90e211;
+      border-radius: 14px; padding: 14px;
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 16px;
     }
-    .mensaje.error {
-      background: #2e0f0f;
-      color: #f44336;
-      border: 1px solid #5c2a2a;
+    #cardInfoIcono {
+      width: 40px; height: 40px; border-radius: 10px;
+      background: #0d1f3c; display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
     }
-    .volver {
-      display: inline-block;
-      margin-top: 28px;
-      color: #444;
-      text-decoration: none;
-      font-size: 13px;
+    #cardInfoTexto { font-size: 13px; font-weight: 600; color: white; margin-bottom: 2px; }
+    #cardInfoSub { font-size: 12px; color: #555; line-height: 1.4; }
+
+    /* VOLVER */
+    #btnVolver {
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      color: #4a90e2; text-decoration: none; font-size: 12px;
+      letter-spacing: 2px; text-transform: uppercase; padding: 8px;
+    }
+
+    /* POPUP */
+    #popupCuenta {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.85); z-index: 9999;
+      align-items: center; justify-content: center; padding: 24px;
+    }
+    .popup-box {
+      background: #111; border: 1px solid #4a90e244;
+      border-radius: 16px; padding: 28px 24px;
+      max-width: 380px; width: 100%; text-align: center;
+    }
+    .popup-icon { font-size: 36px; margin-bottom: 12px; }
+    .popup-titulo { font-size: 18px; font-weight: 700; color: white; margin-bottom: 10px; }
+    .popup-texto { font-size: 14px; color: #555; line-height: 1.6; margin-bottom: 24px; }
+    .popup-texto span { color: #4a90e2; font-weight: 600; }
+    .popup-btn-primary {
+      display: block; width: 100%; padding: 13px;
+      background: #4a90e2; color: white; border: none;
+      border-radius: 12px; font-size: 15px; font-weight: 700;
+      cursor: pointer; text-decoration: none; margin-bottom: 10px;
+    }
+    .popup-btn-secondary {
+      display: block; width: 100%; padding: 10px;
+      background: transparent; color: #444; border: none;
+      font-size: 13px; cursor: pointer;
     }
   </style>
   <script defer src="https://cloud.umami.is/script.js" data-website-id="568d65a7-876b-405a-a4b2-3b6a35d3d8f9"></script>
 </head>
 <body>
 
-  <div class="logo">DELIVERY<span>MAP</span></div>
-  <div class="subtitulo">// CHILE DELIVERY NETWORK //</div>
+<div id="header">
+  <a id="logoArea" href="app.html">
+    <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
+      <rect width="32" height="32" rx="6" fill="#0d1f3c"/>
+      <path d="M6 16 L16 6 L26 16" stroke="#4a90e2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      <path d="M6 16 L16 26 L26 16" stroke="#4a90e2" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" fill="none" opacity="0.4"/>
+      <circle cx="16" cy="16" r="3" fill="#4a90e2"/>
+      <line x1="16" y1="9" x2="16" y2="13" stroke="#4a90e2" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>
+    <div id="logoTexto">DELIVERY<span>MAP</span></div>
+  </a>
+  <div id="btnMenu">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4a90e2" stroke-width="2" stroke-linecap="round">
+      <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+    </svg>
+  </div>
+</div>
 
-  <h1>Sugerir un local</h1>
-  <p class="desc">¿Conoces un local que no está en el mapa? Agrégalo y ayuda a otros riders. Revisamos cada sugerencia antes de publicarla.</p>
+<div id="hero">
+  <div id="heroIcono">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#4a90e2" stroke-width="1.5" stroke-linecap="round">
+      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+      <circle cx="12" cy="10" r="3"/>
+    </svg>
+  </div>
+  <div>
+    <div id="heroTitulo">Sugerir un local</div>
+    <div id="heroDesc">¿Conoces un local que no está en el mapa? Agrégalo y ayuda a otros riders. Revisaremos cada sugerencia antes de publicarla.</div>
+  </div>
+</div>
 
-  <label for="nombre">Nombre del local</label>
-  <input type="text" id="nombre" placeholder="Ej: McDonald's Mall Plaza Vespucio" maxlength="100"/>
+<div id="formulario">
 
-  <label for="comuna">Comuna</label>
-  <input type="text" id="comuna" placeholder="Ej: La Florida" maxlength="60"/>
+  <div class="campo">
+    <div class="campo-icono">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4a90e2" stroke-width="1.5" stroke-linecap="round">
+        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+        <polyline points="9 22 9 12 15 12 15 22"/>
+      </svg>
+    </div>
+    <div class="campo-inner">
+      <div class="campo-label">Nombre del local</div>
+      <input type="text" id="nombre" placeholder="Ej: McDonald's Mall Plaza Vespucio" maxlength="100"/>
+    </div>
+  </div>
 
-  <label for="nota">Nota de ubicación</label>
-  <textarea id="nota" placeholder="Ej: Entrada por estacionamiento nivel -1, frente a Falabella. Timbre en puerta azul."></textarea>
-  <p class="hint">Sé específico — el mall, el nivel, la puerta, el color, cualquier referencia que ayude al rider a llegar directo.</p>
+  <div class="campo">
+    <div class="campo-icono">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4a90e2" stroke-width="1.5" stroke-linecap="round">
+        <path d="M3 3h7v7H3z"/><path d="M14 3h7v7h-7z"/><path d="M14 14h7v7h-7z"/><path d="M3 14h7v7H3z"/>
+      </svg>
+    </div>
+    <div class="campo-inner">
+      <div class="campo-label">Comuna</div>
+      <input type="text" id="comuna" placeholder="Ej: La Florida" maxlength="60"/>
+    </div>
+  </div>
 
-  <button id="btnEnviar" onclick="enviarSugerencia()">📍 Enviar sugerencia</button>
+  <div class="campo">
+    <div class="campo-icono">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4a90e2" stroke-width="1.5" stroke-linecap="round">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+        <polyline points="14 2 14 8 20 8"/>
+        <line x1="16" y1="13" x2="8" y2="13"/>
+        <line x1="16" y1="17" x2="8" y2="17"/>
+        <polyline points="10 9 9 9 8 9"/>
+      </svg>
+    </div>
+    <div class="campo-inner">
+      <div class="campo-label">Nota de ubicación</div>
+      <textarea id="nota" placeholder="Ej: Entrada por estacionamiento nivel -1, frente a Falabella. Timbre en puerta azul."></textarea>
+    </div>
+  </div>
+
+  <div class="hint-campo">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#4a90e244" stroke-width="2" stroke-linecap="round" style="flex-shrink:0; margin-top:1px"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    Sé específico — el mall, el nivel, la puerta, el color, cualquier referencia que ayude al rider a llegar directo.
+  </div>
 
   <div id="mensaje" class="mensaje"></div>
 
-  <a class="volver" href="app.html">← Volver al mapa</a>
+  <button id="btnEnviar" onclick="enviarSugerencia()">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+    Enviar sugerencia
+  </button>
 
-  <script>
-    const SUPABASE_URL = 'https://zxwwffnjrrkmtsxzvswa.supabase.co';
-    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp4d3dmZm5qcnJrbXRzeHp2c3dhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA3MDU2MzksImV4cCI6MjA5NjI4MTYzOX0.0rCwuo78dkvJ-C6Y3br3s7ZuPpdikakxC21WO4dv_rI';
+  <div id="cardInfo">
+    <div id="cardInfoIcono">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4a90e2" stroke-width="1.5" stroke-linecap="round">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+      </svg>
+    </div>
+    <div>
+      <div id="cardInfoTexto">Revisamos cada sugerencia</div>
+      <div id="cardInfoSub">Nuestro equipo y la comunidad validan la información antes de publicarla en DeliveryMap.</div>
+    </div>
+  </div>
 
-    async function enviarSugerencia() {
-      const nombre = document.getElementById('nombre').value.trim();
-      const comuna = document.getElementById('comuna').value.trim();
-      const nota   = document.getElementById('nota').value.trim();
-      const btn    = document.getElementById('btnEnviar');
-      const msg    = document.getElementById('mensaje');
+  <a id="btnVolver" href="app.html">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4a90e2" stroke-width="2" stroke-linecap="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+    Volver al mapa
+  </a>
 
-      if (!nombre || !comuna || !nota) {
-        msg.textContent = '⚠️ Por favor completa todos los campos.';
-        msg.className = 'mensaje error';
-        msg.style.display = 'block';
-        return;
-      }
-
-      btn.disabled = true;
-      btn.textContent = 'Enviando...';
-
-      const tokenActual = localStorage.getItem('dm_token') || SUPABASE_KEY;
-      const res = await fetch(`${SUPABASE_URL}/rest/v1/sugerencias`, {
-        method: 'POST',
-        headers: {
-          'apikey': SUPABASE_KEY,
-          'Authorization': `Bearer ${tokenActual}`,
-          'Content-Type': 'application/json',
-          'Prefer': 'return=minimal'
-        },
-        body: JSON.stringify({
-          nombre,
-          comuna,
-          nota,
-          estado: 'pendiente',
-          fecha: new Date().toISOString(),
-          user_id: localStorage.getItem('dm_user') ? JSON.parse(localStorage.getItem('dm_user')).id : null
-        })
-      });
-
-if (res.ok) {
-        msg.textContent = '✅ ¡Sugerencia enviada! La revisaremos pronto.';
-        msg.className = 'mensaje exito';
-        msg.style.display = 'block';
-        document.getElementById('nombre').value = '';
-        document.getElementById('comuna').value = '';
-        document.getElementById('nota').value = '';
-        btn.textContent = '📍 Enviar sugerencia';
-        btn.disabled = false;
-        // Mostrar popup solo si no tiene sesión
-        const token = localStorage.getItem('dm_token');
-        if (!token) {
-          setTimeout(() => {
-            document.getElementById('popupCuenta').style.display = 'flex';
-          }, 800);
-        }
-      } else {
-        msg.textContent = '😕 No se pudo enviar. Intenta de nuevo.';
-        msg.className = 'mensaje error';
-        msg.style.display = 'block';
-        btn.textContent = '📍 Enviar sugerencia';
-        btn.disabled = false;
-      }
-}
-  </script>
+</div>
 
 <div id="popupCuenta">
   <div class="popup-box">
     <div class="popup-icon">🎖️</div>
     <div class="popup-titulo">¡Gracias por aportar!</div>
-    <p class="popup-texto">
-      Con una cuenta puedes ganar <span>monedas</span> por cada local que aportes,
-      personalizar tu perfil y acceder a funciones exclusivas para riders.
-    </p>
+    <p class="popup-texto">Con una cuenta puedes ganar <span>monedas</span> por cada local que aportes, personalizar tu perfil y acceder a funciones exclusivas para riders.</p>
     <a href="registro.html" class="popup-btn-primary">Crear cuenta gratis</a>
     <button class="popup-btn-secondary" onclick="document.getElementById('popupCuenta').style.display='none'">Ahora no</button>
   </div>
 </div>
+
+<script>
+const SUPABASE_URL = 'https://zxwwffnjrrkmtsxzvswa.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp4d3dmZm5qcnJrbXRzeHp2c3dhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA3MDU2MzksImV4cCI6MjA5NjI4MTYzOX0.0rCwuo78dkvJ-C6Y3br3s7ZuPpdikakxC21WO4dv_rI';
+
+async function enviarSugerencia() {
+  const nombre = document.getElementById('nombre').value.trim();
+  const comuna = document.getElementById('comuna').value.trim();
+  const nota   = document.getElementById('nota').value.trim();
+  const btn    = document.getElementById('btnEnviar');
+  const msg    = document.getElementById('mensaje');
+
+  if (!nombre || !comuna || !nota) {
+    msg.textContent = '⚠️ Por favor completa todos los campos.';
+    msg.className = 'mensaje error'; msg.style.display = 'block'; return;
+  }
+
+  btn.disabled = true; btn.textContent = 'Enviando...';
+
+  const tokenActual = localStorage.getItem('dm_token') || SUPABASE_KEY;
+  const res = await fetch(SUPABASE_URL + '/rest/v1/sugerencias', {
+    method: 'POST',
+    headers: {
+      'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + tokenActual,
+      'Content-Type': 'application/json', 'Prefer': 'return=minimal'
+    },
+    body: JSON.stringify({
+      nombre, comuna, nota, estado: 'pendiente',
+      fecha: new Date().toISOString(),
+      user_id: localStorage.getItem('dm_user') ? JSON.parse(localStorage.getItem('dm_user')).id : null
+    })
+  });
+
+  if (res.ok) {
+    msg.textContent = '✅ ¡Sugerencia enviada! La revisaremos pronto.';
+    msg.className = 'mensaje exito'; msg.style.display = 'block';
+    document.getElementById('nombre').value = '';
+    document.getElementById('comuna').value = '';
+    document.getElementById('nota').value = '';
+    btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> Enviar sugerencia';
+    btn.disabled = false;
+    const token = localStorage.getItem('dm_token');
+    if (!token) { setTimeout(() => { document.getElementById('popupCuenta').style.display = 'flex'; }, 800); }
+  } else {
+    msg.textContent = '😕 No se pudo enviar. Intenta de nuevo.';
+    msg.className = 'mensaje error'; msg.style.display = 'block';
+    btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> Enviar sugerencia';
+    btn.disabled = false;
+  }
+}
+</script>
 </body>
 </html>

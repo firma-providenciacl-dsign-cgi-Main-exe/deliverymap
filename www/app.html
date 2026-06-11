@@ -239,7 +239,7 @@
 
     /* DROPDOWN */
     #dropdown {
-      position: fixed; top: 58px; left: 0; right: 0; bottom: 0;
+      position: fixed; top: 58px; left: 0; right: 0; bottom: 90px;
       background: #0a0a0a;
       z-index: 999; display: none; flex-direction: column;
       overflow: hidden;
@@ -289,7 +289,7 @@
     .result-flecha { color: #333; font-size: 16px; }
     .no-resultado { padding: 40px 16px; text-align: center; color: #444; font-size: 14px; }
     #dropdownInferior {
-      position: fixed; bottom: 0; left: 0; right: 0;
+      position: fixed; bottom: 90px; left: 0; right: 0;
       background: rgba(10,10,10,0.97);
       border-top: 1px solid #4a90e222;
       backdrop-filter: blur(10px);
@@ -845,7 +845,7 @@ const sheet = document.getElementById('bottomSheet');
 let startY = 0;
 let currentY = 0;
 let isDragging = false;
-const MEDIO = window.innerHeight * 0.47;
+const MEDIO = window.innerHeight * 0.35;
 
 sheet.style.bottom = '0';
 sheet.style.transform = `translateY(${window.innerHeight}px)`;
@@ -1286,9 +1286,9 @@ verificarSesion();
     <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/></svg>
     <span>MAPA</span>
   </a>
-  <a class="nav-tab" href="#">
-    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-    <span>LOCALES</span>
+  <a class="nav-tab" href="sugerir.html">
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h7v7H3z"/><path d="M14 3h7v7h-7z"/><path d="M14 14h7v7h-7z"/><path d="M3 14h7v7H3z"/></svg>
+    <span>SUGERIR LOCAL</span>
   </a>
   <a class="nav-tab" href="#">
     <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
