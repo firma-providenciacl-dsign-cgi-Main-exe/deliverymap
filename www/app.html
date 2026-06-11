@@ -153,39 +153,38 @@
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
     body { background: #0a0a0a; }
 
-    /* SPLASH */
-    #splash {
-      position: fixed; inset: 0;
-      background: #0a0a0a;
-      z-index: 9999;
-      display: flex; align-items: center; justify-content: center;
-      transition: opacity 0.8s ease;
-    }
-    #splash-content { text-align: center; }
-    #neon-title { font-size: 42px; font-weight: 900; letter-spacing: 4px; line-height: 1; margin-bottom: 12px; }
-    #neon-delivery {
-      display: block; color: white;
-      text-shadow: 0 0 5px #fff, 0 0 15px #4a90e2, 0 0 30px #4a90e2, 0 0 60px #4a90e2;
-      animation: neonFlicker 2s linear forwards;
-    }
-    #neon-map {
-      display: block; color: #4a90e2; opacity: 0;
-      text-shadow: 0 0 5px #4a90e2, 0 0 15px #4a90e2, 0 0 30px #4a90e2, 0 0 80px #4a90e2;
-      animation: neonFlicker 2s linear forwards 0.3s;
-    }
-    #neon-sub {
-      font-size: 11px; letter-spacing: 3px; color: #4a90e2; opacity: 0;
-      animation: fadeInSub 0.5s ease forwards 1.2s;
-      text-shadow: 0 0 8px #4a90e2;
-    }
-    @keyframes neonFlicker {
-      0% { opacity:0; } 10% { opacity:1; } 11% { opacity:0; }
-      13% { opacity:1; } 14% { opacity:0; } 16% { opacity:1; } 100% { opacity:1; }
-    }
-    @keyframes fadeInSub {
-      from { opacity:0; letter-spacing:6px; } to { opacity:1; letter-spacing:3px; }
-    }
-
+/* SPLASH */
+#splash {
+  position: fixed; inset: 0; background: #0a0a0a;
+  z-index: 9999; display: flex; align-items: center;
+  justify-content: center; flex-direction: column;
+  transition: opacity 0.5s ease;
+}
+#splash-canvas { position: absolute; inset: 0; }
+#splash-content {
+  position: relative; z-index: 1; text-align: center;
+}
+#neon-delivery {
+  display: block; font-size: 42px; font-weight: 900;
+  letter-spacing: 4px; color: white; opacity: 0;
+  text-shadow: 0 0 5px #fff, 0 0 15px #4a90e2, 0 0 30px #4a90e2;
+  animation: fadeUp 0.4s ease forwards 0s;
+}
+#neon-map {
+  display: block; font-size: 42px; font-weight: 900;
+  letter-spacing: 4px; color: #4a90e2; opacity: 0;
+  text-shadow: 0 0 5px #4a90e2, 0 0 20px #4a90e2, 0 0 40px #4a90e2;
+  animation: fadeUp 0.4s ease forwards 0.3s;
+}
+#neon-sub {
+  font-size: 11px; letter-spacing: 3px; color: #4a90e2;
+  opacity: 0; margin-top: 8px; display: block;
+  animation: fadeUp 0.3s ease forwards 1.0s;
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
 /* HEADER */
 #header {
   background: rgba(10,10,10,0.95);
@@ -264,8 +263,7 @@
 
     /* MAPA */
      #mapa { position: fixed; top: 58px; left: 0; right: 0; bottom: 0; z-index: 1; }
-#mapa .leaflet-tile-pane { transform: translateZ(0); }
-#mapa .leaflet-tile { filter: hue-rotate(200deg) saturate(1.3) brightness(0.9); margin: -1px; padding: 1px; }
+
      #bottomSheet {
   position: fixed; left: 0; right: 0; bottom: -100%;
   background: #1a1a1a; border-radius: 20px 20px 0 0;
@@ -343,12 +341,11 @@
 <body>
 
 <div id="splash">
+  <canvas id="splash-canvas"></canvas>
   <div id="splash-content">
-    <div id="neon-title">
-      <span id="neon-delivery">DELIVERY</span>
-      <span id="neon-map">MAP™</span>
-    </div>
-    <div id="neon-sub">// CHILE DELIVERY NETWORK //</div>
+    <span id="neon-delivery">DELIVERY</span>
+    <span id="neon-map">MAP™</span>
+    <span id="neon-sub">// CHILE DELIVERY NETWORK //</span>
   </div>
 </div>
 
@@ -419,51 +416,88 @@
 <script>
 
 // SPLASH
-async function supaFetch(url, options = {}) {
-  let token = localStorage.getItem('dm_token');
-  
-  // Inyectar token actual
-  options.headers = {
-    ...options.headers,
-    'apikey': SUPABASE_KEY,
-    'Authorization': `Bearer ${token || SUPABASE_KEY}`
-  };
+const splashCanvas = document.getElementById('splash-canvas');
+const splashCtx = splashCanvas.getContext('2d');
+splashCanvas.width = window.innerWidth;
+splashCanvas.height = window.innerHeight;
 
-  let res = await fetch(url, options);
+const NUM_POINTS = 69;
+const splashPoints = [];
+for (let i = 0; i < NUM_POINTS; i++) {
+  splashPoints.push({
+    x: Math.random() * splashCanvas.width,
+    y: Math.random() * splashCanvas.height,
+    r: Math.random() * 2 + 1.5
+  });
+}
 
-  // Si 401, intentar refrescar token y reintentar
-  if (res.status === 401) {
-    const refreshToken = localStorage.getItem('dm_refresh');
-    if (refreshToken) {
-      const resRefresh = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=refresh_token`, {
-        method: 'POST',
-        headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ refresh_token: refreshToken })
-      });
-      if (resRefresh.ok) {
-        const newData = await resRefresh.json();
-        localStorage.setItem('dm_token', newData.access_token);
-        localStorage.setItem('dm_user', JSON.stringify(newData.user));
-        if (newData.refresh_token) localStorage.setItem('dm_refresh', newData.refresh_token);
+let splashStart = null;
+const SPLASH_TOTAL = 1800;
 
-        // Reintentar con token nuevo
-        options.headers['Authorization'] = `Bearer ${newData.access_token}`;
-        res = await fetch(url, options);
+function drawSplash(ts) {
+  if (!splashStart) splashStart = ts;
+  const t = (ts - splashStart) / SPLASH_TOTAL;
+
+  splashCtx.clearRect(0, 0, splashCanvas.width, splashCanvas.height);
+
+  const lineProgress = Math.min(1, Math.max(0, (t - 0.05) / 0.15));
+  const pulsePhase  = Math.min(1, Math.max(0, (t - 0.7)  / 0.2));
+  const fadeOut     = Math.min(1, Math.max(0, (t - 1.3)  / 0.15));
+
+  // Líneas
+  for (let i = 0; i < splashPoints.length; i++) {
+    for (let j = i + 1; j < splashPoints.length; j++) {
+      const dx = splashPoints[i].x - splashPoints[j].x;
+      const dy = splashPoints[i].y - splashPoints[j].y;
+      const dist = Math.sqrt(dx*dx + dy*dy);
+      if (dist < 99999) {
+        const alpha = lineProgress * (1 - dist/220) * 0.35 * (1 - fadeOut);
+        splashCtx.beginPath();
+        splashCtx.moveTo(splashPoints[i].x, splashPoints[i].y);
+        splashCtx.lineTo(splashPoints[j].x, splashPoints[j].y);
+        splashCtx.strokeStyle = `rgba(74,144,226,${alpha})`;
+        splashCtx.lineWidth = 0.8;
+        splashCtx.stroke();
       }
     }
   }
 
-  return res;
-}
-setTimeout(() => {
-  const splash = document.getElementById('splash');
-  splash.style.opacity = '0';
-  setTimeout(() => {
-    splash.style.display = 'none';
-    setTimeout(() => mapa.invalidateSize(), 100);
-  }, 600);
-}, 2000);
+  // Puntos
+  splashPoints.forEach((p, i) => {
+    const delay = i / NUM_POINTS * 0.3;
+    const pAlpha = Math.min(1, Math.max(0, (t - delay) / 0.15)) * (1 - fadeOut);
 
+    if (pulsePhase > 0) {
+      const pulseR = p.r + pulsePhase * 12;
+      const pulseA = (1 - pulsePhase) * 0.25 * pAlpha;
+      splashCtx.beginPath();
+      splashCtx.arc(p.x, p.y, pulseR, 0, Math.PI * 2);
+      splashCtx.fillStyle = `rgba(74,144,226,${pulseA})`;
+      splashCtx.fill();
+    }
+
+    splashCtx.beginPath();
+    splashCtx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    splashCtx.fillStyle = `rgba(74,144,226,${pAlpha})`;
+    splashCtx.shadowColor = '#4a90e2';
+    splashCtx.shadowBlur = 8;
+    splashCtx.fill();
+    splashCtx.shadowBlur = 0;
+  });
+
+  if (t < 1.5) {
+    requestAnimationFrame(drawSplash);
+  } else {
+    const splash = document.getElementById('splash');
+    splash.style.opacity = '0';
+    setTimeout(() => {
+      splash.style.display = 'none';
+      setTimeout(() => mapa.invalidateSize(), 100);
+    }, 500);
+  }
+}
+
+requestAnimationFrame(drawSplash);
 // MAPA
 const mapa = L.map('mapa').setView([-33.45, -70.60], 12);
 
@@ -487,12 +521,7 @@ L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
   attribution: '© OpenStreetMap © CARTO'
 }).addTo(mapa);
 
-mapa.on('moveend zoomend', () => {
-  document.querySelectorAll('.leaflet-tile').forEach(tile => {
-    tile.style.width = (parseInt(tile.style.width) + 1) + 'px';
-    tile.style.height = (parseInt(tile.style.height) + 1) + 'px';
-  });
-});
+
 
 let pinActivo = null;
 
