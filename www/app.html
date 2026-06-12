@@ -200,13 +200,6 @@
   display: flex; align-items: center; gap: 8px;
   border-bottom: 1px solid #4a90e222;
 }
-#logoTexto { font-size: 11px; font-weight: 900; letter-spacing: 2px; color: white; line-height: 1; }
-#searchWrapper { position: relative; flex: 1; min-width: 0; }
-#logoTexto {
-  font-size: 11px; font-weight: 900; letter-spacing: 2px;
-  color: white; line-height: 1;
-}
-#searchWrapper { position: relative; flex: 1; min-width: 0; }
     #logoArea {
       display: flex; align-items: center; gap: 8px;
       flex-shrink: 0; text-decoration: none;
@@ -752,7 +745,7 @@ async function buscar(q) {
 
   // Contador
   document.getElementById('dropdownContadorTexto').innerHTML =
-    `<strong>${data.length} resultado${data.length!==1?'s':''}</strong> <span>para "${texto}"</span>`;
+    `<strong>${data.length} resultado${data.length!==1?'s':''}</strong> <span>para "${esc(texto)}"</span>`;
 
   // Renderizar
   lista.innerHTML = data.map(l => `
@@ -816,7 +809,9 @@ pinActivo = L.marker([l.lat, l.lng]).addTo(mapa);
 setTimeout(() => cargarLikesYComentarios(l.id), 300);
 
   document.getElementById('sheetNombre').textContent = l.nombre;
-  document.getElementById('sheetComuna').innerHTML = `<svg width="11" height="11" viewBox="0 0 24 24" fill="#888"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg> ${l.comuna}`;
+  const elComuna = document.getElementById('sheetComuna');
+  elComuna.innerHTML = '<svg width="11" height="11" viewBox="0 0 24 24" fill="#888"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg> ';
+  elComuna.appendChild(document.createTextNode(l.comuna));
   document.getElementById('sheetFecha').innerHTML = l.actualizado_en ? `<svg width="13" height="13" viewBox="0 0 24 24" fill="#4a90e2"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5l-4-4 1.41-1.41L10 13.67l6.59-6.59L18 8.5l-8 8z"/></svg> Verificado <span style="color:#4a90e2">${tiempoTranscurrido(l.actualizado_en)}</span>` : '';
   document.getElementById('sheetNota').textContent = '📍 ' + l.nota;
   document.getElementById('btnWaze').href = `https://waze.com/ul?ll=${l.lat},${l.lng}&navigate=yes`;
@@ -914,11 +909,14 @@ let localActivo = null;
 
 async function reportarError() {
   if (!localActivo) return;
+  const userToken = localStorage.getItem('dm_token');
+  const userStr = localStorage.getItem('dm_user');
+  const userId = userStr ? JSON.parse(userStr).id : null;
   const res = await fetch(`${SUPABASE_URL}/rest/v1/reportes`, {
     method: 'POST',
     headers: {
       'apikey': SUPABASE_KEY,
-      'Authorization': `Bearer ${SUPABASE_KEY}`,
+      'Authorization': `Bearer ${userToken || SUPABASE_KEY}`,
       'Content-Type': 'application/json',
       'Prefer': 'return=minimal'
     },
@@ -927,7 +925,7 @@ async function reportarError() {
       local_comuna: localActivo.comuna,
       mensaje: 'Error reportado por rider',
       fecha: new Date().toISOString(),
-      user_id: localStorage.getItem('dm_user') ? JSON.parse(localStorage.getItem('dm_user')).id : null
+      user_id: userId
     })
   });
   if (res.ok) {
@@ -945,6 +943,11 @@ function tiempoTranscurrido(fecha) {
   if (diff < 86400) return `hace ${Math.floor(diff / 3600)} horas`;
   if (diff < 2592000) return `hace ${Math.floor(diff / 86400)} días`;
   return `hace ${Math.floor(diff / 2592000)} meses`;
+}
+function esc(str) {
+  const d = document.createElement('div');
+  d.textContent = str == null ? '' : String(str);
+  return d.innerHTML;
 }
 // SESIÓN
 function abrirLightbox(url) {
@@ -1110,14 +1113,14 @@ async function cargarLikesYComentarios(localId) {
       const esPropio = userId && c.user_id === userId;
       return `
         <div class="comentario-item" id="comentario-${c.id}">
-          <div class="comentario-apodo" style="cursor:pointer;" onclick="(function(){ const token = localStorage.getItem('dm_token'); const u = localStorage.getItem('dm_user'); const me = u ? JSON.parse(u).id : null; window.location.href = (me === '${c.user_id}') ? 'perfil.html' : 'perfil-publico.html?id=${c.user_id}'; })()">${c.apodo}</div>
-          <div class="comentario-texto">${c.texto}</div>
+          <div class="comentario-apodo" style="cursor:pointer;" data-uid="${esc(c.user_id)}" onclick="(function(el){ const u = localStorage.getItem('dm_user'); const me = u ? JSON.parse(u).id : null; window.location.href = (me === el.dataset.uid) ? 'perfil.html' : 'perfil-publico.html?id='+el.dataset.uid; })(this)">${esc(c.apodo)}</div>
+          <div class="comentario-texto">${esc(c.texto)}</div>
           <div class="comentario-footer">
             <span class="comentario-fecha">${tiempoTranscurrido(c.creado_en)}</span>
             <div class="comentario-acciones">
               ${esPropio
                 ? `<button class="btn-comentario-accion btn-borrar-comentario" onclick="borrarComentario(${c.id})">🗑 Borrar</button>`
-                : `<button class="btn-comentario-accion btn-reportar-comentario" onclick="reportarComentario(${c.id}, '${c.apodo}')">⚑ Reportar</button>`
+                : `<button class="btn-comentario-accion btn-reportar-comentario" data-apodo="${esc(c.apodo)}" onclick="reportarComentario(${c.id}, this.dataset.apodo)">⚑ Reportar</button>`
               }
             </div>
           </div>
