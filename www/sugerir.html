@@ -223,7 +223,7 @@
     </div>
     <div class="campo-inner">
       <div class="campo-label">Nota de ubicación</div>
-      <textarea id="nota" placeholder="Ej: Entrada por estacionamiento nivel -1, frente a Falabella. Timbre en puerta azul."></textarea>
+      <textarea id="nota" placeholder="Ej: Entrada por estacionamiento nivel -1, frente a Falabella. Timbre en puerta azul." maxlength="500"></textarea>
     </div>
   </div>
 
@@ -284,13 +284,20 @@ async function enviarSugerencia() {
     msg.className = 'mensaje error'; msg.style.display = 'block'; return;
   }
 
+  const ultimoEnvio = parseInt(localStorage.getItem('dm_sug_ts') || '0');
+  if (Date.now() - ultimoEnvio < 30000) {
+    msg.textContent = '⏳ Espera un momento antes de enviar otra sugerencia.';
+    msg.className = 'mensaje error'; msg.style.display = 'block'; return;
+  }
+
   btn.disabled = true; btn.textContent = 'Enviando...';
 
-  const tokenActual = localStorage.getItem('dm_token') || SUPABASE_KEY;
+  const tokenActual = localStorage.getItem('dm_token');
   const res = await fetch(SUPABASE_URL + '/rest/v1/sugerencias', {
     method: 'POST',
     headers: {
-      'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + tokenActual,
+      'apikey': SUPABASE_KEY,
+      ...(tokenActual ? { 'Authorization': 'Bearer ' + tokenActual } : {}),
       'Content-Type': 'application/json', 'Prefer': 'return=minimal'
     },
     body: JSON.stringify({
@@ -303,6 +310,7 @@ async function enviarSugerencia() {
   if (res.ok) {
     msg.textContent = '✅ ¡Sugerencia enviada! La revisaremos pronto.';
     msg.className = 'mensaje exito'; msg.style.display = 'block';
+    localStorage.setItem('dm_sug_ts', Date.now().toString());
     document.getElementById('nombre').value = '';
     document.getElementById('comuna').value = '';
     document.getElementById('nota').value = '';

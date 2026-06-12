@@ -395,6 +395,12 @@ let token = null;
 let userId = null;
 let fotoNueva = null;
 
+function esc(str) {
+  const d = document.createElement('div');
+  d.textContent = str ?? '';
+  return d.innerHTML;
+}
+
 function tiempoTranscurrido(fecha) {
   const ahora = new Date();
   const entonces = new Date(fecha);
@@ -421,7 +427,7 @@ async function cargarNotificaciones() {
   if (notifs.length === 0) {
     lista.innerHTML = '<div class="notif-vacia">Sin notificaciones aún</div>';
   } else {
-    lista.innerHTML = notifs.map(n => '<div class="notif-item ' + (n.leida ? '' : 'no-leida') + '">' + n.mensaje + '<div class="notif-fecha">' + tiempoTranscurrido(n.creado_en) + '</div></div>').join('');
+    lista.innerHTML = notifs.map(n => '<div class="notif-item ' + (n.leida ? '' : 'no-leida') + '">' + esc(n.mensaje) + '<div class="notif-fecha">' + tiempoTranscurrido(n.creado_en) + '</div></div>').join('');
   }
   if (noLeidas > 0) {
     await fetch(SUPABASE_URL + '/rest/v1/notificaciones?user_id=eq.' + userId + '&leida=eq.false', {
@@ -517,12 +523,25 @@ async function cargarPerfil() {
   const data = await res.json();
   if (data && data.length > 0) {
     if (data[0].foto_url) {
-      document.getElementById('avatarDiv').innerHTML = '<img src="' + data[0].foto_url + '" alt="foto"/><div class="avatar-edit-hint">CAMBIAR</div>';
-      document.getElementById('avatarDiv').onclick = () => document.getElementById('inputFoto').click();
+      const avatarDiv = document.getElementById('avatarDiv');
+      avatarDiv.innerHTML = '';
+      const img = document.createElement('img');
+      img.src = data[0].foto_url;
+      img.alt = 'foto';
+      const hint = document.createElement('div');
+      hint.className = 'avatar-edit-hint';
+      hint.textContent = 'CAMBIAR';
+      avatarDiv.appendChild(img);
+      avatarDiv.appendChild(hint);
+      avatarDiv.onclick = () => document.getElementById('inputFoto').click();
     }
     if (data[0].badge) {
       const badgeLabels = { 'founder': '⚡ FUNDADOR' };
-      document.getElementById('badgeDiv').innerHTML = '<span class="badge-founder">' + (badgeLabels[data[0].badge] || data[0].badge) + '</span>';
+      const badgeDiv = document.getElementById('badgeDiv');
+      const span = document.createElement('span');
+      span.className = 'badge-founder';
+      span.textContent = badgeLabels[data[0].badge] || data[0].badge;
+      badgeDiv.appendChild(span);
     }
   }
 }
@@ -533,8 +552,17 @@ function previsualizarFoto(event) {
   fotoNueva = file;
   const reader = new FileReader();
   reader.onload = (e) => {
-    document.getElementById('avatarDiv').innerHTML = '<img src="' + e.target.result + '" alt="foto"/><div class="avatar-edit-hint">CAMBIAR</div>';
-    document.getElementById('avatarDiv').onclick = () => document.getElementById('inputFoto').click();
+    const avatarDiv = document.getElementById('avatarDiv');
+    avatarDiv.innerHTML = '';
+    const img = document.createElement('img');
+    img.src = e.target.result;
+    img.alt = 'foto';
+    const hint = document.createElement('div');
+    hint.className = 'avatar-edit-hint';
+    hint.textContent = 'CAMBIAR';
+    avatarDiv.appendChild(img);
+    avatarDiv.appendChild(hint);
+    avatarDiv.onclick = () => document.getElementById('inputFoto').click();
   };
   reader.readAsDataURL(file);
 }
@@ -583,6 +611,7 @@ async function guardarPerfil() {
 function cerrarSesion() {
   localStorage.removeItem('dm_token');
   localStorage.removeItem('dm_user');
+  localStorage.removeItem('dm_refresh');
   window.location.href = 'app.html';
 }
 

@@ -139,6 +139,11 @@ async function login() {
   const data = await res.json();
 
   if (res.ok && data.access_token) {
+    if (data.user?.app_metadata?.role !== 'admin') {
+      err.textContent = 'No tienes permisos de administrador.';
+      err.style.display = 'block';
+      return;
+    }
     SESSION_TOKEN = data.access_token;
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('appScreen').style.display = 'block';
@@ -158,6 +163,12 @@ async function agregar() {
   if (!nombre || !comuna || !nota || isNaN(lat) || isNaN(lng)) {
     msg.className = 'error';
     msg.textContent = 'Completa todos los campos.';
+    msg.style.display = 'block';
+    return;
+  }
+  if (lat < -60 || lat > -15 || lng < -80 || lng > -65) {
+    msg.className = 'error';
+    msg.textContent = 'Coordenadas fuera del rango válido para Chile.';
     msg.style.display = 'block';
     return;
   }
