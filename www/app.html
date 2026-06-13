@@ -1119,6 +1119,7 @@ async function cargarLikesYComentarios(localId) {
   const comentarios = resComent.ok && Array.isArray(comentariosRaw) ? comentariosRaw : [];
   const lista = document.getElementById('listaComentarios');
   const fotosPorUsuario = new Map();
+  const apodoPorUsuario = new Map();
 
   // Cargar likes/dislikes de todos los comentarios en batch
   const likesMapComent = new Map();
@@ -1145,7 +1146,7 @@ async function cargarLikesYComentarios(localId) {
     const userIds = [...new Set(comentarios.map(c => c.user_id).filter(Boolean))];
     if (userIds.length > 0) {
       const resPerfiles = await supaFetch(
-        `${SUPABASE_URL}/rest/v1/perfiles?user_id=in.(${userIds.map(pg).join(',')})&select=user_id,foto_url`,
+        `${SUPABASE_URL}/rest/v1/perfiles?user_id=in.(${userIds.map(pg).join(',')})&select=user_id,foto_url,apodo`,
         { headers: { 'Accept': 'application/json' }}
       );
       const perfilesRaw = await resPerfiles.json();
@@ -1153,6 +1154,7 @@ async function cargarLikesYComentarios(localId) {
       perfiles.forEach(p => {
         const fotoUrl = safeImageUrl(p.foto_url);
         if (fotoUrl) fotosPorUsuario.set(p.user_id, fotoUrl);
+        if (p.apodo) apodoPorUsuario.set(p.user_id, p.apodo);
       });
     }
   }
@@ -1163,9 +1165,10 @@ async function cargarLikesYComentarios(localId) {
     lista.innerHTML = comentarios.map(c => {
       const esPropio = userId && c.user_id === userId;
       const fotoUrl = fotosPorUsuario.get(c.user_id);
-      const inicial = esc((c.apodo || 'Rider').charAt(0));
+      const apodoMostrado = apodoPorUsuario.get(c.user_id) || c.apodo || 'Rider';
+      const inicial = esc(apodoMostrado.charAt(0));
       const avatarHtml = fotoUrl
-        ? `<img src="${fotoUrl}" alt="${esc(c.apodo || 'Rider')}">`
+        ? `<img src="${fotoUrl}" alt="${esc(apodoMostrado)}">`
         : inicial;
       const lk = likesMapComent.get(c.id) || { likes: 0, dislikes: 0, mioTipo: null };
       const canVote = !!(token && userId);
@@ -1176,7 +1179,7 @@ async function cargarLikesYComentarios(localId) {
         <div class="comentario-item" id="comentario-${c.id}">
           <div class="comentario-avatar">${avatarHtml}</div>
           <div class="comentario-body">
-          <div class="comentario-apodo" style="cursor:pointer;" data-uid="${esc(c.user_id)}" onclick="(function(el){ const u = localStorage.getItem('dm_user'); const me = u ? JSON.parse(u).id : null; window.location.href = (me === el.dataset.uid) ? 'perfil.html' : 'perfil-publico.html?id='+el.dataset.uid; })(this)">${esc(c.apodo)}</div>
+          <div class="comentario-apodo" style="cursor:pointer;" data-uid="${esc(c.user_id)}" onclick="(function(el){ const u = localStorage.getItem('dm_user'); const me = u ? JSON.parse(u).id : null; window.location.href = (me === el.dataset.uid) ? 'perfil.html' : 'perfil-publico.html?id='+el.dataset.uid; })(this)">${esc(apodoMostrado)}</div>
           <div class="comentario-texto">${esc(c.texto)}</div>
           <div class="comentario-footer">
             <span class="comentario-fecha">${tiempoTranscurrido(c.creado_en)}</span>
@@ -1391,16 +1394,7 @@ async function actualizarComentarioLikes(comentarioId, userId) {
 
 async function enviarComentario(localId) {
   const user = JSON.parse(localStorage.getItem('dm_user'));
-  // Capturar apodo en el momento exacto del envío desde perfiles (inmutable en comentarios)
-  let apodo = user.user_metadata?.apodo || user.email?.split('@')[0] || 'Rider';
-  try {
-    const resP = await supaFetch(
-      `${SUPABASE_URL}/rest/v1/perfiles?user_id=eq.${pg(user.id)}&select=apodo`,
-      { headers: { 'Accept': 'application/json' }}
-    );
-    const perfData = await resP.json();
-    if (Array.isArray(perfData) && perfData[0]?.apodo) apodo = perfData[0].apodo;
-  } catch (_) {}
+  const apodo = user.user_metadata?.apodo || user.email?.split('@')[0] || 'Rider';
   const inputComentario = document.getElementById('inputComentario');
   const btnEnviar = document.getElementById('btnEnviarComentario');
   const texto = inputComentario.value.trim();
