@@ -1068,7 +1068,8 @@ async function cargarLikesYComentarios(localId) {
     `${SUPABASE_URL}/rest/v1/likes?local_id=eq.${localId}&select=*`,
     { headers: { 'Accept': 'application/json' }}
   );
-  const likes = await resLikes.json();
+  const likesRaw = await resLikes.json();
+  const likes = resLikes.ok && Array.isArray(likesRaw) ? likesRaw : [];
   const totalLikes = likes.filter(l => l.tipo === 'like').length;
   const totalDislikes = likes.filter(l => l.tipo === 'dislike').length;
   document.getElementById('contLikes').textContent = totalLikes;
@@ -1089,10 +1090,11 @@ async function cargarLikesYComentarios(localId) {
     `${SUPABASE_URL}/rest/v1/comentarios?local_id=eq.${localId}&order=creado_en.desc&select=*`,
     { headers: { 'Accept': 'application/json' }}
   );
-  const comentarios = await resComent.json();
+  const comentariosRaw = await resComent.json();
+  const comentarios = resComent.ok && Array.isArray(comentariosRaw) ? comentariosRaw : [];
   const lista = document.getElementById('listaComentarios');
 
-  if (!Array.isArray(comentarios) || comentarios.length === 0) {
+  if (comentarios.length === 0) {
     lista.innerHTML = '<div class="sin-comentarios">Sin comentarios aún. ¡Sé el primero!</div>';
   } else {
     lista.innerHTML = comentarios.map(c => {

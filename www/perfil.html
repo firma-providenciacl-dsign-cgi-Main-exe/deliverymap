@@ -606,12 +606,11 @@ async function guardarPerfil() {
     const ext = fotoNueva.name.split('.').pop();
     const fileName = userId + '.' + ext;
     const resFoto = await fetch(SUPABASE_URL + '/storage/v1/object/Avatares/' + fileName, {
-      method: 'POST',
+      method: 'PUT',
       headers: {
         'apikey': SUPABASE_KEY,
         'Authorization': 'Bearer ' + currentToken,
-        'Content-Type': fotoNueva.type || 'application/octet-stream',
-        'x-upsert': 'true'
+        'Content-Type': fotoNueva.type || 'image/jpeg',
       },
       body: fotoNueva
     });
@@ -628,7 +627,11 @@ async function guardarPerfil() {
         body: JSON.stringify({ user_id: userId, foto_url, apodo })
       });
     } else {
-      mostrarMensaje('No se pudo subir la foto. Verifica el formato e intenta de nuevo.', 'error');
+      const st = resFoto.status;
+      const errMsg = (st === 401 || st === 403)
+        ? 'Sesión expirada. Recarga la página e inicia sesión de nuevo.'
+        : `No se pudo subir la foto (error ${st}). Intenta de nuevo.`;
+      mostrarMensaje(errMsg, 'error');
       btnRestore(); return;
     }
   }
