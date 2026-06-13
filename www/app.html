@@ -266,7 +266,7 @@
 
     /* DROPDOWN */
     #dropdown {
-      position: fixed; top: 58px; left: 0; right: 0; bottom: 90px;
+      position: fixed; top: 58px; left: 0; right: 0; bottom: 0;
       background: #0a0a0a;
       z-index: 999; display: none; flex-direction: column;
       overflow: hidden;
@@ -315,29 +315,6 @@
     .result-dist { font-size: 12px; color: #4a90e2; font-weight: 600; white-space: nowrap; }
     .result-flecha { color: #333; font-size: 16px; }
     .no-resultado { padding: 40px 16px; text-align: center; color: #444; font-size: 14px; }
-    #dropdownInferior {
-      position: fixed; bottom: 90px; left: 0; right: 0;
-      background: rgba(10,10,10,0.97);
-      border-top: 1px solid #4a90e222;
-      backdrop-filter: blur(10px);
-      padding: 10px 14px;
-      display: none; gap: 10px; align-items: center;
-      z-index: 1000;
-    }
-    .dropdown-btn-inferior {
-      flex: 1; background: #111; border: 1px solid #4a90e233;
-      border-radius: 12px; padding: 10px;
-      display: flex; align-items: center; gap: 8px;
-      cursor: pointer; text-decoration: none;
-    }
-    .dbi-icono {
-      width: 30px; height: 30px; border-radius: 50%;
-      background: #0d1f3c; display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0;
-    }
-    .dbi-titulo { font-size: 12px; color: white; font-weight: 600; }
-    .dbi-sub { font-size: 10px; color: #555; margin-top: 1px; }
-
     /* MAPA */
      #mapa { position: fixed; top: 58px; left: 0; right: 0; bottom: 0; z-index: 1; }
 
@@ -524,20 +501,6 @@ border-radius: 20px;
     </button>
   </div>
   <div id="dropdownLista"></div>
-</div>
-<div id="dropdownInferior">
-  <a class="dropdown-btn-inferior" href="app.html" onclick="volver()">
-    <div class="dbi-icono">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4a90e2" stroke-width="2" stroke-linecap="round"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/></svg>
-    </div>
-    <div><div class="dbi-titulo">Ver en el mapa</div><div class="dbi-sub">Mostrar resultados</div></div>
-  </a>
-  <a class="dropdown-btn-inferior" href="sugerir.html">
-    <div class="dbi-icono">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4a90e2" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
-    </div>
-    <div><div class="dbi-titulo">¿No está en la lista?</div><div class="dbi-sub">Sugerir este local</div></div>
-  </a>
 </div>
 <div id="mapa"></div>
 <div style="position:fixed; top:58px; left:0; right:0; bottom:0; background:rgba(0,20,80,0.25); z-index:2; pointer-events:none;"></div>
@@ -729,19 +692,16 @@ function formatDist(km) {
 async function buscar(q) {
   const dropdown = document.getElementById('dropdown');
   const lista = document.getElementById('dropdownLista');
-  const inferior = document.getElementById('dropdownInferior');
   const texto = q.trim().toLowerCase();
 
   if (!texto) {
     dropdown.style.display = 'none';
-    inferior.style.display = 'none';
     document.getElementById('btnVolver').style.display = 'none';
     return;
   }
 
   document.getElementById('btnVolver').style.display = 'block';
   dropdown.style.display = 'flex';
-  inferior.style.display = 'flex';
   lista.innerHTML = '<div class="no-resultado">Buscando...</div>';
   document.getElementById('dropdownContadorTexto').innerHTML = '';
 
@@ -867,7 +827,6 @@ currentY = MEDIO;
 function volver() {
   cerrarSheet();
   document.getElementById('dropdown').style.display = 'none';
-  document.getElementById('dropdownInferior').style.display = 'none';
 }
 
 // DRAGGABLE BOTTOM SHEET
@@ -1408,10 +1367,6 @@ verificarSesion();
   <a class="nav-tab" href="sugerir.html">
     <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h7v7H3z"/><path d="M14 3h7v7h-7z"/><path d="M14 14h7v7h-7z"/><path d="M3 14h7v7H3z"/></svg>
     <span>SUGERIR LOCAL</span>
-  </a>
-  <a class="nav-tab" href="#">
-    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-    <span>COMUNIDAD</span>
   </a>
   <a class="nav-tab" href="perfil.html">
     <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>

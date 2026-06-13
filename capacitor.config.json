@@ -1,9 +1,5 @@
 {
   "appId": "com.deliverymap.app",
   "appName": "DeliveryMap",
-  "webDir": "www",
-  "server": {
-    "url": "https://deliverymap.cl/app.html",
-    "cleartext": true
-  }
+  "webDir": "www"
 }
