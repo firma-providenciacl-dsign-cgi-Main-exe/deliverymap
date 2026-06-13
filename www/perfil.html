@@ -612,16 +612,6 @@ async function guardarPerfil() {
     });
     if (resFoto.ok) {
       foto_url = SUPABASE_URL + '/storage/v1/object/public/Avatares/' + fileName;
-      await fetch(SUPABASE_URL + '/rest/v1/perfiles', {
-        method: 'POST',
-        headers: {
-          'apikey': SUPABASE_KEY,
-          'Authorization': 'Bearer ' + currentToken,
-          'Content-Type': 'application/json',
-          'Prefer': 'resolution=merge-duplicates,return=minimal'
-        },
-        body: JSON.stringify({ user_id: userId, foto_url, apodo })
-      });
     } else {
       const st = resFoto.status;
       const errBody = await resFoto.text().catch(() => '');
@@ -633,6 +623,20 @@ async function guardarPerfil() {
       btnRestore(); return;
     }
   }
+
+  // Siempre sincronizar apodo a perfiles (y foto si se subió una nueva)
+  const perfilesBody = { user_id: userId, apodo };
+  if (foto_url) perfilesBody.foto_url = foto_url;
+  await fetch(SUPABASE_URL + '/rest/v1/perfiles', {
+    method: 'POST',
+    headers: {
+      'apikey': SUPABASE_KEY,
+      'Authorization': 'Bearer ' + currentToken,
+      'Content-Type': 'application/json',
+      'Prefer': 'resolution=merge-duplicates,return=minimal'
+    },
+    body: JSON.stringify(perfilesBody)
+  });
 
   const resAuth = await fetch(SUPABASE_URL + '/auth/v1/user', {
     method: 'PUT',

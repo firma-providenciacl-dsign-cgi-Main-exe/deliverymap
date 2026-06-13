@@ -1154,7 +1154,7 @@ async function cargarLikesYComentarios(localId) {
       perfiles.forEach(p => {
         const fotoUrl = safeImageUrl(p.foto_url);
         if (fotoUrl) fotosPorUsuario.set(p.user_id, fotoUrl);
-        if (p.apodo) apodoPorUsuario.set(p.user_id, p.apodo);
+        apodoPorUsuario.set(p.user_id, p.apodo ?? null);
       });
     }
   }
@@ -1165,7 +1165,7 @@ async function cargarLikesYComentarios(localId) {
     lista.innerHTML = comentarios.map(c => {
       const esPropio = userId && c.user_id === userId;
       const fotoUrl = fotosPorUsuario.get(c.user_id);
-      const apodoMostrado = apodoPorUsuario.get(c.user_id) || c.apodo || 'Rider';
+      const apodoMostrado = apodoPorUsuario.get(c.user_id) ?? c.apodo ?? 'Rider';
       const inicial = esc(apodoMostrado.charAt(0));
       const avatarHtml = fotoUrl
         ? `<img src="${fotoUrl}" alt="${esc(apodoMostrado)}">`
