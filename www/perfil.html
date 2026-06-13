@@ -628,6 +628,8 @@ async function guardarPerfil() {
       });
     } else {
       const st = resFoto.status;
+      const errBody = await resFoto.text().catch(() => '');
+      console.error('[Storage PUT /Avatares/' + fileName + '] status:', st, '| body:', errBody);
       const errMsg = (st === 401 || st === 403)
         ? 'Sesión expirada. Recarga la página e inicia sesión de nuevo.'
         : `No se pudo subir la foto (error ${st}). Intenta de nuevo.`;

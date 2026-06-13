@@ -46,5 +46,8 @@ async function supaFetch(url, options = {}) {
     'Authorization': `Bearer ${token || SUPABASE_KEY}`,
     ...(options.headers || {})
   };
-  return fetch(url, { ...options, headers });
+  console.log('[supaFetch]', options.method || 'GET', url.split('?')[0].split('/rest/v1/').pop(), '| token:', (token || 'anon').slice(0, 20));
+  const res = await fetch(url, { ...options, headers });
+  console.log('[supaFetch] ←', res.status, res.statusText);
+  return res;
 }
