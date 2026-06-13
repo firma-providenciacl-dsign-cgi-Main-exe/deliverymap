@@ -48,6 +48,34 @@
   padding: 10px 12px;
   margin-bottom: 8px;
   position: relative;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+.comentario-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #0d1f3c;
+  border: 1px solid #4a90e244;
+  color: #4a90e2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 13px;
+  font-weight: 700;
+  overflow: hidden;
+  text-transform: uppercase;
+}
+.comentario-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.comentario-body {
+  min-width: 0;
+  flex: 1;
 }
 .comentario-apodo {
   font-size: 12px;
@@ -1116,14 +1144,38 @@ async function cargarLikesYComentarios(localId) {
   const comentariosRaw = await resComent.json();
   const comentarios = resComent.ok && Array.isArray(comentariosRaw) ? comentariosRaw : [];
   const lista = document.getElementById('listaComentarios');
+  const fotosPorUsuario = new Map();
+
+  if (comentarios.length > 0) {
+    const userIds = [...new Set(comentarios.map(c => c.user_id).filter(Boolean))];
+    if (userIds.length > 0) {
+      const resPerfiles = await supaFetch(
+        `${SUPABASE_URL}/rest/v1/perfiles?user_id=in.(${userIds.map(pg).join(',')})&select=user_id,foto_url`,
+        { headers: { 'Accept': 'application/json' }}
+      );
+      const perfilesRaw = await resPerfiles.json();
+      const perfiles = resPerfiles.ok && Array.isArray(perfilesRaw) ? perfilesRaw : [];
+      perfiles.forEach(p => {
+        const fotoUrl = safeImageUrl(p.foto_url);
+        if (fotoUrl) fotosPorUsuario.set(p.user_id, fotoUrl);
+      });
+    }
+  }
 
   if (comentarios.length === 0) {
     lista.innerHTML = '<div class="sin-comentarios">Sin comentarios aún. ¡Sé el primero!</div>';
   } else {
     lista.innerHTML = comentarios.map(c => {
       const esPropio = userId && c.user_id === userId;
+      const fotoUrl = fotosPorUsuario.get(c.user_id);
+      const inicial = esc((c.apodo || 'Rider').charAt(0));
+      const avatarHtml = fotoUrl
+        ? `<img src="${fotoUrl}" alt="${esc(c.apodo || 'Rider')}">`
+        : inicial;
       return `
         <div class="comentario-item" id="comentario-${c.id}">
+          <div class="comentario-avatar">${avatarHtml}</div>
+          <div class="comentario-body">
           <div class="comentario-apodo" style="cursor:pointer;" data-uid="${esc(c.user_id)}" onclick="(function(el){ const u = localStorage.getItem('dm_user'); const me = u ? JSON.parse(u).id : null; window.location.href = (me === el.dataset.uid) ? 'perfil.html' : 'perfil-publico.html?id='+el.dataset.uid; })(this)">${esc(c.apodo)}</div>
           <div class="comentario-texto">${esc(c.texto)}</div>
           <div class="comentario-footer">
@@ -1134,6 +1186,7 @@ async function cargarLikesYComentarios(localId) {
                 : `<button class="btn-comentario-accion btn-reportar-comentario" data-apodo="${esc(c.apodo)}" onclick="reportarComentario(${c.id}, this.dataset.apodo)">⚑ Reportar</button>`
               }
             </div>
+          </div>
           </div>
         </div>`;
     }).join('');
