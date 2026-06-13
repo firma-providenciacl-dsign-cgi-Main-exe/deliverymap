@@ -30,6 +30,7 @@
 }
 .like-btn.activo-like { border-color: #4a90e2; color: #4a90e2; background: #0d1f3c; }
 .like-btn.activo-dislike { border-color: #ff4444; color: #ff4444; background: #2e0f0f; }
+.like-btn:disabled { opacity: 0.45; cursor: not-allowed; pointer-events: none; }
 #sheetComentarios {
   padding: 0 16px 16px;
   border-top: 1px solid #222;
@@ -1145,6 +1146,12 @@ async function toggleLike(tipo) {
   }
   ultimoLikeTs = ahora;
 
+  const btnLike = document.getElementById('btnLike');
+  const btnDislike = document.getElementById('btnDislike');
+  btnLike.disabled = true;
+  btnDislike.disabled = true;
+  setTimeout(() => { btnLike.disabled = false; btnDislike.disabled = false; }, 2000);
+
   const user = JSON.parse(userStr);
   const localId = localActivo.id;
 
@@ -1198,7 +1205,7 @@ async function enviarComentario(localId) {
   const recientes = comentarioTimestamps.filter(ts => ahora - ts < 60000);
   if (recientes.length >= 3) {
     const esperaS = Math.ceil((60000 - (ahora - recientes[0])) / 1000);
-    mostrarToast(`Máximo 3 comentarios por minuto — espera ${esperaS}s ⏳`);
+    mostrarToast('Espera un momento antes de comentar de nuevo');
     return;
   }
 
