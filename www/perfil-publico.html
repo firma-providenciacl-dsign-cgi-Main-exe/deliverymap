@@ -126,20 +126,43 @@
 const SUPABASE_URL = 'https://zxwwffnjrrkmtsxzvswa.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp4d3dmZm5qcnJrbXRzeHp2c3dhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA3MDU2MzksImV4cCI6MjA5NjI4MTYzOX0.0rCwuo78dkvJ-C6Y3br3s7ZuPpdikakxC21WO4dv_rI';
 
+function pg(value) {
+  return encodeURIComponent(String(value));
+}
+
+function safeSupabaseImageUrl(url) {
+  try {
+    const parsed = new URL(url);
+    return parsed.protocol === 'https:' && parsed.hostname === 'zxwwffnjrrkmtsxzvswa.supabase.co'
+      ? parsed.href
+      : '';
+  } catch (e) {
+    return '';
+  }
+}
+
 async function init() {
   const params = new URLSearchParams(window.location.search);
   const userId = params.get('id');
   if (!userId) { document.getElementById('cargando').textContent = 'Perfil no encontrado.'; return; }
 
   // Cargar perfil
-  const resPerfil = await fetch(`${SUPABASE_URL}/rest/v1/perfiles?user_id=eq.${userId}&select=*`, {
+  const resPerfil = await fetch(`${SUPABASE_URL}/rest/v1/perfiles?user_id=eq.${pg(userId)}&select=foto_url,apodo,badge`, {
     headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Accept': 'application/json' }
   });
   const perfiles = await resPerfil.json();
   const perfil = perfiles?.[0];
 
   if (perfil?.foto_url) {
-    document.getElementById('avatarDiv').innerHTML = `<img src="${perfil.foto_url}" alt="foto"/>`;
+    const fotoUrl = safeSupabaseImageUrl(perfil.foto_url);
+    if (fotoUrl) {
+      const avatarDiv = document.getElementById('avatarDiv');
+      avatarDiv.innerHTML = '';
+      const img = document.createElement('img');
+      img.src = fotoUrl;
+      img.alt = 'foto';
+      avatarDiv.appendChild(img);
+    }
   }
 
   if (perfil?.apodo) {
@@ -156,16 +179,21 @@ async function init() {
 
   if (perfil?.badge) {
     const badgeLabels = { 'founder': '⚡ FUNDADOR' };
-    document.getElementById('badgeDiv').innerHTML = `<span class="badge-founder">${badgeLabels[perfil.badge] || perfil.badge}</span>`;
+    const badgeDiv = document.getElementById('badgeDiv');
+    badgeDiv.innerHTML = '';
+    const span = document.createElement('span');
+    span.className = 'badge-founder';
+    span.textContent = badgeLabels[perfil.badge] || perfil.badge;
+    badgeDiv.appendChild(span);
   }
 
   // Stats filtradas por user_id
-  const resSug = await fetch(`${SUPABASE_URL}/rest/v1/sugerencias?user_id=eq.${userId}&select=count`, {
+  const resSug = await fetch(`${SUPABASE_URL}/rest/v1/sugerencias?user_id=eq.${pg(userId)}&select=count`, {
     headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Prefer': 'count=exact' }
   });
   document.getElementById('statSugerencias').textContent = resSug.headers.get('content-range')?.split('/')[1] || '0';
 
-  const resRep = await fetch(`${SUPABASE_URL}/rest/v1/reportes?user_id=eq.${userId}&select=count`, {
+  const resRep = await fetch(`${SUPABASE_URL}/rest/v1/reportes?user_id=eq.${pg(userId)}&select=count`, {
     headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Prefer': 'count=exact' }
   });
   document.getElementById('statReportes').textContent = resRep.headers.get('content-range')?.split('/')[1] || '0';
