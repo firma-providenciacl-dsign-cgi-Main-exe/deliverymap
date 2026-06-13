@@ -113,6 +113,15 @@
 .btn-borrar-comentario { color: #ff4444; }
 .btn-reportar-comentario { color: #555; }
 .btn-reportar-comentario:hover { color: #ff9500; }
+.coment-like-btn {
+  background: none; border: 1px solid #333; border-radius: 12px;
+  color: #666; font-size: 11px; padding: 3px 8px; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 4px;
+  transition: all 0.15s;
+}
+.coment-like-btn.activo-like { border-color: #4a90e2; color: #4a90e2; background: #0d1f3c44; }
+.coment-like-btn.activo-dislike { border-color: #ff4444; color: #ff4444; background: #2e0f0f44; }
+.coment-like-btn:disabled { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
 .comentario-input-wrap {
   display: flex;
   gap: 8px;
@@ -1111,6 +1120,27 @@ async function cargarLikesYComentarios(localId) {
   const lista = document.getElementById('listaComentarios');
   const fotosPorUsuario = new Map();
 
+  // Cargar likes/dislikes de todos los comentarios en batch
+  const likesMapComent = new Map();
+  if (comentarios.length > 0) {
+    const ids = comentarios.map(c => pg(c.id)).join(',');
+    const resComentLikes = await supaFetch(
+      `${SUPABASE_URL}/rest/v1/comentario_likes?comentario_id=in.(${ids})&select=comentario_id,user_id,tipo`,
+      { headers: { 'Accept': 'application/json' }}
+    );
+    const comentLikesRaw = await resComentLikes.json();
+    const comentLikes = resComentLikes.ok && Array.isArray(comentLikesRaw) ? comentLikesRaw : [];
+    comentarios.forEach(c => {
+      const votes = comentLikes.filter(l => l.comentario_id === c.id);
+      const mio = votes.find(l => l.user_id === userId);
+      likesMapComent.set(c.id, {
+        likes: votes.filter(l => l.tipo === 'like').length,
+        dislikes: votes.filter(l => l.tipo === 'dislike').length,
+        mioTipo: mio ? mio.tipo : null
+      });
+    });
+  }
+
   if (comentarios.length > 0) {
     const userIds = [...new Set(comentarios.map(c => c.user_id).filter(Boolean))];
     if (userIds.length > 0) {
@@ -1137,6 +1167,11 @@ async function cargarLikesYComentarios(localId) {
       const avatarHtml = fotoUrl
         ? `<img src="${fotoUrl}" alt="${esc(c.apodo || 'Rider')}">`
         : inicial;
+      const lk = likesMapComent.get(c.id) || { likes: 0, dislikes: 0, mioTipo: null };
+      const canVote = !!(token && userId);
+      const likeActivo = lk.mioTipo === 'like' ? ' activo-like' : '';
+      const dislikeActivo = lk.mioTipo === 'dislike' ? ' activo-dislike' : '';
+      const voteDisabled = canVote ? '' : ' disabled';
       return `
         <div class="comentario-item" id="comentario-${c.id}">
           <div class="comentario-avatar">${avatarHtml}</div>
@@ -1146,6 +1181,8 @@ async function cargarLikesYComentarios(localId) {
           <div class="comentario-footer">
             <span class="comentario-fecha">${tiempoTranscurrido(c.creado_en)}</span>
             <div class="comentario-acciones">
+              <button class="coment-like-btn${likeActivo}"${voteDisabled} data-tipo="like" onclick="toggleComentarioLike(${c.id},'like')">👍 <span class="coment-like-count">${lk.likes}</span></button>
+              <button class="coment-like-btn${dislikeActivo}"${voteDisabled} data-tipo="dislike" onclick="toggleComentarioLike(${c.id},'dislike')">👎 <span class="coment-like-count">${lk.dislikes}</span></button>
               ${esPropio
                 ? `<button class="btn-comentario-accion btn-borrar-comentario" onclick="borrarComentario(${c.id})">🗑 Borrar</button>`
                 : `<button class="btn-comentario-accion btn-reportar-comentario" data-apodo="${esc(c.apodo)}" onclick="reportarComentario(${c.id}, this.dataset.apodo)">⚑ Reportar</button>`
@@ -1238,9 +1275,132 @@ async function toggleLike(tipo) {
   cargarLikesYComentarios(localId);
 }
 
+async function toggleComentarioLike(comentarioId, tipo) {
+  const token = localStorage.getItem('dm_token');
+  const userStr = localStorage.getItem('dm_user');
+  if (!token || !userStr) { window.location.href = 'login.html'; return; }
+  const user = JSON.parse(userStr);
+
+  const resCheck = await supaFetch(
+    `${SUPABASE_URL}/rest/v1/comentario_likes?comentario_id=eq.${pg(comentarioId)}&user_id=eq.${pg(user.id)}&select=id,tipo`,
+    { headers: { 'Accept': 'application/json' }}
+  );
+  const existing = await resCheck.json();
+  let wasLikeAdded = false;
+
+  if (Array.isArray(existing) && existing.length > 0) {
+    await supaFetch(
+      `${SUPABASE_URL}/rest/v1/comentario_likes?comentario_id=eq.${pg(comentarioId)}&user_id=eq.${pg(user.id)}`,
+      { method: 'DELETE' }
+    );
+    if (existing[0].tipo !== tipo) {
+      await supaFetch(`${SUPABASE_URL}/rest/v1/comentario_likes`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+        body: JSON.stringify({ comentario_id: comentarioId, user_id: user.id, tipo })
+      });
+      if (tipo === 'like') wasLikeAdded = true;
+    }
+  } else {
+    await supaFetch(`${SUPABASE_URL}/rest/v1/comentario_likes`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+      body: JSON.stringify({ comentario_id: comentarioId, user_id: user.id, tipo })
+    });
+    if (tipo === 'like') wasLikeAdded = true;
+  }
+
+  if (wasLikeAdded) await checkLikesHito(comentarioId);
+  await actualizarComentarioLikes(comentarioId, user.id);
+}
+
+async function checkLikesHito(comentarioId) {
+  const resLikes = await supaFetch(
+    `${SUPABASE_URL}/rest/v1/comentario_likes?comentario_id=eq.${pg(comentarioId)}&tipo=eq.like&select=id`,
+    { headers: { 'Accept': 'application/json' }}
+  );
+  const likes = await resLikes.json();
+  if (!Array.isArray(likes)) return;
+  const total = likes.length;
+  if (![5, 20, 50, 100].includes(total)) return;
+
+  const resC = await supaFetch(
+    `${SUPABASE_URL}/rest/v1/comentarios?id=eq.${pg(comentarioId)}&select=user_id`,
+    { headers: { 'Accept': 'application/json' }}
+  );
+  const comentData = await resC.json();
+  if (!Array.isArray(comentData) || !comentData[0]) return;
+  const dueñoId = comentData[0].user_id;
+
+  const localNombre = localActivo?.nombre || 'un local';
+  const mensaje = `Tu comentario en ${localNombre} ha recibido ${total} likes`;
+  const hitoTipo = `likes_hito_${comentarioId}`;
+
+  if (total < 100) {
+    await supaFetch(`${SUPABASE_URL}/rest/v1/notificaciones`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+      body: JSON.stringify({ user_id: dueñoId, tipo: hitoTipo, mensaje, leida: false })
+    });
+  } else {
+    // 100 milestone: actualizar notificacion existente si ya hay una, si no insertar
+    const resN = await supaFetch(
+      `${SUPABASE_URL}/rest/v1/notificaciones?user_id=eq.${pg(dueñoId)}&tipo=eq.${pg(hitoTipo)}&select=id&order=id.desc&limit=1`,
+      { headers: { 'Accept': 'application/json' }}
+    );
+    const notifs = await resN.json();
+    if (Array.isArray(notifs) && notifs.length > 0) {
+      await supaFetch(`${SUPABASE_URL}/rest/v1/notificaciones?id=eq.${pg(notifs[0].id)}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+        body: JSON.stringify({ mensaje, leida: false })
+      });
+    } else {
+      await supaFetch(`${SUPABASE_URL}/rest/v1/notificaciones`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+        body: JSON.stringify({ user_id: dueñoId, tipo: hitoTipo, mensaje, leida: false })
+      });
+    }
+  }
+}
+
+async function actualizarComentarioLikes(comentarioId, userId) {
+  const resLikes = await supaFetch(
+    `${SUPABASE_URL}/rest/v1/comentario_likes?comentario_id=eq.${pg(comentarioId)}&select=user_id,tipo`,
+    { headers: { 'Accept': 'application/json' }}
+  );
+  const votes = await resLikes.json();
+  if (!Array.isArray(votes)) return;
+
+  const totalLikes = votes.filter(l => l.tipo === 'like').length;
+  const totalDislikes = votes.filter(l => l.tipo === 'dislike').length;
+  const mio = votes.find(l => l.user_id === userId);
+
+  const el = document.getElementById(`comentario-${comentarioId}`);
+  if (!el) return;
+  const btnLike = el.querySelector('.coment-like-btn[data-tipo="like"]');
+  const btnDislike = el.querySelector('.coment-like-btn[data-tipo="dislike"]');
+  if (!btnLike || !btnDislike) return;
+
+  btnLike.className = 'coment-like-btn' + (mio?.tipo === 'like' ? ' activo-like' : '');
+  btnDislike.className = 'coment-like-btn' + (mio?.tipo === 'dislike' ? ' activo-dislike' : '');
+  btnLike.querySelector('.coment-like-count').textContent = totalLikes;
+  btnDislike.querySelector('.coment-like-count').textContent = totalDislikes;
+}
+
 async function enviarComentario(localId) {
   const user = JSON.parse(localStorage.getItem('dm_user'));
-  const apodo = user.user_metadata?.apodo || user.email?.split('@')[0] || 'Rider';
+  // Capturar apodo en el momento exacto del envío desde perfiles (inmutable en comentarios)
+  let apodo = user.user_metadata?.apodo || user.email?.split('@')[0] || 'Rider';
+  try {
+    const resP = await supaFetch(
+      `${SUPABASE_URL}/rest/v1/perfiles?user_id=eq.${pg(user.id)}&select=apodo`,
+      { headers: { 'Accept': 'application/json' }}
+    );
+    const perfData = await resP.json();
+    if (Array.isArray(perfData) && perfData[0]?.apodo) apodo = perfData[0].apodo;
+  } catch (_) {}
   const inputComentario = document.getElementById('inputComentario');
   const btnEnviar = document.getElementById('btnEnviarComentario');
   const texto = inputComentario.value.trim();
