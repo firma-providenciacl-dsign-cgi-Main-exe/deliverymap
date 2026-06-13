@@ -437,6 +437,15 @@ border-radius: 20px;
   font-size: 6px !important;
   opacity: 0.4;
 }
+#toastRate {
+  position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%);
+  background: #111; border: 1px solid #4a90e244; border-radius: 20px;
+  color: #aaa; font-size: 12px; padding: 8px 16px;
+  z-index: 4000; pointer-events: none;
+  opacity: 0; transition: opacity 0.2s;
+  white-space: nowrap;
+}
+#toastRate.visible { opacity: 1; }
 
   </style>
   <script defer src="https://cloud.umami.is/script.js" data-website-id="568d65a7-876b-405a-a4b2-3b6a35d3d8f9"></script>
@@ -882,6 +891,8 @@ document.addEventListener('mousemove', e => { if (isDragging) onMove(e.clientY);
 document.addEventListener('mouseup', e => { if (isDragging) onEnd(e.clientY); });
 
 let localActivo = null;
+let ultimoLikeTs = 0;
+const comentarioTimestamps = [];
 
 async function reportarError() {
   if (!localActivo) return;
@@ -924,6 +935,12 @@ function esc(str) {
   const d = document.createElement('div');
   d.textContent = str == null ? '' : String(str);
   return d.innerHTML;
+}
+function mostrarToast(msg) {
+  const t = document.getElementById('toastRate');
+  t.textContent = msg;
+  t.classList.add('visible');
+  setTimeout(() => t.classList.remove('visible'), 1800);
 }
 // SESIÓN
 function abrirLightbox(url) {
@@ -1114,11 +1131,18 @@ async function toggleLike(tipo) {
   const token = localStorage.getItem('dm_token');
   const userStr = localStorage.getItem('dm_user');
   
-  if (!token || !userStr) { 
-    window.location.href = 'login.html'; 
-    return; 
+  if (!token || !userStr) {
+    window.location.href = 'login.html';
+    return;
   }
-  
+
+  const ahora = Date.now();
+  if (ahora - ultimoLikeTs < 2000) {
+    mostrarToast('Espera un momento entre likes ⏳');
+    return;
+  }
+  ultimoLikeTs = ahora;
+
   const user = JSON.parse(userStr);
   const localId = localActivo.id;
 
@@ -1168,11 +1192,20 @@ async function enviarComentario(localId) {
   const texto = document.getElementById('inputComentario').value.trim();
   if (!texto) return;
 
+  const ahora = Date.now();
+  const recientes = comentarioTimestamps.filter(ts => ahora - ts < 60000);
+  if (recientes.length >= 3) {
+    const esperaS = Math.ceil((60000 - (ahora - recientes[0])) / 1000);
+    mostrarToast(`Máximo 3 comentarios por minuto — espera ${esperaS}s ⏳`);
+    return;
+  }
+
   await fetch(`${SUPABASE_URL}/rest/v1/comentarios`, {
     method: 'POST',
     headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
     body: JSON.stringify({ local_id: localId, user_id: user.id, apodo, texto })
   });
+  comentarioTimestamps.push(Date.now());
   cargarLikesYComentarios(localId);
 }
 
@@ -1256,8 +1289,9 @@ verificarSesion();
 <div id="lightbox" onclick="cerrarLightbox()">
   <button id="lightboxCerrar" onclick="cerrarLightbox()">✕</button>
   <img id="lightboxImg" src="" />
-  
+
 </div>
+<div id="toastRate"></div>
 
 <nav id="navInferior">
   <a class="nav-tab activo" href="app.html">

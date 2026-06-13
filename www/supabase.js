@@ -11,3 +11,13 @@ async function buscarEnSupabase(texto) {
   });
   return await res.json();
 }
+
+async function supaFetch(url, options = {}) {
+  const token = localStorage.getItem('dm_token');
+  const headers = {
+    'apikey': SUPABASE_KEY,
+    'Authorization': `Bearer ${token || SUPABASE_KEY}`,
+    ...(options.headers || {})
+  };
+  return fetch(url, { ...options, headers });
+}
