@@ -149,6 +149,29 @@
       background: transparent; color: #444; border: none;
       font-size: 13px; cursor: pointer;
     }
+    .footer { text-align: center; padding: 16px; margin-top: 48px; }
+    .footer a { color: #333; text-decoration: none; font-size: 11px; display: block; margin-bottom: 6px; }
+    #navInferior {
+      position: fixed; bottom: 16px; left: 16px; right: 16px;
+      background: rgba(15,15,15,0.97); border-radius: 20px;
+      backdrop-filter: blur(10px);
+      display: flex; align-items: center;
+      z-index: 1500; height: 60px;
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+    .nav-tab {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 10px 0; gap: 4px;
+      cursor: pointer; text-decoration: none;
+      opacity: 0.4; transition: opacity 0.2s;
+    }
+    .nav-tab.activo { opacity: 1; }
+    .nav-tab svg { width: 22px; height: 22px; }
+    .nav-tab span { font-size: 10px; letter-spacing: 0.5px; color: #4a90e2; font-weight: 500; }
+    .nav-tab.activo svg { stroke: #4a90e2; }
+    .nav-tab:not(.activo) svg { stroke: #555; }
+    .nav-tab:not(.activo) span { color: #555; }
   </style>
   <script defer src="https://cloud.umami.is/script.js" data-website-id="568d65a7-876b-405a-a4b2-3b6a35d3d8f9"></script>
 </head>
@@ -253,6 +276,10 @@
     Volver al mapa
   </a>
 
+  <div class="footer">
+    <a href="terminos.html">Términos de uso y política de privacidad</a>
+  </div>
+
 </div>
 
 <div id="popupCuenta">
@@ -264,6 +291,21 @@
     <button class="popup-btn-secondary" onclick="document.getElementById('popupCuenta').style.display='none'">Ahora no</button>
   </div>
 </div>
+
+<nav id="navInferior">
+  <a class="nav-tab" href="app.html">
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/></svg>
+    <span>MAPA</span>
+  </a>
+  <a class="nav-tab activo" href="sugerir.html">
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h7v7H3z"/><path d="M14 3h7v7h-7z"/><path d="M14 14h7v7h-7z"/><path d="M3 14h7v7H3z"/></svg>
+    <span>SUGERIR LOCAL</span>
+  </a>
+  <a class="nav-tab" href="perfil.html">
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    <span>PERFIL</span>
+  </a>
+</nav>
 
 <script>
 const SUPABASE_URL = 'https://zxwwffnjrrkmtsxzvswa.supabase.co';
