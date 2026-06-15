@@ -753,16 +753,23 @@ async function buscar(q) {
     </div>
   `).join('');
 
-  // Fotos primeros 10
-  data.slice(0,10).forEach(l => {
-    fetch(`${SUPABASE_URL}/rest/v1/local_fotos?local_id=eq.${pg(l.id)}&select=url&limit=1`, {
+  // Fotos primeros 10 — una sola query batch
+  const batch = data.slice(0, 10);
+  if (batch.length > 0) {
+    const ids = batch.map(l => pg(l.id)).join(',');
+    fetch(`${SUPABASE_URL}/rest/v1/local_fotos?local_id=in.(${ids})&select=local_id,url`, {
       headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
     })
     .then(r => r.json())
     .then(fotos => {
-      if (fotos && fotos.length > 0) {
+      if (!fotos || !Array.isArray(fotos)) return;
+      const fotoMap = {};
+      fotos.forEach(f => { if (!fotoMap[f.local_id]) fotoMap[f.local_id] = f.url; });
+      batch.forEach(l => {
+        const url = fotoMap[l.id];
+        if (!url) return;
         const pin = document.getElementById(`rpin-${l.id}`);
-        const fotoUrl = safeImageUrl(fotos[0].url);
+        const fotoUrl = safeImageUrl(url);
         if (pin && fotoUrl) {
           pin.innerHTML = '';
           const img = document.createElement('img');
@@ -770,9 +777,10 @@ async function buscar(q) {
           img.alt = l.nombre || '';
           pin.appendChild(img);
         }
-      }
-    });
-  });
+      });
+    })
+    .catch(() => {});
+  }
 }
 
 // SELECCIONAR LOCAL
@@ -1392,7 +1400,9 @@ async function actualizarComentarioLikes(comentarioId, userId) {
 }
 
 async function enviarComentario(localId) {
-  const user = JSON.parse(localStorage.getItem('dm_user'));
+  let user;
+  try { user = JSON.parse(localStorage.getItem('dm_user')); } catch(e) { user = null; }
+  if (!user) { mostrarToast('Inicia sesión para comentar', 'error'); return; }
   const apodo = user.user_metadata?.apodo || user.email?.split('@')[0] || 'Rider';
   const inputComentario = document.getElementById('inputComentario');
   const btnEnviar = document.getElementById('btnEnviarComentario');

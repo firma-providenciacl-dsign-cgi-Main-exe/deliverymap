@@ -314,12 +314,14 @@ async function enviarSugerencia() {
   const nota   = document.getElementById('nota').value.trim();
   const btn    = document.getElementById('btnEnviar');
   const msg    = document.getElementById('mensaje');
+  const btnSvg = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> Enviar sugerencia';
 
   if (!nombre || !comuna || !nota) {
     msg.textContent = '⚠️ Por favor completa todos los campos.';
     msg.className = 'mensaje error'; msg.style.display = 'block'; return;
   }
 
+  // Throttle local (primera línea de defensa para usuarios anónimos)
   const ultimoEnvio = parseInt(localStorage.getItem('dm_sug_ts') || '0');
   if (Date.now() - ultimoEnvio < 30000) {
     msg.textContent = '⏳ Espera un momento antes de enviar otra sugerencia.';
@@ -329,36 +331,56 @@ async function enviarSugerencia() {
   btn.disabled = true; btn.textContent = 'Enviando...';
 
   const tokenActual = localStorage.getItem('dm_token');
-  const res = await fetch(SUPABASE_URL + '/rest/v1/sugerencias', {
-    method: 'POST',
-    headers: {
-      'apikey': SUPABASE_KEY,
-      ...(tokenActual ? { 'Authorization': 'Bearer ' + tokenActual } : {}),
-      'Content-Type': 'application/json', 'Prefer': 'return=minimal'
-    },
-    body: JSON.stringify({
-      nombre, comuna, nota, estado: 'pendiente',
-      fecha: new Date().toISOString(),
-      user_id: localStorage.getItem('dm_user') ? JSON.parse(localStorage.getItem('dm_user')).id : null
-    })
-  });
+  let userId = null;
+  try { userId = localStorage.getItem('dm_user') ? JSON.parse(localStorage.getItem('dm_user')).id : null; } catch(e) {}
 
-  if (res.ok) {
-    msg.textContent = '✅ ¡Sugerencia enviada! La revisaremos pronto.';
-    msg.className = 'mensaje exito'; msg.style.display = 'block';
-    localStorage.setItem('dm_sug_ts', Date.now().toString());
-    document.getElementById('nombre').value = '';
-    document.getElementById('comuna').value = '';
-    document.getElementById('nota').value = '';
-    btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> Enviar sugerencia';
-    btn.disabled = false;
-    const token = localStorage.getItem('dm_token');
-    if (!token) { setTimeout(() => { document.getElementById('popupCuenta').style.display = 'flex'; }, 800); }
-  } else {
-    msg.textContent = '😕 No se pudo enviar. Intenta de nuevo.';
+  // Throttle server-side para usuarios logueados: verificar último envío en BD
+  if (userId && tokenActual) {
+    try {
+      const hace30s = new Date(Date.now() - 30000).toISOString();
+      const checkRes = await fetch(`${SUPABASE_URL}/rest/v1/sugerencias?user_id=eq.${userId}&fecha=gte.${hace30s}&select=id&limit=1`, {
+        headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + tokenActual }
+      });
+      if (checkRes.ok) {
+        const recent = await checkRes.json();
+        if (recent && recent.length > 0) {
+          msg.textContent = '⏳ Espera un momento antes de enviar otra sugerencia.';
+          msg.className = 'mensaje error'; msg.style.display = 'block';
+          btn.innerHTML = btnSvg; btn.disabled = false; return;
+        }
+      }
+    } catch(e) { /* si falla el check de BD, continuar con el envío */ }
+  }
+
+  try {
+    const res = await fetch(SUPABASE_URL + '/rest/v1/sugerencias', {
+      method: 'POST',
+      headers: {
+        'apikey': SUPABASE_KEY,
+        ...(tokenActual ? { 'Authorization': 'Bearer ' + tokenActual } : {}),
+        'Content-Type': 'application/json', 'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify({ nombre, comuna, nota, estado: 'pendiente', fecha: new Date().toISOString(), user_id: userId })
+    });
+
+    if (res.ok) {
+      msg.textContent = '✅ ¡Sugerencia enviada! La revisaremos pronto.';
+      msg.className = 'mensaje exito'; msg.style.display = 'block';
+      localStorage.setItem('dm_sug_ts', Date.now().toString());
+      document.getElementById('nombre').value = '';
+      document.getElementById('comuna').value = '';
+      document.getElementById('nota').value = '';
+      btn.innerHTML = btnSvg; btn.disabled = false;
+      if (!tokenActual) { setTimeout(() => { document.getElementById('popupCuenta').style.display = 'flex'; }, 800); }
+    } else {
+      msg.textContent = '😕 No se pudo enviar. Intenta de nuevo.';
+      msg.className = 'mensaje error'; msg.style.display = 'block';
+      btn.innerHTML = btnSvg; btn.disabled = false;
+    }
+  } catch(e) {
+    msg.textContent = '😕 Error de red. Verifica tu conexión e intenta de nuevo.';
     msg.className = 'mensaje error'; msg.style.display = 'block';
-    btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> Enviar sugerencia';
-    btn.disabled = false;
+    btn.innerHTML = btnSvg; btn.disabled = false;
   }
 }
 </script>

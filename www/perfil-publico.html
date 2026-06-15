@@ -188,12 +188,12 @@ async function init() {
   }
 
   // Stats filtradas por user_id
-  const resSug = await fetch(`${SUPABASE_URL}/rest/v1/sugerencias?user_id=eq.${pg(userId)}&select=count`, {
+  const resSug = await fetch(`${SUPABASE_URL}/rest/v1/sugerencias?user_id=eq.${pg(userId)}&select=id`, {
     headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Prefer': 'count=exact' }
   });
   document.getElementById('statSugerencias').textContent = resSug.headers.get('content-range')?.split('/')[1] || '0';
 
-  const resRep = await fetch(`${SUPABASE_URL}/rest/v1/reportes?user_id=eq.${pg(userId)}&select=count`, {
+  const resRep = await fetch(`${SUPABASE_URL}/rest/v1/reportes?user_id=eq.${pg(userId)}&select=id`, {
     headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Prefer': 'count=exact' }
   });
   document.getElementById('statReportes').textContent = resRep.headers.get('content-range')?.split('/')[1] || '0';
