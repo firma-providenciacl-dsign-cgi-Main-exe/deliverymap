@@ -648,7 +648,11 @@ splashCtx.shadowColor = p.color === '255,0,204' ? '#ff00cc' : '#4a90e2';
   }
 }
 
-requestAnimationFrame(drawSplash);
+if (new URLSearchParams(window.location.search).get('nosplash') === 'true') {
+  document.getElementById('splash').style.display = 'none';
+} else {
+  requestAnimationFrame(drawSplash);
+}
 // MAPA
 const mapa = L.map('mapa').setView([-33.45, -70.60], 12);
 
