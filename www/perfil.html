@@ -624,19 +624,32 @@ async function guardarPerfil() {
     }
   }
 
-  // Siempre sincronizar apodo a perfiles (y foto si se subió una nueva)
-  const perfilesBody = { user_id: userId, apodo };
+  // Sincronizar apodo (y foto) a perfiles: PATCH si existe, POST si no
+  const perfilesBody = { apodo };
   if (foto_url) perfilesBody.foto_url = foto_url;
-  await fetch(SUPABASE_URL + '/rest/v1/perfiles', {
-    method: 'POST',
+  const resPatch = await fetch(SUPABASE_URL + '/rest/v1/perfiles?user_id=eq.' + userId, {
+    method: 'PATCH',
     headers: {
       'apikey': SUPABASE_KEY,
       'Authorization': 'Bearer ' + currentToken,
       'Content-Type': 'application/json',
-      'Prefer': 'resolution=merge-duplicates,return=minimal'
+      'Prefer': 'return=representation'
     },
     body: JSON.stringify(perfilesBody)
   });
+  const patchedRows = resPatch.ok ? await resPatch.json() : [];
+  if (!patchedRows.length) {
+    await fetch(SUPABASE_URL + '/rest/v1/perfiles', {
+      method: 'POST',
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': 'Bearer ' + currentToken,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify({ user_id: userId, ...perfilesBody })
+    });
+  }
 
   const resAuth = await fetch(SUPABASE_URL + '/auth/v1/user', {
     method: 'PUT',
