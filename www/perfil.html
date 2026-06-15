@@ -648,6 +648,16 @@ async function guardarPerfil() {
     localStorage.setItem('dm_user', JSON.stringify(updatedUser));
     document.getElementById('nombreDisplay').textContent = apodo;
     document.getElementById('apodoPreview').textContent = apodo;
+    await fetch(SUPABASE_URL + '/rest/v1/comentarios?user_id=eq.' + userId, {
+      method: 'PATCH',
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': 'Bearer ' + currentToken,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify({ apodo })
+    });
     mostrarMensaje('✅ Perfil actualizado.', 'exito');
   } else {
     mostrarMensaje('Error al guardar. Intenta de nuevo.', 'error');
