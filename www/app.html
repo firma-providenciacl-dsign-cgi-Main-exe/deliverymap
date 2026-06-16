@@ -533,6 +533,51 @@ border-radius: 20px;
 .afluencia-btn:disabled { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
 .afluencia-bloqueado { font-size: 11px; color: #ff950088; margin-top: 8px; }
 
+/* ALERTAS */
+#btnAlerta {
+  position: fixed; bottom: 92px; right: 16px;
+  width: 48px; height: 48px;
+  background: #4a90e2; border: none; border-radius: 50%;
+  display: none; align-items: center; justify-content: center;
+  z-index: 1600; cursor: pointer; font-size: 20px; color: white;
+  box-shadow: 0 2px 12px rgba(74,144,226,0.45);
+}
+#overlayAlertas {
+  display: none; position: fixed; inset: 0; z-index: 2999;
+}
+#panelAlertas {
+  position: fixed; top: 0; right: 0; bottom: 0;
+  width: min(300px, 88vw);
+  background: #0d1825; border-left: 1px solid #4a90e233;
+  z-index: 3000;
+  transform: translateX(100%);
+  transition: transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  display: flex; flex-direction: column; overflow-y: auto;
+}
+#panelAlertas.abierto { transform: translateX(0); }
+#panelAlertasHeader {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 16px 12px; border-bottom: 1px solid #222; flex-shrink: 0;
+}
+#panelAlertasHeader strong { font-size: 13px; color: white; letter-spacing: 1px; text-transform: uppercase; }
+#panelAlertasHeader button {
+  background: #333; border: none; color: #aaa;
+  width: 28px; height: 28px; border-radius: 50%;
+  font-size: 14px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+#panelAlertasBtns { padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+.alerta-tipo-btn {
+  display: flex; align-items: center; gap: 12px;
+  padding: 13px 14px; width: 100%;
+  background: #111; border: 1px solid #4a90e222;
+  border-radius: 12px; color: #ccc; font-size: 14px;
+  cursor: pointer; text-align: left;
+  transition: border-color 0.15s, background 0.15s;
+}
+.alerta-tipo-btn:active { background: #0d1f3c; border-color: #4a90e2; }
+.alerta-tipo-btn span:first-child { font-size: 20px; line-height: 1; }
+
   </style>
   <script defer src="https://cloud.umami.is/script.js" data-website-id="568d65a7-876b-405a-a4b2-3b6a35d3d8f9"></script>
 </head>
@@ -751,10 +796,25 @@ if (navigator.geolocation) {
 L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
   attribution: '© OpenStreetMap © CARTO'
 }).addTo(mapa);
+mapa.on('zoomend', actualizarVisibilidadAlertas);
+setInterval(cargarAlertas, 120000);
 
 
 
 let pinActivo = null;
+
+const ALERTA_TIPOS = {
+  policia:          { emoji: '👮', label: 'Policía' },
+  trafico:          { emoji: '🚗', label: 'Tráfico' },
+  accidente:        { emoji: '💥', label: 'Accidente' },
+  inundacion:       { emoji: '🌊', label: 'Inundación' },
+  bache:            { emoji: '🕳️', label: 'Bache' },
+  carril_bloqueado: { emoji: '🚧', label: 'Carril bloqueado' },
+  peligro:          { emoji: '⚠️', label: 'Peligro general' },
+  exclusivo_riders: { emoji: '🛵', label: 'Solo riders' }
+};
+let marcadoresAlertas = [];
+let votosEmitidos = new Set();
 
 // BUSCADOR
 let userLat = null, userLng = null;
@@ -940,6 +1000,23 @@ function volver() {
   document.getElementById('dropdown').style.display = 'none';
 }
 
+function abrirPanelAlertas() {
+  document.getElementById('panelAlertas').classList.add('abierto');
+  document.getElementById('overlayAlertas').style.display = 'block';
+}
+function cerrarPanelAlertas() {
+  document.getElementById('panelAlertas').classList.remove('abierto');
+  document.getElementById('overlayAlertas').style.display = 'none';
+}
+function actualizarBtnAlerta() {
+  const btn = document.getElementById('btnAlerta');
+  if (!btn) return;
+  const userStr = localStorage.getItem('dm_user');
+  if (!userStr) { btn.style.display = 'none'; return; }
+  const u = JSON.parse(userStr);
+  btn.style.display = localStorage.getItem('dm_es_rider_' + u.id) === 'true' ? 'flex' : 'none';
+}
+
 // DRAGGABLE BOTTOM SHEET
 const sheet = document.getElementById('bottomSheet');
 let startY = 0;
@@ -1106,6 +1183,7 @@ async function elegirTipoUsuario(esRider) {
   if (res.ok) {
     localStorage.setItem('dm_es_rider_' + user.id, String(esRider));
     popup.style.display = 'none';
+    actualizarBtnAlerta();
   } else {
     btns.forEach(b => b.disabled = false);
   }
@@ -1235,6 +1313,151 @@ async function reportarAfluencia(nivel, localId) {
   cargarAfluencia(localId);
 }
 
+// ALERTAS
+function crearIconoAlerta(tipo) {
+  const info = ALERTA_TIPOS[tipo] || { emoji: '⚠️' };
+  return L.divIcon({
+    html: `<div style="font-size:26px;line-height:1;filter:drop-shadow(0 1px 4px rgba(0,0,0,0.9));">${info.emoji}</div>`,
+    className: '',
+    iconSize: [30, 30],
+    iconAnchor: [15, 15],
+    popupAnchor: [0, -18]
+  });
+}
+
+function crearContenidoPopupAlerta(alerta) {
+  const info = ALERTA_TIPOS[alerta.tipo] || { emoji: '⚠️', label: alerta.tipo };
+  const yaVote = votosEmitidos.has(alerta.id);
+  const autenticado = !!localStorage.getItem('dm_token');
+
+  const wrap = document.createElement('div');
+  wrap.style.cssText = 'min-width:170px; font-family:sans-serif;';
+
+  const tit = document.createElement('div');
+  tit.style.cssText = 'font-size:15px; font-weight:700; color:white; margin-bottom:4px;';
+  tit.textContent = info.emoji + ' ' + info.label;
+  wrap.appendChild(tit);
+
+  const tiempo = document.createElement('div');
+  tiempo.style.cssText = 'font-size:12px; color:#888; margin-bottom:10px;';
+  tiempo.textContent = tiempoTranscurrido(alerta.creado_en);
+  wrap.appendChild(tiempo);
+
+  if (!autenticado || yaVote) {
+    const msg = document.createElement('div');
+    msg.style.cssText = 'font-size:12px; color:#555;';
+    msg.textContent = yaVote ? 'Ya votaste en esta alerta' : 'Inicia sesión para votar';
+    wrap.appendChild(msg);
+  } else {
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex; gap:6px;';
+    const btnSi = document.createElement('button');
+    btnSi.style.cssText = 'flex:1; padding:7px 4px; background:#0d1f3c; border:1px solid #4a90e2; color:#4a90e2; border-radius:8px; font-size:12px; cursor:pointer;';
+    btnSi.textContent = '👍 Sigue ahí';
+    btnSi.onclick = () => votarAlerta(alerta.id, 'si');
+    const btnNo = document.createElement('button');
+    btnNo.style.cssText = 'flex:1; padding:7px 4px; background:#2e0f0f; border:1px solid #ff4444; color:#ff4444; border-radius:8px; font-size:12px; cursor:pointer;';
+    btnNo.textContent = '👎 Ya no está';
+    btnNo.onclick = () => votarAlerta(alerta.id, 'no');
+    row.appendChild(btnSi);
+    row.appendChild(btnNo);
+    wrap.appendChild(row);
+  }
+  return wrap;
+}
+
+async function crearAlerta(tipo) {
+  cerrarPanelAlertas();
+  const token = localStorage.getItem('dm_token');
+  const userStr = localStorage.getItem('dm_user');
+  if (!token || !userStr) return;
+  const user = JSON.parse(userStr);
+
+  navigator.geolocation.getCurrentPosition(async (pos) => {
+    try {
+      const lat = pos.coords.latitude;
+      const lng = pos.coords.longitude;
+      if (lat < -60 || lat > -15 || lng < -80 || lng > -65) {
+        mostrarToast('Ubicación fuera de Chile', 'error');
+        return;
+      }
+      const res = await supaFetch(`${SUPABASE_URL}/rest/v1/alertas`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Prefer': 'return=representation' },
+        body: JSON.stringify({ user_id: user.id, tipo, lat, lng })
+      });
+      if (!res.ok) { mostrarToast('No se pudo crear la alerta', 'error'); return; }
+      const data = await res.json();
+      mostrarToast('✅ Alerta creada', 'exito');
+      if (Array.isArray(data) && data.length > 0) {
+        const alerta = data[0];
+        const zoom = mapa.getZoom();
+        const marker = L.marker([alerta.lat, alerta.lng], { icon: crearIconoAlerta(alerta.tipo) });
+        marker.bindPopup(() => crearContenidoPopupAlerta(alerta));
+        if (alerta.tipo === 'policia' || zoom >= 13) marker.addTo(mapa);
+        marcadoresAlertas.push({ alertaId: alerta.id, layer: marker, tipo: alerta.tipo });
+      }
+    } catch(e) {
+      mostrarToast('Error al crear la alerta', 'error');
+    }
+  }, () => {
+    mostrarToast('Activa tu ubicación para crear una alerta', 'error');
+  });
+}
+
+async function cargarAlertas() {
+  const ahora = new Date().toISOString();
+  const res = await supaFetch(
+    `${SUPABASE_URL}/rest/v1/alertas?expira_en=gt.${encodeURIComponent(ahora)}&select=id,tipo,lat,lng,creado_en,votos_si&order=creado_en.desc`,
+    { headers: { 'Accept': 'application/json' } }
+  );
+  if (!res.ok) return;
+  const alertas = await res.json();
+  if (!Array.isArray(alertas)) return;
+
+  marcadoresAlertas.forEach(m => mapa.removeLayer(m.layer));
+  marcadoresAlertas = [];
+
+  const zoom = mapa.getZoom();
+  alertas.forEach(alerta => {
+    const marker = L.marker([alerta.lat, alerta.lng], { icon: crearIconoAlerta(alerta.tipo) });
+    marker.bindPopup(() => crearContenidoPopupAlerta(alerta));
+    if (alerta.tipo === 'policia' || zoom >= 13) marker.addTo(mapa);
+    marcadoresAlertas.push({ alertaId: alerta.id, layer: marker, tipo: alerta.tipo });
+  });
+}
+
+function actualizarVisibilidadAlertas() {
+  const zoom = mapa.getZoom();
+  marcadoresAlertas.forEach(({ layer, tipo }) => {
+    const visible = tipo === 'policia' || zoom >= 13;
+    if (visible && !mapa.hasLayer(layer)) layer.addTo(mapa);
+    if (!visible && mapa.hasLayer(layer)) mapa.removeLayer(layer);
+  });
+}
+
+async function votarAlerta(alertaId, voto) {
+  const res = await supaFetch(`${SUPABASE_URL}/rest/v1/rpc/votar_alerta`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ p_alerta_id: alertaId, p_voto: voto })
+  });
+  const data = await res.json();
+  if (data && data.error) {
+    mostrarToast(data.error === 'ya votaste' ? 'Ya votaste en esta alerta' : 'No se pudo votar', 'error');
+    return;
+  }
+  votosEmitidos.add(alertaId);
+  mapa.closePopup();
+  if (data && data.eliminada) {
+    const idx = marcadoresAlertas.findIndex(m => m.alertaId === alertaId);
+    if (idx !== -1) { mapa.removeLayer(marcadoresAlertas[idx].layer); marcadoresAlertas.splice(idx, 1); }
+    mostrarToast('Alerta eliminada por la comunidad', 'exito');
+  } else {
+    mostrarToast(voto === 'si' ? '👍 Voto registrado' : '👎 Voto registrado', 'exito');
+  }
+}
+
 // SESIÓN
 function abrirLightbox(url) {
   const safeUrl = safeImageUrl(url);
@@ -1360,6 +1583,7 @@ if (token && user) {
     }
   });
 }
+  actualizarBtnAlerta();
 }
 
 // LIKES Y COMENTARIOS
@@ -1786,6 +2010,7 @@ async function reportarComentario(comentarioId, apodoAutor) {
   alert('✅ Comentario reportado. Lo revisaremos pronto.');
 }
 verificarSesion();
+cargarAlertas();
 </script>
 <div id="lightbox" onclick="cerrarLightbox()">
   <button id="lightboxCerrar" onclick="cerrarLightbox()">✕</button>
@@ -1808,6 +2033,26 @@ verificarSesion();
     <span>PERFIL</span>
   </a>
 </nav>
+
+<button id="btnAlerta" onclick="abrirPanelAlertas()" aria-label="Crear alerta">⚠️</button>
+
+<div id="overlayAlertas" onclick="cerrarPanelAlertas()"></div>
+<div id="panelAlertas">
+  <div id="panelAlertasHeader">
+    <strong>🚨 Nueva alerta</strong>
+    <button onclick="cerrarPanelAlertas()">✕</button>
+  </div>
+  <div id="panelAlertasBtns">
+    <button class="alerta-tipo-btn" onclick="crearAlerta('policia')"><span>👮</span><span>Policía</span></button>
+    <button class="alerta-tipo-btn" onclick="crearAlerta('trafico')"><span>🚗</span><span>Tráfico</span></button>
+    <button class="alerta-tipo-btn" onclick="crearAlerta('accidente')"><span>💥</span><span>Accidente</span></button>
+    <button class="alerta-tipo-btn" onclick="crearAlerta('inundacion')"><span>🌊</span><span>Inundación</span></button>
+    <button class="alerta-tipo-btn" onclick="crearAlerta('bache')"><span>🕳️</span><span>Bache</span></button>
+    <button class="alerta-tipo-btn" onclick="crearAlerta('carril_bloqueado')"><span>🚧</span><span>Carril bloqueado</span></button>
+    <button class="alerta-tipo-btn" onclick="crearAlerta('peligro')"><span>⚠️</span><span>Peligro general</span></button>
+    <button class="alerta-tipo-btn" onclick="crearAlerta('exclusivo_riders')"><span>🛵</span><span>Solo riders</span></button>
+  </div>
+</div>
 
 </body>
 </html>
