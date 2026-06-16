@@ -871,7 +871,8 @@ function seleccionar(l) {
   // Registrar vista pasiva (fire and forget)
   (function() {
     if (!localStorage.getItem('dm_token')) return;
-    const esRiderStr = localStorage.getItem('dm_es_rider');
+    const _u = JSON.parse(localStorage.getItem('dm_user') || 'null');
+    const esRiderStr = _u ? localStorage.getItem('dm_es_rider_' + _u.id) : null;
     const esRider = esRiderStr === 'true' ? true : esRiderStr === 'false' ? false : null;
     supaFetch(`${SUPABASE_URL}/rest/v1/rpc/registrar_vista_local`, {
       method: 'POST',
@@ -1068,18 +1069,18 @@ function mostrarToast(msg, tipo = '') {
   toastTimer = setTimeout(() => t.classList.remove('visible'), 1800);
 }
 // ONBOARDING
-function evaluarOnboarding(esRider) {
+function evaluarOnboarding(esRider, userId) {
   console.log('[ONBOARDING-1] función ejecutada');
-  console.log('[ONBOARDING-2] localStorage dm_es_rider:', JSON.stringify(localStorage.getItem('dm_es_rider')));
+  console.log('[ONBOARDING-2] localStorage dm_es_rider_'+userId+':', JSON.stringify(localStorage.getItem('dm_es_rider_' + userId)));
   console.log('[ONBOARDING-3] esRider recibido:', esRider, typeof esRider);
-  const cached = localStorage.getItem('dm_es_rider');
+  const cached = localStorage.getItem('dm_es_rider_' + userId);
   if (cached === 'true' || cached === 'false') {
     console.log('[ONBOARDING] cache válido encontrado, saliendo sin mostrar popup');
     return;
   }
   if (esRider === true || esRider === false) {
     console.log('[ONBOARDING] es_rider es boolean, cacheando y saliendo');
-    localStorage.setItem('dm_es_rider', String(esRider));
+    localStorage.setItem('dm_es_rider_' + userId, String(esRider));
     return;
   }
   // es_rider es null: esperar que splash termine y mostrar popup
@@ -1113,7 +1114,7 @@ async function elegirTipoUsuario(esRider) {
     }
   );
   if (res.ok) {
-    localStorage.setItem('dm_es_rider', String(esRider));
+    localStorage.setItem('dm_es_rider_' + user.id, String(esRider));
     popup.style.display = 'none';
   } else {
     btns.forEach(b => b.disabled = false);
@@ -1327,14 +1328,14 @@ async function mostrarBotonUsuario() {
       console.log('[PERFIL-2] es_rider del perfil:', data?.[0]?.es_rider, typeof data?.[0]?.es_rider);
       if (data && data.length > 0) {
         if (data[0].foto_url) fotoUrl = safeImageUrl(data[0].foto_url);
-        evaluarOnboarding(data[0].es_rider);
+        evaluarOnboarding(data[0].es_rider, u.id);
       } else {
         await supaFetch(`${SUPABASE_URL}/rest/v1/perfiles`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
           body: JSON.stringify({ user_id: u.id, apodo })
         }).catch(() => {});
-        evaluarOnboarding(null);
+        evaluarOnboarding(null, u.id);
       }
     } catch(e) {
       console.log('[PERFIL] ERROR en fetch perfiles:', e);

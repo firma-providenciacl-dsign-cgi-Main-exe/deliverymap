@@ -564,7 +564,7 @@ async function cargarPerfil() {
     }
     const esRider = data[0].es_rider;
     if (esRider !== null && esRider !== undefined) {
-      localStorage.setItem('dm_es_rider', String(esRider));
+      localStorage.setItem('dm_es_rider_' + userId, String(esRider));
     }
     actualizarTipoCuenta(esRider ?? null);
   }
@@ -802,7 +802,7 @@ async function cambiarTipoCuenta(esRider) {
   btnRider.disabled = false;
   btnConsumidor.disabled = false;
   if (res.ok) {
-    localStorage.setItem('dm_es_rider', String(esRider));
+    localStorage.setItem('dm_es_rider_' + userId, String(esRider));
     actualizarTipoCuenta(esRider);
     msg.textContent = '✅ Preferencia guardada';
     msg.className = 'mensaje exito';
