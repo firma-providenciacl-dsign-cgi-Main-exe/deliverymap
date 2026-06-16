@@ -1069,19 +1069,28 @@ function mostrarToast(msg, tipo = '') {
 }
 // ONBOARDING
 function evaluarOnboarding(esRider) {
+  console.log('[ONBOARDING-1] función ejecutada');
+  console.log('[ONBOARDING-2] localStorage dm_es_rider:', JSON.stringify(localStorage.getItem('dm_es_rider')));
+  console.log('[ONBOARDING-3] esRider recibido:', esRider, typeof esRider);
   const cached = localStorage.getItem('dm_es_rider');
-  if (cached === 'true' || cached === 'false') return;
+  if (cached === 'true' || cached === 'false') {
+    console.log('[ONBOARDING] cache válido encontrado, saliendo sin mostrar popup');
+    return;
+  }
   if (esRider === true || esRider === false) {
+    console.log('[ONBOARDING] es_rider es boolean, cacheando y saliendo');
     localStorage.setItem('dm_es_rider', String(esRider));
     return;
   }
   // es_rider es null: esperar que splash termine y mostrar popup
+  console.log('[ONBOARDING] es_rider es null → programando popup');
   function tryShow() {
     const splash = document.getElementById('splash');
     if (splash && splash.style.display !== 'none') {
       setTimeout(tryShow, 300);
       return;
     }
+    console.log('[ONBOARDING] splash terminado, mostrando popup ahora');
     document.getElementById('popupOnboarding').style.display = 'flex';
   }
   tryShow();
@@ -1301,6 +1310,7 @@ async function mostrarBotonUsuario() {
 
   if (token && user) {
     const u = JSON.parse(user);
+    console.log('[AUTH-1] sesión detectada, usuario:', u.email);
     const apodo = u.user_metadata?.apodo || u.email?.split('@')[0] || 'R';
     const inicial = apodo.charAt(0).toUpperCase();
 
@@ -1313,11 +1323,17 @@ async function mostrarBotonUsuario() {
         }
       });
       const data = await res.json();
+      console.log('[PERFIL-1] data raw de Supabase:', JSON.stringify(data));
+      console.log('[PERFIL-2] es_rider del perfil:', data?.[0]?.es_rider, typeof data?.[0]?.es_rider);
       if (data && data.length > 0) {
         if (data[0].foto_url) fotoUrl = safeImageUrl(data[0].foto_url);
         evaluarOnboarding(data[0].es_rider);
+      } else {
+        console.log('[PERFIL] perfil no encontrado o array vacío — evaluarOnboarding NO se llamó');
       }
-    } catch(e) {}
+    } catch(e) {
+      console.log('[PERFIL] ERROR en fetch perfiles:', e);
+    }
 
     if (fotoUrl) {
       btn.innerHTML = `<a href="perfil.html" style="display:block; width:38px; height:38px; border-radius:50%; border:2.5px solid #4a90e2; box-shadow:0 0 8px #4a90e2, 0 0 16px #4a90e233; overflow:hidden; text-decoration:none;">
