@@ -811,7 +811,8 @@ const ALERTA_TIPOS = {
   bache:            { emoji: '🕳️', label: 'Bache' },
   carril_bloqueado: { emoji: '🚧', label: 'Carril bloqueado' },
   peligro:          { emoji: '⚠️', label: 'Peligro general' },
-  exclusivo_riders: { emoji: '🛵', label: 'Solo riders' }
+  exclusivo_riders: { emoji: '🛵', label: 'Solo riders' },
+  zona_incidentes:  { emoji: '🚨', label: 'Zona de incidentes' }
 };
 let marcadoresAlertas = [];
 let votosEmitidos = new Set();
@@ -2061,6 +2062,7 @@ cargarAlertas();
     <button class="alerta-tipo-btn" onclick="crearAlerta('carril_bloqueado')"><span>🚧</span><span>Carril bloqueado</span></button>
     <button class="alerta-tipo-btn" onclick="crearAlerta('peligro')"><span>⚠️</span><span>Peligro general</span></button>
     <button class="alerta-tipo-btn" onclick="crearAlerta('exclusivo_riders')"><span>🛵</span><span>Solo riders</span></button>
+    <button class="alerta-tipo-btn" onclick="crearAlerta('zona_incidentes')"><span>🚨</span><span>Zona de incidentes</span></button>
   </div>
 </div>
 
