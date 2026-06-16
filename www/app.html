@@ -1069,7 +1069,8 @@ function mostrarToast(msg, tipo = '') {
 }
 // ONBOARDING
 function evaluarOnboarding(esRider) {
-  if (localStorage.getItem('dm_es_rider') !== null) return;
+  const cached = localStorage.getItem('dm_es_rider');
+  if (cached === 'true' || cached === 'false') return;
   if (esRider === true || esRider === false) {
     localStorage.setItem('dm_es_rider', String(esRider));
     return;
