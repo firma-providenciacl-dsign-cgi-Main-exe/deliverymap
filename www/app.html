@@ -870,6 +870,7 @@ function seleccionar(l) {
 
   // Registrar vista pasiva (fire and forget)
   (function() {
+    if (!localStorage.getItem('dm_token')) return;
     const esRiderStr = localStorage.getItem('dm_es_rider');
     const esRider = esRiderStr === 'true' ? true : esRiderStr === 'false' ? false : null;
     supaFetch(`${SUPABASE_URL}/rest/v1/rpc/registrar_vista_local`, {
@@ -1067,30 +1068,22 @@ function mostrarToast(msg, tipo = '') {
   toastTimer = setTimeout(() => t.classList.remove('visible'), 1800);
 }
 // ONBOARDING
-async function verificarOnboarding() {
-  const splash = document.getElementById('splash');
-  if (splash && splash.style.display !== 'none') {
-    setTimeout(verificarOnboarding, 300);
-    return;
-  }
-  const token = localStorage.getItem('dm_token');
-  const userStr = localStorage.getItem('dm_user');
-  if (!token || !userStr) return;
+function evaluarOnboarding(esRider) {
   if (localStorage.getItem('dm_es_rider') !== null) return;
-  let user;
-  try { user = JSON.parse(userStr); } catch(e) { return; }
-  const res = await supaFetch(
-    `${SUPABASE_URL}/rest/v1/perfiles?user_id=eq.${pg(user.id)}&select=es_rider`,
-    { headers: { 'Accept': 'application/json' } }
-  );
-  if (!res.ok) return;
-  const data = await res.json();
-  if (!Array.isArray(data) || data.length === 0) return;
-  if (data[0].es_rider !== null) {
-    localStorage.setItem('dm_es_rider', String(data[0].es_rider));
+  if (esRider === true || esRider === false) {
+    localStorage.setItem('dm_es_rider', String(esRider));
     return;
   }
-  document.getElementById('popupOnboarding').style.display = 'flex';
+  // es_rider es null: esperar que splash termine y mostrar popup
+  function tryShow() {
+    const splash = document.getElementById('splash');
+    if (splash && splash.style.display !== 'none') {
+      setTimeout(tryShow, 300);
+      return;
+    }
+    document.getElementById('popupOnboarding').style.display = 'flex';
+  }
+  tryShow();
 }
 
 async function elegirTipoUsuario(esRider) {
@@ -1132,7 +1125,8 @@ async function cargarAfluencia(localId) {
   const userId = userStr ? JSON.parse(userStr).id : null;
   const autenticado = !!(token && userId);
 
-  const hace2h = new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString();
+  const ahora = Date.now();
+  const hace2h = new Date(ahora - 2 * 60 * 60 * 1000).toISOString();
   const res = await supaFetch(
     `${SUPABASE_URL}/rest/v1/afluencia?local_id=eq.${pg(localId)}&creado_en=gte.${encodeURIComponent(hace2h)}&select=nivel,creado_en&order=creado_en.desc`,
     { headers: { 'Accept': 'application/json' } }
@@ -1140,7 +1134,7 @@ async function cargarAfluencia(localId) {
   const raw = await res.json();
   const reportes = res.ok && Array.isArray(raw) ? raw : [];
 
-  const hace1h = Date.now() - 60 * 60 * 1000;
+  const hace1h = ahora - 60 * 60 * 1000;
   const countHora = reportes.filter(r => new Date(r.creado_en).getTime() > hace1h).length;
   const NIVEL_INFO = { 1: '🟢 Vacío', 2: '🟡 Moderado', 3: '🔴 Lleno', 4: '💀 Colapsado' };
 
@@ -1161,25 +1155,41 @@ async function cargarAfluencia(localId) {
     sinDatos.textContent = 'Sin datos recientes';
     header.appendChild(sinDatos);
   } else {
-    const promedio = Math.round(reportes.reduce((s, r) => s + r.nivel, 0) / reportes.length);
-    const nivel = Math.min(4, Math.max(1, promedio));
+    // Promedio ponderado por antigüedad
+    let sumaPesos = 0, sumaProducto = 0;
+    reportes.forEach(r => {
+      const minAtras = (ahora - new Date(r.creado_en).getTime()) / 60000;
+      const peso = minAtras <= 30 ? 1.0 : minAtras <= 60 ? 0.6 : minAtras <= 90 ? 0.3 : 0.1;
+      sumaPesos += peso;
+      sumaProducto += r.nivel * peso;
+    });
+    const nivelFinal = Math.min(4, Math.max(1, Math.round(sumaProducto / sumaPesos)));
     const nivelEl = document.createElement('span');
     nivelEl.className = 'afluencia-nivel';
-    nivelEl.textContent = NIVEL_INFO[nivel];
+    nivelEl.textContent = NIVEL_INFO[nivelFinal];
     header.appendChild(nivelEl);
-    if (countHora > 0) {
-      const countEl = document.createElement('span');
-      countEl.className = 'afluencia-count';
-      countEl.textContent = `(${countHora} reporte${countHora !== 1 ? 's' : ''} en la última hora)`;
-      header.appendChild(countEl);
-    }
   }
   wrap.appendChild(header);
+
+  // Línea de metadatos: conteo + último reporte
+  if (reportes.length > 0) {
+    const meta = document.createElement('div');
+    meta.className = 'afluencia-count';
+    const ultimoTiempo = tiempoTranscurrido(reportes[0].creado_en);
+    meta.textContent = `${countHora} reporte${countHora !== 1 ? 's' : ''} en la última hora · último ${ultimoTiempo}`;
+    wrap.appendChild(meta);
+    if (reportes.length === 1) {
+      const nota = document.createElement('div');
+      nota.className = 'afluencia-count';
+      nota.textContent = '📊 1 reporte — puede variar';
+      wrap.appendChild(nota);
+    }
+  }
 
   if (autenticado) {
     const cacheKey = `dm_reporte_${localId}`;
     const ultimoReporte = localStorage.getItem(cacheKey);
-    const bloqueado = !!ultimoReporte && (Date.now() - parseInt(ultimoReporte)) < 30 * 60 * 1000;
+    const bloqueado = !!ultimoReporte && (ahora - parseInt(ultimoReporte)) < 30 * 60 * 1000;
     const niveles = [[1, '🟢 Vacío'], [2, '🟡 Moderado'], [3, '🔴 Lleno'], [4, '💀 Colapsado']];
     const botonesDiv = document.createElement('div');
     botonesDiv.className = 'afluencia-botones';
@@ -1249,7 +1259,6 @@ async function verificarSesion() {
         localStorage.setItem('dm_user', JSON.stringify(user));
         window.location.hash = '';
         mostrarBotonUsuario();
-        verificarOnboarding();
       });
       return;
     }
@@ -1282,7 +1291,6 @@ async function verificarSesion() {
   }
 
   mostrarBotonUsuario();
-  verificarOnboarding();
 }
 
 async function mostrarBotonUsuario() {
@@ -1295,17 +1303,18 @@ async function mostrarBotonUsuario() {
     const apodo = u.user_metadata?.apodo || u.email?.split('@')[0] || 'R';
     const inicial = apodo.charAt(0).toUpperCase();
 
-    // Buscar foto en tabla perfiles
+    // Buscar foto y tipo de usuario en tabla perfiles
     let fotoUrl = null;
     try {
-      const res = await supaFetch(`${SUPABASE_URL}/rest/v1/perfiles?user_id=eq.${pg(u.id)}&select=foto_url`, {
+      const res = await supaFetch(`${SUPABASE_URL}/rest/v1/perfiles?user_id=eq.${pg(u.id)}&select=foto_url,es_rider`, {
         headers: {
           'Accept': 'application/json'
         }
       });
       const data = await res.json();
-      if (data && data.length > 0 && data[0].foto_url) {
-        fotoUrl = safeImageUrl(data[0].foto_url);
+      if (data && data.length > 0) {
+        if (data[0].foto_url) fotoUrl = safeImageUrl(data[0].foto_url);
+        evaluarOnboarding(data[0].es_rider);
       }
     } catch(e) {}
 
