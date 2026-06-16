@@ -1070,28 +1070,18 @@ function mostrarToast(msg, tipo = '') {
 }
 // ONBOARDING
 function evaluarOnboarding(esRider, userId) {
-  console.log('[ONBOARDING-1] función ejecutada');
-  console.log('[ONBOARDING-2] localStorage dm_es_rider_'+userId+':', JSON.stringify(localStorage.getItem('dm_es_rider_' + userId)));
-  console.log('[ONBOARDING-3] esRider recibido:', esRider, typeof esRider);
   const cached = localStorage.getItem('dm_es_rider_' + userId);
-  if (cached === 'true' || cached === 'false') {
-    console.log('[ONBOARDING] cache válido encontrado, saliendo sin mostrar popup');
-    return;
-  }
+  if (cached === 'true' || cached === 'false') return;
   if (esRider === true || esRider === false) {
-    console.log('[ONBOARDING] es_rider es boolean, cacheando y saliendo');
     localStorage.setItem('dm_es_rider_' + userId, String(esRider));
     return;
   }
-  // es_rider es null: esperar que splash termine y mostrar popup
-  console.log('[ONBOARDING] es_rider es null → programando popup');
   function tryShow() {
     const splash = document.getElementById('splash');
     if (splash && splash.style.display !== 'none') {
       setTimeout(tryShow, 300);
       return;
     }
-    console.log('[ONBOARDING] splash terminado, mostrando popup ahora');
     document.getElementById('popupOnboarding').style.display = 'flex';
   }
   tryShow();
@@ -1311,7 +1301,6 @@ async function mostrarBotonUsuario() {
 
   if (token && user) {
     const u = JSON.parse(user);
-    console.log('[AUTH-1] sesión detectada, usuario:', u.email);
     const apodo = u.user_metadata?.apodo || u.email?.split('@')[0] || 'R';
     const inicial = apodo.charAt(0).toUpperCase();
 
@@ -1324,8 +1313,6 @@ async function mostrarBotonUsuario() {
         }
       });
       const data = await res.json();
-      console.log('[PERFIL-1] data raw de Supabase:', JSON.stringify(data));
-      console.log('[PERFIL-2] es_rider del perfil:', data?.[0]?.es_rider, typeof data?.[0]?.es_rider);
       if (data && data.length > 0) {
         if (data[0].foto_url) fotoUrl = safeImageUrl(data[0].foto_url);
         evaluarOnboarding(data[0].es_rider, u.id);
