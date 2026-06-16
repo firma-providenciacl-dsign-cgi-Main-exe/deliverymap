@@ -797,7 +797,7 @@ L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
   attribution: '© OpenStreetMap © CARTO'
 }).addTo(mapa);
 mapa.on('zoomend', actualizarVisibilidadAlertas);
-setInterval(cargarAlertas, 120000);
+setInterval(cargarAlertas, 30000);
 
 
 
@@ -1339,9 +1339,19 @@ function crearContenidoPopupAlerta(alerta) {
   wrap.appendChild(tit);
 
   const tiempo = document.createElement('div');
-  tiempo.style.cssText = 'font-size:12px; color:#888; margin-bottom:10px;';
+  tiempo.style.cssText = 'font-size:12px; color:#888; margin-bottom:6px;';
   tiempo.textContent = tiempoTranscurrido(alerta.creado_en);
   wrap.appendChild(tiempo);
+
+  const contadores = document.createElement('div');
+  contadores.style.cssText = 'font-size:12px; color:#aaa; margin-bottom:10px; display:flex; gap:14px;';
+  const spanSi = document.createElement('span');
+  spanSi.textContent = '👍 ' + (alerta.votos_si || 0);
+  const spanNo = document.createElement('span');
+  spanNo.textContent = '👎 ' + (alerta.votos_no || 0);
+  contadores.appendChild(spanSi);
+  contadores.appendChild(spanNo);
+  wrap.appendChild(contadores);
 
   if (!autenticado || yaVote) {
     const msg = document.createElement('div');
@@ -1408,7 +1418,7 @@ async function crearAlerta(tipo) {
 async function cargarAlertas() {
   const ahora = new Date().toISOString();
   const res = await supaFetch(
-    `${SUPABASE_URL}/rest/v1/alertas?expira_en=gt.${encodeURIComponent(ahora)}&select=id,tipo,lat,lng,creado_en,votos_si&order=creado_en.desc`,
+    `${SUPABASE_URL}/rest/v1/alertas?expira_en=gt.${encodeURIComponent(ahora)}&select=id,tipo,lat,lng,creado_en,votos_si,votos_no&order=creado_en.desc`,
     { headers: { 'Accept': 'application/json' } }
   );
   if (!res.ok) return;
