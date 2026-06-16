@@ -1382,9 +1382,9 @@ async function cargarHistorial(localId) {
   contenedor.appendChild(cargando);
 
   try {
-    const [resH, resN] = await Promise.all([
+    const [resV, resN] = await Promise.all([
       supaFetch(
-        `${SUPABASE_URL}/rest/v1/afluencia_heatmap?local_id=eq.${pg(localId)}&select=dia_semana,hora,total_vistas`,
+        `${SUPABASE_URL}/rest/v1/afluencia_vistas?local_id=eq.${pg(localId)}&select=creado_en`,
         { headers: { 'Accept': 'application/json' } }
       ),
       supaFetch(
@@ -1392,14 +1392,14 @@ async function cargarHistorial(localId) {
         { headers: { 'Accept': 'application/json' } }
       )
     ]);
-    const [rawH, rawN] = await Promise.all([resH.json(), resN.json()]);
+    const [rawV, rawN] = await Promise.all([resV.json(), resN.json()]);
     historialCache = {
       localId,
-      heatmap: (resH.ok && Array.isArray(rawH)) ? rawH : [],
+      vistas: (resV.ok && Array.isArray(rawV)) ? rawV : [],
       niveles: (resN.ok && Array.isArray(rawN)) ? rawN : []
     };
   } catch(e) {
-    historialCache = { localId, heatmap: [], niveles: [] };
+    historialCache = { localId, vistas: [], niveles: [] };
   }
 
   renderHistorial((new Date().getDay() + 6) % 7, historialCache);
@@ -1425,15 +1425,15 @@ function renderHistorial(diaIdx, cache) {
   contenedor.appendChild(diasWrap);
 
   const jsDia = JS_DIAS[diaIdx];
-  // % 7 normaliza tanto EXTRACT(DOW) 0-6 como EXTRACT(ISODOW) 1-7 (domingo: 7%7=0)
-  const heatmapDia = cache.heatmap.filter(h => (h.dia_semana % 7) === jsDia);
+  const vistasDia = (cache.vistas || []).filter(v => new Date(v.creado_en).getDay() === jsDia);
   const nivelesDia = cache.niveles.filter(r => new Date(r.creado_en).getDay() === jsDia);
 
   const BUCKETS = [0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22];
   const buckets = BUCKETS.map(h0 => {
-    const vistas = heatmapDia
-      .filter(h => h.hora >= h0 && h.hora < h0 + 2)
-      .reduce((s, h) => s + (h.total_vistas || 0), 0);
+    const vistas = vistasDia.filter(v => {
+      const hora = new Date(v.creado_en).getHours();
+      return hora >= h0 && hora < h0 + 2;
+    }).length;
     const registros = nivelesDia.filter(r => {
       const hora = new Date(r.creado_en).getHours();
       return hora >= h0 && hora < h0 + 2;
