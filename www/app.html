@@ -1425,7 +1425,8 @@ function renderHistorial(diaIdx, cache) {
   contenedor.appendChild(diasWrap);
 
   const jsDia = JS_DIAS[diaIdx];
-  const heatmapDia = cache.heatmap.filter(h => h.dia_semana === jsDia);
+  // % 7 normaliza tanto EXTRACT(DOW) 0-6 como EXTRACT(ISODOW) 1-7 (domingo: 7%7=0)
+  const heatmapDia = cache.heatmap.filter(h => (h.dia_semana % 7) === jsDia);
   const nivelesDia = cache.niveles.filter(r => new Date(r.creado_en).getDay() === jsDia);
 
   const BUCKETS = [0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22];
@@ -1455,15 +1456,16 @@ function renderHistorial(diaIdx, cache) {
   const alturas = buckets.map(b => b.count > 0 ? b.count : b.vistas);
   const maxAlt = Math.max(...alturas, 1);
 
-  function colorNivel(avg) {
-    if (avg === null) return '#2a2a2a';
-    if (avg < 1.5) return '#4CAF50';
-    if (avg < 2.5) return '#FFC107';
-    if (avg < 3.5) return '#F44336';
+  function colorBarra(b) {
+    if (b.count === 0 && b.vistas === 0) return '#1e1e1e'; // vacío
+    if (b.count === 0) return '#3a3a3a';                   // solo vistas, sin nivel
+    if (b.avgNivel < 1.5) return '#4CAF50';
+    if (b.avgNivel < 2.5) return '#FFC107';
+    if (b.avgNivel < 3.5) return '#F44336';
     return '#9C27B0';
   }
   function labelNivel(avg) {
-    if (avg === null) return 'Sin datos';
+    if (avg === null) return 'sin reporte de nivel';
     if (avg < 1.5) return 'Vacío';
     if (avg < 2.5) return 'Moderado';
     if (avg < 3.5) return 'Lleno';
@@ -1483,10 +1485,14 @@ function renderHistorial(diaIdx, cache) {
     const barra = document.createElement('div');
     barra.className = 'historial-barra';
     barra.style.height = pct + '%';
-    barra.style.backgroundColor = (b.count === 0 && b.vistas === 0) ? '#1e1e1e' : colorNivel(b.avgNivel);
+    barra.style.backgroundColor = colorBarra(b);
     barra.addEventListener('click', () => {
       const h = String(b.h0).padStart(2, '0');
-      tooltipDiv.textContent = `${h}:00 — ${b.count} reporte${b.count !== 1 ? 's' : ''} · ${labelNivel(b.avgNivel)}`;
+      if (b.count > 0) {
+        tooltipDiv.textContent = `${h}:00 — ${b.count} reporte${b.count !== 1 ? 's' : ''} · ${labelNivel(b.avgNivel)}`;
+      } else if (b.vistas > 0) {
+        tooltipDiv.textContent = `${h}:00 — ${b.vistas} consulta${b.vistas !== 1 ? 's' : ''} · sin reporte de nivel`;
+      }
     });
     const horaLabel = document.createElement('div');
     horaLabel.className = 'historial-hora';
