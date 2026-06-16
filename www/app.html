@@ -1329,7 +1329,12 @@ async function mostrarBotonUsuario() {
         if (data[0].foto_url) fotoUrl = safeImageUrl(data[0].foto_url);
         evaluarOnboarding(data[0].es_rider);
       } else {
-        console.log('[PERFIL] perfil no encontrado o array vacío — evaluarOnboarding NO se llamó');
+        await supaFetch(`${SUPABASE_URL}/rest/v1/perfiles`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+          body: JSON.stringify({ user_id: u.id, apodo })
+        }).catch(() => {});
+        evaluarOnboarding(null);
       }
     } catch(e) {
       console.log('[PERFIL] ERROR en fetch perfiles:', e);
