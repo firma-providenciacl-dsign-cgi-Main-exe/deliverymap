@@ -1751,12 +1751,18 @@ async function mostrarBotonUsuario() {
         if (data[0].foto_url) fotoUrl = safeImageUrl(data[0].foto_url);
         evaluarOnboarding(data[0].es_rider, u.id);
       } else {
-        await supaFetch(`${SUPABASE_URL}/rest/v1/perfiles`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
-          body: JSON.stringify({ user_id: u.id, apodo })
-        }).catch(() => {});
-        evaluarOnboarding(null, u.id);
+        // Perfil no existe para usuario autenticado → cuenta eliminada desde admin
+        try {
+          await fetch(`${SUPABASE_URL}/auth/v1/logout`, {
+            method: 'POST',
+            headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + token }
+          });
+        } catch(e) {}
+        localStorage.removeItem('dm_token');
+        localStorage.removeItem('dm_user');
+        localStorage.removeItem('dm_refresh');
+        window.location.href = 'login.html';
+        return;
       }
     } catch(e) {
       console.log('[PERFIL] ERROR en fetch perfiles:', e);
