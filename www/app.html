@@ -1052,18 +1052,29 @@ async function mostrarBotonUsuario() {
       });
       const data = await res.json();
       if (Array.isArray(data) && data.length === 0) {
-        // Perfil no existe para usuario autenticado → cuenta eliminada desde admin
-        try {
-          await fetch(`${SUPABASE_URL}/auth/v1/logout`, {
-            method: 'POST',
-            headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + token }
-          });
-        } catch(e) {}
-        localStorage.removeItem('dm_token');
-        localStorage.removeItem('dm_user');
-        localStorage.removeItem('dm_refresh');
-        window.location.href = 'login.html';
-        return;
+        // Sin perfil: puede ser usuario nuevo o usuario eliminado.
+        // Intentar crear el perfil — si falla, el user_id no existe en auth → logout.
+        const apodo = u.user_metadata?.apodo || u.email?.split('@')[0] || 'usuario';
+        const insertRes = await supaFetch(`${SUPABASE_URL}/rest/v1/perfiles`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+          body: JSON.stringify({ user_id: u.id, apodo })
+        });
+        if (!insertRes.ok) {
+          // INSERT falló → usuario eliminado desde admin
+          try {
+            await fetch(`${SUPABASE_URL}/auth/v1/logout`, {
+              method: 'POST',
+              headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + token }
+            });
+          } catch(e) {}
+          localStorage.removeItem('dm_token');
+          localStorage.removeItem('dm_user');
+          localStorage.removeItem('dm_refresh');
+          window.location.href = 'login.html';
+          return;
+        }
+        // INSERT OK → usuario nuevo, continuar sin foto
       }
       if (data && data.length > 0 && data[0].foto_url) {
         fotoUrl = safeImageUrl(data[0].foto_url);
