@@ -727,6 +727,7 @@ async function buscar(q) {
     distancia: (userLat && userLng) ? haversine(userLat, userLng, l.lat, l.lng) : null
   }));
   if (userLat && userLng) data.sort((a,b) => a.distancia - b.distancia);
+  else data.sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
 
   // Contador
   document.getElementById('dropdownContadorTexto').innerHTML =
