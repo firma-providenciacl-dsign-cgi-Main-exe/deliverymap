@@ -928,46 +928,30 @@ async function buscar(q) {
     </div>
   `).join('');
 
-  // Fotos primeros 10 — una sola query batch
-  const batch = data.slice(0, 10);
-  if (batch.length > 0) {
-    const ids = batch.map(l => pg(l.id)).join(',');
-    fetch(`${SUPABASE_URL}/rest/v1/local_fotos?local_id=in.(${ids})&select=local_id,url`, {
-      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
-    })
-    .then(r => r.json())
-    .then(fotos => {
-      if (!fotos || !Array.isArray(fotos)) return;
-      const fotoMap = {};
-      fotos.forEach(f => { if (!fotoMap[f.local_id]) fotoMap[f.local_id] = f.url; });
-      batch.forEach(l => {
-        const url = fotoMap[l.id];
-        if (!url) return;
-        const pin = document.getElementById(`rpin-${l.id}`);
-        const fotoUrl = safeImageUrl(url);
-        if (pin && fotoUrl) {
-          pin.innerHTML = '';
-          pin.style.background = '#1a1a1a';
-          const img = document.createElement('img');
-          img.src = fotoUrl;
-          img.alt = l.nombre || '';
-          img.loading = 'eager';
-          img.style.cssText = 'opacity:0; transition:opacity 0.3s ease;';
-          img.onload = function() { this.style.opacity = '1'; };
-          img.onerror = function() {
-            this.parentElement.style.background = '#1a1a1a';
-            const inicial = document.createElement('span');
-            inicial.textContent = (l.nombre || '?').charAt(0).toUpperCase();
-            inicial.style.cssText = 'color:#666;font-size:1.2rem;';
-            this.parentElement.appendChild(inicial);
-            this.style.display = 'none';
-          };
-          pin.appendChild(img);
-        }
-      });
-    })
-    .catch(() => {});
-  }
+  // Fotos desde JOIN con local_fotos
+  data.forEach(l => {
+    const fotoUrl = safeImageUrl(l.local_fotos?.[0]?.url);
+    if (!fotoUrl) return;
+    const pin = document.getElementById(`rpin-${l.id}`);
+    if (!pin) return;
+    pin.innerHTML = '';
+    pin.style.background = '#1a1a1a';
+    const img = document.createElement('img');
+    img.src = fotoUrl;
+    img.alt = l.nombre || '';
+    img.loading = 'eager';
+    img.style.cssText = 'opacity:0; transition:opacity 0.3s ease;';
+    img.onload = function() { this.style.opacity = '1'; };
+    img.onerror = function() {
+      this.parentElement.style.background = '#1a1a1a';
+      const inicial = document.createElement('span');
+      inicial.textContent = (l.nombre || '?').charAt(0).toUpperCase();
+      inicial.style.cssText = 'color:#666;font-size:1.2rem;';
+      this.parentElement.appendChild(inicial);
+      this.style.display = 'none';
+    };
+    pin.appendChild(img);
+  });
 }
 
 // SELECCIONAR LOCAL
