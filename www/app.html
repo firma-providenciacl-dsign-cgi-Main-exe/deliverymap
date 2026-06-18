@@ -937,6 +937,7 @@ async function buscar(q) {
     pin.innerHTML = '';
     pin.style.background = '#1a1a1a';
     const img = document.createElement('img');
+    img.crossOrigin = 'anonymous';
     img.src = fotoUrl;
     img.alt = l.nombre || '';
     img.loading = 'eager';
@@ -990,6 +991,7 @@ pinActivo = L.marker([l.lat, l.lng]).addTo(mapa);
       if (!fotoUrl) return;
       sheetFoto.innerHTML = '';
       const img = document.createElement('img');
+      img.crossOrigin = 'anonymous';
       img.src = fotoUrl;
       img.style.cssText = 'width:100%; height:180px; object-fit:cover; cursor:pointer;';
       img.addEventListener('click', () => abrirLightbox(fotoUrl));
