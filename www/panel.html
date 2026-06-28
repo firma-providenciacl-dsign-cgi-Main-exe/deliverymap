@@ -227,6 +227,20 @@ async function cargarSugerencias() {
       return;
     }
 
+    const userIds = [...new Set(data.filter(s => s.user_id).map(s => s.user_id))];
+    const apodoMap = new Map();
+    if (userIds.length > 0) {
+      try {
+        const resPerfiles = await fetch(`${SUPABASE_URL}/rest/v1/perfiles?user_id=in.(${userIds.join(',')})&select=user_id,apodo`, {
+          headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SESSION_TOKEN}` }
+        });
+        if (resPerfiles.ok) {
+          const perfilesData = await resPerfiles.json();
+          perfilesData.forEach(p => apodoMap.set(p.user_id, p.apodo));
+        }
+      } catch(e) {}
+    }
+
     data.forEach(s => {
       const card = document.createElement('div');
       card.className = 'sug-card';
@@ -275,8 +289,26 @@ async function cargarSugerencias() {
         card.appendChild(fotoWrap);
       }
 
-      const apodo = s.perfiles?.apodo || '—';
-      card.appendChild(campo('Usuario', apodo, 'sug-usuario'));
+      const usuarioWrap = document.createElement('div');
+      usuarioWrap.className = 'sug-field';
+      const usuarioLbl = document.createElement('span');
+      usuarioLbl.className = 'sug-label';
+      usuarioLbl.textContent = 'Usuario';
+      const usuarioVal = document.createElement('div');
+      usuarioVal.className = 'sug-usuario';
+      if (s.user_id && apodoMap.has(s.user_id)) {
+        const link = document.createElement('a');
+        link.href = `/perfil.html?id=${s.user_id}`;
+        link.target = '_blank';
+        link.textContent = apodoMap.get(s.user_id);
+        link.style.color = '#4a90e2';
+        usuarioVal.appendChild(link);
+      } else {
+        usuarioVal.textContent = '—';
+      }
+      usuarioWrap.appendChild(usuarioLbl);
+      usuarioWrap.appendChild(usuarioVal);
+      card.appendChild(usuarioWrap);
       card.appendChild(campo('Fecha', s.fecha ? new Date(s.fecha).toLocaleString('es-CL') : '—', 'sug-fecha'));
 
       const btns = document.createElement('div');
