@@ -469,11 +469,17 @@ async function enviarSugerencia() {
     const body = { nombre, comuna, nota, estado: 'pendiente', fecha: new Date().toISOString(), user_id: userId };
     if (foto_url) body.foto_url = foto_url;
 
+    console.log('[INSERT] payload:', body);
+
     const res = await supaFetch(`${SUPABASE_URL}/rest/v1/sugerencias`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
       body: JSON.stringify(body)
     });
+
+    const resText = await res.text();
+    console.log('[INSERT] respuesta status:', res.status);
+    console.log('[INSERT] respuesta data:', resText || '(sin cuerpo)');
 
     if (res.ok) {
       msg.textContent = '✅ ¡Sugerencia enviada! La revisaremos pronto.';
