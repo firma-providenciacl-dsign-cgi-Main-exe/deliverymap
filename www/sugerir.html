@@ -350,9 +350,8 @@
   </a>
 </nav>
 
+<script src="supabase.js"></script>
 <script>
-const SUPABASE_URL = 'https://zxwwffnjrrkmtsxzvswa.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp4d3dmZm5qcnJrbXRzeHp2c3dhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA3MDU2MzksImV4cCI6MjA5NjI4MTYzOX0.0rCwuo78dkvJ-C6Y3br3s7ZuPpdikakxC21WO4dv_rI';
 
 function comprimirImagen(file) {
   return new Promise((resolve) => {
@@ -429,8 +428,8 @@ async function enviarSugerencia() {
   if (userId && tokenActual) {
     try {
       const hace30s = new Date(Date.now() - 30000).toISOString();
-      const checkRes = await fetch(`${SUPABASE_URL}/rest/v1/sugerencias?user_id=eq.${userId}&fecha=gte.${hace30s}&select=id&limit=1`, {
-        headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + tokenActual }
+      const checkRes = await supaFetch(`${SUPABASE_URL}/rest/v1/sugerencias?user_id=eq.${userId}&fecha=gte.${hace30s}&select=id&limit=1`, {
+        headers: { 'Accept': 'application/json' }
       });
       if (checkRes.ok) {
         const recent = await checkRes.json();
@@ -453,12 +452,9 @@ async function enviarSugerencia() {
       const blob = await comprimirImagen(fotoFile);
       const filename = `sugerencia_${Date.now()}.jpg`;
       btn.textContent = 'Subiendo foto...';
-      const uploadRes = await fetch(`${SUPABASE_URL}/storage/v1/object/locales-fotos/${filename}`, {
+      const uploadRes = await supaFetch(`${SUPABASE_URL}/storage/v1/object/locales-fotos/${filename}`, {
         method: 'POST',
-        headers: {
-          'Authorization': 'Bearer ' + tokenActual,
-          'Content-Type': 'image/jpeg'
-        },
+        headers: { 'Content-Type': 'image/jpeg' },
         body: blob
       });
       if (uploadRes.ok) {
@@ -473,13 +469,9 @@ async function enviarSugerencia() {
     const body = { nombre, comuna, nota, estado: 'pendiente', fecha: new Date().toISOString(), user_id: userId };
     if (foto_url) body.foto_url = foto_url;
 
-    const res = await fetch(SUPABASE_URL + '/rest/v1/sugerencias', {
+    const res = await supaFetch(`${SUPABASE_URL}/rest/v1/sugerencias`, {
       method: 'POST',
-      headers: {
-        'apikey': SUPABASE_KEY,
-        ...(tokenActual ? { 'Authorization': 'Bearer ' + tokenActual } : {}),
-        'Content-Type': 'application/json', 'Prefer': 'return=minimal'
-      },
+      headers: { 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
       body: JSON.stringify(body)
     });
 
@@ -494,6 +486,8 @@ async function enviarSugerencia() {
       btn.innerHTML = btnSvg; btn.disabled = false;
       if (!tokenActual) { setTimeout(() => { document.getElementById('popupCuenta').style.display = 'flex'; }, 800); }
     } else {
+      const errBody = await res.text();
+      console.log('[SUGERIR] error:', res.status, errBody);
       msg.textContent = '😕 No se pudo enviar. Intenta de nuevo.';
       msg.className = 'mensaje error'; msg.style.display = 'block';
       btn.innerHTML = btnSvg; btn.disabled = false;
