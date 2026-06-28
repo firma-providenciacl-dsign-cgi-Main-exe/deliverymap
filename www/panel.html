@@ -184,17 +184,6 @@ async function login() {
       btn.disabled = false; btn.textContent = 'Entrar'; return;
     }
 
-    // Re-verificar rol admin directamente desde el servidor con el JWT obtenido
-    const verifyRes = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
-      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${data.access_token}` }
-    });
-    const verifyData = await verifyRes.json();
-    if (!verifyRes.ok || verifyData?.app_metadata?.role !== 'admin') {
-      err.textContent = 'No tienes permisos de administrador.';
-      err.style.display = 'block';
-      btn.disabled = false; btn.textContent = 'Entrar'; return;
-    }
-
     SESSION_TOKEN = data.access_token;
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('appScreen').style.display = 'block';
