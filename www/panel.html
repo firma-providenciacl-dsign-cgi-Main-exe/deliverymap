@@ -197,36 +197,95 @@ async function login() {
 
 async function cargarSugerencias() {
   const lista = document.getElementById('listaSugerencias');
-  lista.innerHTML = '<div id="sinSugerencias">Cargando...</div>';
+  lista.textContent = '';
+  const cargando = document.createElement('div');
+  cargando.id = 'sinSugerencias';
+  cargando.textContent = 'Cargando...';
+  lista.appendChild(cargando);
+
   try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/sugerencias?estado=eq.pendiente&order=fecha.asc&select=id,nombre,comuna,nota,foto_url,fecha,user_id`, {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/sugerencias?estado=in.(pendiente,pendiente_foto)&order=fecha.asc&select=id,nombre,comuna,nota,foto_url,fecha,estado`, {
       headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SESSION_TOKEN}` }
     });
     const data = await res.json();
+    lista.textContent = '';
+
     if (!Array.isArray(data) || data.length === 0) {
-      lista.innerHTML = '<div id="sinSugerencias">No hay sugerencias pendientes.</div>';
+      const vacio = document.createElement('div');
+      vacio.id = 'sinSugerencias';
+      vacio.textContent = 'No hay sugerencias pendientes.';
+      lista.appendChild(vacio);
       return;
     }
-    lista.innerHTML = data.map(s => {
-      const fecha = s.fecha ? new Date(s.fecha).toLocaleString('es-CL') : '';
-      const fotoHtml = s.foto_url
-        ? `<div class="sug-foto"><img src="${s.foto_url}" alt="foto" onclick="window.open('${s.foto_url}','_blank')"/></div>`
-        : '';
-      return `
-        <div class="sug-card" id="sug-${s.id}">
-          <div class="sug-nombre">${escPanel(s.nombre)}</div>
-          <div class="sug-comuna">${escPanel(s.comuna)}</div>
-          <div class="sug-nota">${escPanel(s.nota)}</div>
-          ${fotoHtml}
-          <div class="sug-fecha">${fecha}</div>
-          <div class="sug-btns">
-            <button class="btn-aprobar" onclick="aprobarSugerencia(${s.id}, '${escPanel(s.nombre)}', '${escPanel(s.comuna)}', '${escPanel(s.nota)}', ${s.foto_url ? `'${s.foto_url}'` : 'null'})">✅ Aprobar</button>
-            <button class="btn-rechazar" onclick="rechazarSugerencia(${s.id})">✕ Rechazar</button>
-          </div>
-        </div>`;
-    }).join('');
+
+    data.forEach(s => {
+      const card = document.createElement('div');
+      card.className = 'sug-card';
+      card.id = `sug-${s.id}`;
+
+      if (s.estado === 'pendiente_foto') {
+        const badge = document.createElement('div');
+        badge.textContent = '📷 Foto para local existente';
+        badge.style.cssText = 'font-size:11px;color:#4a90e2;margin-bottom:6px;';
+        card.appendChild(badge);
+      }
+
+      const nombre = document.createElement('div');
+      nombre.className = 'sug-nombre';
+      nombre.textContent = s.nombre || '';
+      card.appendChild(nombre);
+
+      const comuna = document.createElement('div');
+      comuna.className = 'sug-comuna';
+      comuna.textContent = s.comuna || '';
+      card.appendChild(comuna);
+
+      const nota = document.createElement('div');
+      nota.className = 'sug-nota';
+      nota.textContent = s.nota || '';
+      card.appendChild(nota);
+
+      if (s.foto_url) {
+        const fotoWrap = document.createElement('div');
+        fotoWrap.className = 'sug-foto';
+        const img = document.createElement('img');
+        img.src = s.foto_url;
+        img.alt = 'foto';
+        img.onclick = () => window.open(s.foto_url, '_blank');
+        fotoWrap.appendChild(img);
+        card.appendChild(fotoWrap);
+      }
+
+      const fecha = document.createElement('div');
+      fecha.className = 'sug-fecha';
+      fecha.textContent = s.fecha ? new Date(s.fecha).toLocaleString('es-CL') : '';
+      card.appendChild(fecha);
+
+      const btns = document.createElement('div');
+      btns.className = 'sug-btns';
+
+      const btnAprobar = document.createElement('button');
+      btnAprobar.className = 'btn-aprobar';
+      btnAprobar.textContent = '✅ Aprobar';
+      btnAprobar.onclick = () => aprobarSugerencia(s.id, s.nombre, s.comuna, s.nota, s.foto_url, s.estado);
+
+      const btnRechazar = document.createElement('button');
+      btnRechazar.className = 'btn-rechazar';
+      btnRechazar.textContent = '✕ Rechazar';
+      btnRechazar.onclick = () => rechazarSugerencia(s.id);
+
+      btns.appendChild(btnAprobar);
+      btns.appendChild(btnRechazar);
+      card.appendChild(btns);
+
+      lista.appendChild(card);
+    });
   } catch(e) {
-    lista.innerHTML = '<div id="sinSugerencias">Error al cargar sugerencias.</div>';
+    lista.textContent = '';
+    const errDiv = document.createElement('div');
+    errDiv.id = 'sinSugerencias';
+    errDiv.textContent = 'Error al cargar sugerencias.';
+    lista.appendChild(errDiv);
   }
 }
 
@@ -234,7 +293,31 @@ function escPanel(str) {
   return str == null ? '' : String(str).replace(/'/g, "\\'").replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
-async function aprobarSugerencia(id, nombre, comuna, nota, foto_url) {
+async function aprobarSugerencia(id, nombre, comuna, nota, foto_url, estado) {
+  const card = document.getElementById(`sug-${id}`);
+
+  // Foto para local existente: solo vincular foto, sin crear local
+  if (estado === 'pendiente_foto') {
+    const match = nota ? nota.match(/ID:\s*(\d+)/) : null;
+    const localId = match ? parseInt(match[1]) : null;
+    if (!localId) { alert('No se pudo leer el local_id de la nota.'); return; }
+    card.querySelectorAll('button').forEach(b => b.disabled = true);
+
+    await fetch(`${SUPABASE_URL}/rest/v1/local_fotos`, {
+      method: 'POST',
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SESSION_TOKEN}`, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+      body: JSON.stringify({ local_id: localId, url: foto_url })
+    });
+    await fetch(`${SUPABASE_URL}/rest/v1/sugerencias?id=eq.${id}`, {
+      method: 'PATCH',
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SESSION_TOKEN}`, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+      body: JSON.stringify({ estado: 'aprobada' })
+    });
+    cargarSugerencias();
+    return;
+  }
+
+  // Sugerencia normal: crear local
   const lat = parseFloat(prompt(`Latitud para "${nombre}":`));
   if (isNaN(lat)) return;
   const lng = parseFloat(prompt(`Longitud para "${nombre}":`));
@@ -244,18 +327,11 @@ async function aprobarSugerencia(id, nombre, comuna, nota, foto_url) {
     return;
   }
 
-  const card = document.getElementById(`sug-${id}`);
   card.querySelectorAll('button').forEach(b => b.disabled = true);
 
-  // Insertar local y obtener el ID generado
   const resLocal = await fetch(`${SUPABASE_URL}/rest/v1/locales`, {
     method: 'POST',
-    headers: {
-      'apikey': SUPABASE_KEY,
-      'Authorization': `Bearer ${SESSION_TOKEN}`,
-      'Content-Type': 'application/json',
-      'Prefer': 'return=representation'
-    },
+    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SESSION_TOKEN}`, 'Content-Type': 'application/json', 'Prefer': 'return=representation' },
     body: JSON.stringify({ nombre, comuna, nota, lat, lng })
   });
 
@@ -268,29 +344,17 @@ async function aprobarSugerencia(id, nombre, comuna, nota, foto_url) {
   const localData = await resLocal.json();
   const localId = localData[0]?.id;
 
-  // Si tiene foto, vincularla al nuevo local
   if (foto_url && localId) {
     await fetch(`${SUPABASE_URL}/rest/v1/local_fotos`, {
       method: 'POST',
-      headers: {
-        'apikey': SUPABASE_KEY,
-        'Authorization': `Bearer ${SESSION_TOKEN}`,
-        'Content-Type': 'application/json',
-        'Prefer': 'return=minimal'
-      },
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SESSION_TOKEN}`, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
       body: JSON.stringify({ local_id: localId, url: foto_url })
     });
   }
 
-  // Marcar sugerencia como aprobada
   await fetch(`${SUPABASE_URL}/rest/v1/sugerencias?id=eq.${id}`, {
     method: 'PATCH',
-    headers: {
-      'apikey': SUPABASE_KEY,
-      'Authorization': `Bearer ${SESSION_TOKEN}`,
-      'Content-Type': 'application/json',
-      'Prefer': 'return=minimal'
-    },
+    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SESSION_TOKEN}`, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
     body: JSON.stringify({ estado: 'aprobada' })
   });
 
