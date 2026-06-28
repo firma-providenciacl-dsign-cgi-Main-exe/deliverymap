@@ -359,13 +359,21 @@
     }
     #btnWaze  { background: #33ccff; color: white; }
     #btnGmaps { background: #4a90e2; color: white; }
+    #sheetAcciones {
+      display: flex; gap: 8px; margin-bottom: 10px;
+    }
+    #btnSubirFotoLocal {
+      flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px;
+      padding: 12px; border-radius: 12px; border: 1px dashed #4a90e244;
+      font-size: 12px; font-weight: 600; cursor: pointer;
+      background: #111; color: #4a90e2;
+    }
     #btnReporte {
-      display: flex; width: 100%; padding: 12px; border-radius: 12px;
-      border: 1px solid #ff950044; font-size: 13px; font-weight: 600;
+      flex: 1; display: flex; padding: 12px; border-radius: 12px;
+      border: 1px solid #ff950044; font-size: 12px; font-weight: 600;
       cursor: pointer; text-align: center; text-decoration: none;
       background: #1a1a1a; color: #ff9500;
       align-items: center; justify-content: center; gap: 6px;
-      margin-bottom: 10px;
     }
 
 #sheetHeader {
@@ -533,7 +541,10 @@ border-radius: 20px;
         Google Maps
       </a>
     </div>
-    <button id="btnReporte" onclick="reportarError()">⚠️ Reportar error en este local</button>
+    <div id="sheetAcciones">
+      <button id="btnSubirFotoLocal" style="display:none" onclick="clickSubirFoto()">📷 Subir foto</button>
+      <button id="btnReporte" onclick="reportarError()">⚠️ Reportar error</button>
+    </div>
   </div>
 
 <div id="sheetLikes">
@@ -551,6 +562,7 @@ border-radius: 20px;
 </div>
 
 
+<input type="file" id="inputFotoLocal" accept="image/jpeg,image/jpg,image/png,image/webp" style="display:none">
 <script src="supabase.js"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
@@ -792,6 +804,7 @@ pinActivo = L.marker([l.lat, l.lng]).addTo(mapa);
   // Foto en el panel draggable
   const sheetFoto = document.getElementById('sheetFoto');
   sheetFoto.innerHTML = '<span style="color:#555; font-size:13px;">📸 Sin foto aún</span>';
+  document.getElementById('btnSubirFotoLocal').style.display = 'none';
   fetch(`${SUPABASE_URL}/rest/v1/local_fotos?local_id=eq.${pg(l.id)}&select=url&limit=1`, {
     headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
   })
@@ -808,18 +821,7 @@ pinActivo = L.marker([l.lat, l.lng]).addTo(mapa);
       img.addEventListener('click', () => abrirLightbox(fotoUrl));
       sheetFoto.appendChild(img);
     } else {
-      const token = localStorage.getItem('dm_token');
-      if (token) {
-        const btnFoto = document.createElement('button');
-        btnFoto.id = 'btnSubirFotoLocal';
-        btnFoto.textContent = '📷 ¿Tienes una foto de este local? Súbela aquí';
-        btnFoto.style.cssText = 'background:none;border:1px dashed #4a90e244;border-radius:8px;color:#4a90e2;font-size:11px;padding:8px;cursor:pointer;width:100%;margin-top:8px;line-height:1.4;';
-        btnFoto.onclick = () => {
-          _fotoLocalCapturado = l;
-          document.getElementById('inputFotoLocal').click();
-        };
-        sheetFoto.appendChild(btnFoto);
-      }
+      document.getElementById('btnSubirFotoLocal').style.display = 'flex';
     }
   });
 
@@ -1573,29 +1575,45 @@ function comprimirImagen(file) {
   });
 }
 
-document.getElementById('inputFotoLocal').onchange = async function() {
+function clickSubirFoto() {
+  const token = localStorage.getItem('dm_token');
+  if (!token) { window.location.href = 'login.html'; return; }
+  _fotoLocalCapturado = localActivo;
+  document.getElementById('inputFotoLocal').click();
+}
+
+document.getElementById('inputFotoLocal').onchange = function() {
   const file = this.files[0];
-  if (!file || !_fotoLocalCapturado) { this.value = ''; return; }
+  if (!file) return;
   if (!file.type.startsWith('image/')) {
     alert('Solo se permiten archivos de imagen.');
     this.value = ''; return;
   }
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    document.getElementById('fotoConfirmPreview').src = e.target.result;
+    document.getElementById('fotoConfirmModal').style.display = 'flex';
+  };
+  reader.readAsDataURL(file);
+};
+
+async function enviarFotoConfirmada() {
+  const input = document.getElementById('inputFotoLocal');
+  const file = input.files[0];
+  const local = _fotoLocalCapturado;
+  if (!file || !local) return;
   const token = localStorage.getItem('dm_token');
   const userStr = localStorage.getItem('dm_user');
-  if (!token || !userStr) { this.value = ''; return; }
+  if (!token || !userStr) return;
   const userId = JSON.parse(userStr).id;
-  const local = _fotoLocalCapturado;
-  _fotoLocalCapturado = null;
-  this.value = '';
 
-  const btn = document.getElementById('btnSubirFotoLocal');
-  if (btn) btn.style.display = 'none';
+  const btnEnviar = document.getElementById('btnEnviarFoto');
+  btnEnviar.disabled = true;
+  btnEnviar.textContent = 'Enviando...';
 
-  mostrarToast('Comprimiendo foto...');
   const blob = await comprimirImagen(file);
-  mostrarToast('Subiendo foto...');
-
   const filename = `sugerencia_foto_${local.id}_${Date.now()}.jpg`;
+
   const uploadRes = await supaFetch(`${SUPABASE_URL}/storage/v1/object/locales-fotos/${filename}`, {
     method: 'POST',
     headers: { 'Content-Type': 'image/jpeg' },
@@ -1603,6 +1621,8 @@ document.getElementById('inputFotoLocal').onchange = async function() {
   });
 
   if (!uploadRes.ok) {
+    btnEnviar.disabled = false;
+    btnEnviar.textContent = '✅ Enviar foto';
     mostrarToast('No se pudo subir la foto', 'error');
     return;
   }
@@ -1622,12 +1642,33 @@ document.getElementById('inputFotoLocal').onchange = async function() {
     })
   });
 
+  _fotoLocalCapturado = null;
+  cancelarFotoConfirmada();
+  document.getElementById('btnSubirFotoLocal').style.display = 'none';
   mostrarToast('✅ Foto enviada, será revisada pronto', 'exito');
-};
+}
+
+function cancelarFotoConfirmada() {
+  document.getElementById('inputFotoLocal').value = '';
+  document.getElementById('fotoConfirmPreview').src = '';
+  document.getElementById('fotoConfirmModal').style.display = 'none';
+  const btnEnviar = document.getElementById('btnEnviarFoto');
+  btnEnviar.disabled = false;
+  btnEnviar.textContent = '✅ Enviar foto';
+}
 
 verificarSesion();
 </script>
-<input type="file" id="inputFotoLocal" accept="image/jpeg,image/jpg,image/png,image/webp" style="display:none">
+<div id="fotoConfirmModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.88); z-index:5000; align-items:center; justify-content:center; padding:24px;">
+  <div style="background:#111; border:1px solid #4a90e244; border-radius:16px; padding:24px; max-width:300px; width:100%; text-align:center;">
+    <div style="font-size:11px; color:#555; margin-bottom:14px; letter-spacing:2px; text-transform:uppercase;">Vista previa</div>
+    <img id="fotoConfirmPreview" src="" alt="" style="width:100px; height:100px; object-fit:cover; border-radius:10px; border:1px solid #333; display:block; margin:0 auto 20px;"/>
+    <div style="display:flex; gap:8px;">
+      <button id="btnEnviarFoto" onclick="enviarFotoConfirmada()" style="flex:1; padding:12px; background:#4a90e2; color:white; border:none; border-radius:10px; font-size:14px; font-weight:700; cursor:pointer;">✅ Enviar foto</button>
+      <button onclick="cancelarFotoConfirmada()" style="flex:1; padding:12px; background:#222; color:#aaa; border:1px solid #333; border-radius:10px; font-size:14px; cursor:pointer;">✖ Cancelar</button>
+    </div>
+  </div>
+</div>
 <div id="lightbox" onclick="cerrarLightbox()">
   <button id="lightboxCerrar" onclick="cerrarLightbox()">✕</button>
   <img id="lightboxImg" src="" />
