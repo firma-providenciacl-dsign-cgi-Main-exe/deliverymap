@@ -469,17 +469,11 @@ async function enviarSugerencia() {
     const body = { nombre, comuna, nota, estado: 'pendiente', fecha: new Date().toISOString(), user_id: userId };
     if (foto_url) body.foto_url = foto_url;
 
-    console.log('[INSERT] payload:', body);
-
     const res = await supaFetch(`${SUPABASE_URL}/rest/v1/sugerencias`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
       body: JSON.stringify(body)
     });
-
-    const resText = await res.text();
-    console.log('[INSERT] respuesta status:', res.status);
-    console.log('[INSERT] respuesta data:', resText || '(sin cuerpo)');
 
     if (res.ok) {
       msg.textContent = '✅ ¡Sugerencia enviada! La revisaremos pronto.';
@@ -492,8 +486,6 @@ async function enviarSugerencia() {
       btn.innerHTML = btnSvg; btn.disabled = false;
       if (!tokenActual) { setTimeout(() => { document.getElementById('popupCuenta').style.display = 'flex'; }, 800); }
     } else {
-      const errBody = await res.text();
-      console.log('[SUGERIR] error:', res.status, errBody);
       msg.textContent = '😕 No se pudo enviar. Intenta de nuevo.';
       msg.className = 'mensaje error'; msg.style.display = 'block';
       btn.innerHTML = btnSvg; btn.disabled = false;
