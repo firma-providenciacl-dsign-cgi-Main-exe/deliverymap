@@ -91,6 +91,40 @@
       font-weight: 400;
       margin-bottom: 10px;
     }
+
+    /* SUGERENCIAS */
+    #seccionSugerencias { margin-top: 32px; }
+    #seccionSugerencias h2 { color: #4a90e2; }
+    .sug-card {
+      background: #2a2a2a; border: 1px solid #333;
+      border-radius: 10px; padding: 14px;
+      margin-bottom: 12px;
+    }
+    .sug-nombre { font-size: 15px; font-weight: 700; color: white; margin-bottom: 2px; }
+    .sug-comuna { font-size: 12px; color: #888; margin-bottom: 6px; }
+    .sug-nota { font-size: 13px; color: #aaa; line-height: 1.5; margin-bottom: 10px; }
+    .sug-foto { margin-bottom: 10px; }
+    .sug-foto img {
+      width: 80px; height: 80px; object-fit: cover;
+      border-radius: 8px; border: 1px solid #444;
+      cursor: pointer; display: block;
+    }
+    .sug-fecha { font-size: 11px; color: #555; margin-bottom: 10px; }
+    .sug-btns { display: flex; gap: 8px; }
+    .btn-aprobar {
+      flex: 1; padding: 10px; border-radius: 8px;
+      background: #1a3a1a; color: #4caf50;
+      border: 1px solid #2a5c35; font-size: 13px;
+      font-weight: 600; cursor: pointer;
+    }
+    .btn-rechazar {
+      flex: 1; padding: 10px; border-radius: 8px;
+      background: #3a1a1a; color: #f44336;
+      border: 1px solid #5c2a2a; font-size: 13px;
+      font-weight: 600; cursor: pointer;
+    }
+    .btn-aprobar:disabled, .btn-rechazar:disabled { opacity: 0.5; cursor: not-allowed; }
+    #sinSugerencias { color: #555; font-size: 13px; text-align: center; padding: 20px 0; }
   </style>
 </head>
 <body>
@@ -115,6 +149,11 @@
 
   <button onclick="agregar()">Guardar local</button>
   <div id="mensaje"></div>
+
+  <div id="seccionSugerencias">
+    <h2>📋 Sugerencias pendientes</h2>
+    <div id="listaSugerencias"><div id="sinSugerencias">Cargando...</div></div>
+  </div>
 </div>
 
 <script>
@@ -159,11 +198,133 @@ async function login() {
     SESSION_TOKEN = data.access_token;
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('appScreen').style.display = 'block';
+    cargarSugerencias();
   } catch (e) {
     err.textContent = 'Error de red. Intenta de nuevo.';
     err.style.display = 'block';
     btn.disabled = false; btn.textContent = 'Entrar';
   }
+}
+
+async function cargarSugerencias() {
+  const lista = document.getElementById('listaSugerencias');
+  lista.innerHTML = '<div id="sinSugerencias">Cargando...</div>';
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/sugerencias?estado=eq.pendiente&order=fecha.asc&select=id,nombre,comuna,nota,foto_url,fecha,user_id`, {
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SESSION_TOKEN}` }
+    });
+    const data = await res.json();
+    if (!Array.isArray(data) || data.length === 0) {
+      lista.innerHTML = '<div id="sinSugerencias">No hay sugerencias pendientes.</div>';
+      return;
+    }
+    lista.innerHTML = data.map(s => {
+      const fecha = s.fecha ? new Date(s.fecha).toLocaleString('es-CL') : '';
+      const fotoHtml = s.foto_url
+        ? `<div class="sug-foto"><img src="${s.foto_url}" alt="foto" onclick="window.open('${s.foto_url}','_blank')"/></div>`
+        : '';
+      return `
+        <div class="sug-card" id="sug-${s.id}">
+          <div class="sug-nombre">${escPanel(s.nombre)}</div>
+          <div class="sug-comuna">${escPanel(s.comuna)}</div>
+          <div class="sug-nota">${escPanel(s.nota)}</div>
+          ${fotoHtml}
+          <div class="sug-fecha">${fecha}</div>
+          <div class="sug-btns">
+            <button class="btn-aprobar" onclick="aprobarSugerencia(${s.id}, '${escPanel(s.nombre)}', '${escPanel(s.comuna)}', '${escPanel(s.nota)}', ${s.foto_url ? `'${s.foto_url}'` : 'null'})">✅ Aprobar</button>
+            <button class="btn-rechazar" onclick="rechazarSugerencia(${s.id})">✕ Rechazar</button>
+          </div>
+        </div>`;
+    }).join('');
+  } catch(e) {
+    lista.innerHTML = '<div id="sinSugerencias">Error al cargar sugerencias.</div>';
+  }
+}
+
+function escPanel(str) {
+  return str == null ? '' : String(str).replace(/'/g, "\\'").replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+async function aprobarSugerencia(id, nombre, comuna, nota, foto_url) {
+  const lat = parseFloat(prompt(`Latitud para "${nombre}":`));
+  if (isNaN(lat)) return;
+  const lng = parseFloat(prompt(`Longitud para "${nombre}":`));
+  if (isNaN(lng)) return;
+  if (lat < -60 || lat > -15 || lng < -80 || lng > -65) {
+    alert('Coordenadas fuera del rango válido para Chile.');
+    return;
+  }
+
+  const card = document.getElementById(`sug-${id}`);
+  card.querySelectorAll('button').forEach(b => b.disabled = true);
+
+  // Insertar local y obtener el ID generado
+  const resLocal = await fetch(`${SUPABASE_URL}/rest/v1/locales`, {
+    method: 'POST',
+    headers: {
+      'apikey': SUPABASE_KEY,
+      'Authorization': `Bearer ${SESSION_TOKEN}`,
+      'Content-Type': 'application/json',
+      'Prefer': 'return=representation'
+    },
+    body: JSON.stringify({ nombre, comuna, nota, lat, lng })
+  });
+
+  if (!resLocal.ok) {
+    alert('Error al crear el local.');
+    card.querySelectorAll('button').forEach(b => b.disabled = false);
+    return;
+  }
+
+  const localData = await resLocal.json();
+  const localId = localData[0]?.id;
+
+  // Si tiene foto, vincularla al nuevo local
+  if (foto_url && localId) {
+    await fetch(`${SUPABASE_URL}/rest/v1/local_fotos`, {
+      method: 'POST',
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SESSION_TOKEN}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify({ local_id: localId, url: foto_url })
+    });
+  }
+
+  // Marcar sugerencia como aprobada
+  await fetch(`${SUPABASE_URL}/rest/v1/sugerencias?id=eq.${id}`, {
+    method: 'PATCH',
+    headers: {
+      'apikey': SUPABASE_KEY,
+      'Authorization': `Bearer ${SESSION_TOKEN}`,
+      'Content-Type': 'application/json',
+      'Prefer': 'return=minimal'
+    },
+    body: JSON.stringify({ estado: 'aprobada' })
+  });
+
+  cargarSugerencias();
+}
+
+async function rechazarSugerencia(id) {
+  if (!confirm('¿Rechazar esta sugerencia?')) return;
+  const card = document.getElementById(`sug-${id}`);
+  card.querySelectorAll('button').forEach(b => b.disabled = true);
+
+  await fetch(`${SUPABASE_URL}/rest/v1/sugerencias?id=eq.${id}`, {
+    method: 'PATCH',
+    headers: {
+      'apikey': SUPABASE_KEY,
+      'Authorization': `Bearer ${SESSION_TOKEN}`,
+      'Content-Type': 'application/json',
+      'Prefer': 'return=minimal'
+    },
+    body: JSON.stringify({ estado: 'rechazada' })
+  });
+
+  cargarSugerencias();
 }
 
 async function agregar() {
