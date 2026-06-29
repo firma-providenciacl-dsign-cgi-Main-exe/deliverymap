@@ -150,9 +150,8 @@
   <input id="nombre" type="text" placeholder="Nombre del local" autocomplete="off"/>
   <input id="comuna" type="text" placeholder="Comuna" autocomplete="off"/>
   <textarea id="nota" placeholder="Nota: cómo llegar, entrada, piso, etc."></textarea>
-  <input id="lat" type="number" step="any" placeholder="Latitud (ej: -33.4382)"/>
-  <input id="lng" type="number" step="any" placeholder="Longitud (ej: -70.5612)"/>
-  <p class="hint">💡 Para obtener lat/lng: abre Google Maps, mantén presionado en el local y copia los números que aparecen abajo.</p>
+  <input id="coords" type="text" placeholder="ej. -33.3910, -70.5467" autocomplete="off"/>
+  <p class="hint">💡 Abre Google Maps, mantén presionado en el local y copia las coordenadas que aparecen abajo.</p>
 
   <button onclick="agregar()">Guardar local</button>
   <div id="mensaje"></div>
@@ -439,20 +438,54 @@ async function rechazarSugerencia(id) {
   quitarCardSiVacia();
 }
 
+function parseCoordenadas(str) {
+  const s = str.trim();
+
+  // DMS: 33°23'27.6"S 70°32'48.5"W (acepta W u O para oeste)
+  const dmsRe = /(\d+)°(\d+)'([\d.]+)"([NS])[,\s]+(\d+)°(\d+)'([\d.]+)"([EWO])/i;
+  const dms = s.match(dmsRe);
+  if (dms) {
+    const latDeg = parseInt(dms[1]) + parseInt(dms[2]) / 60 + parseFloat(dms[3]) / 3600;
+    const lat = dms[4].toUpperCase() === 'S' ? -latDeg : latDeg;
+    const lngDeg = parseInt(dms[5]) + parseInt(dms[6]) / 60 + parseFloat(dms[7]) / 3600;
+    const lng = /[WO]/i.test(dms[8]) ? -lngDeg : lngDeg;
+    return { lat, lng };
+  }
+
+  // Decimal: separado por coma o espacio
+  const parts = s.split(/[,\s]+/).filter(Boolean);
+  if (parts.length >= 2) {
+    const lat = parseFloat(parts[0]);
+    const lng = parseFloat(parts[1]);
+    if (!isNaN(lat) && !isNaN(lng)) return { lat, lng };
+  }
+
+  return null;
+}
+
 async function agregar() {
   const nombre = document.getElementById('nombre').value.trim();
   const comuna = document.getElementById('comuna').value.trim();
   const nota   = document.getElementById('nota').value.trim();
-  const lat    = parseFloat(document.getElementById('lat').value);
-  const lng    = parseFloat(document.getElementById('lng').value);
+  const coords = document.getElementById('coords').value.trim();
   const msg    = document.getElementById('mensaje');
 
-  if (!nombre || !comuna || !nota || isNaN(lat) || isNaN(lng)) {
+  if (!nombre || !comuna || !nota || !coords) {
     msg.className = 'error';
     msg.textContent = 'Completa todos los campos.';
     msg.style.display = 'block';
     return;
   }
+
+  const parsed = parseCoordenadas(coords);
+  if (!parsed) {
+    msg.className = 'error';
+    msg.textContent = 'Formato inválido. Usa: -33.3910, -70.5467';
+    msg.style.display = 'block';
+    return;
+  }
+
+  const { lat, lng } = parsed;
   if (lat < -60 || lat > -15 || lng < -80 || lng > -65) {
     msg.className = 'error';
     msg.textContent = 'Coordenadas fuera del rango válido para Chile.';
@@ -462,12 +495,12 @@ async function agregar() {
 
   const res = await fetch(`${SUPABASE_URL}/rest/v1/locales`, {
     method: 'POST',
-headers: {
-  'apikey': SUPABASE_KEY,
-  'Authorization': `Bearer ${SESSION_TOKEN}`,
-  'Content-Type': 'application/json',
-  'Prefer': 'return=minimal'
-},
+    headers: {
+      'apikey': SUPABASE_KEY,
+      'Authorization': `Bearer ${SESSION_TOKEN}`,
+      'Content-Type': 'application/json',
+      'Prefer': 'return=minimal'
+    },
     body: JSON.stringify({ nombre, comuna, nota, lat, lng })
   });
 
@@ -478,8 +511,7 @@ headers: {
     document.getElementById('nombre').value = '';
     document.getElementById('comuna').value = '';
     document.getElementById('nota').value = '';
-    document.getElementById('lat').value = '';
-    document.getElementById('lng').value = '';
+    document.getElementById('coords').value = '';
   } else {
     msg.className = 'error';
     msg.textContent = '❌ Error al guardar. Intenta de nuevo.';
