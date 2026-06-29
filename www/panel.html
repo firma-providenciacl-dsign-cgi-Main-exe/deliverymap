@@ -166,6 +166,16 @@
   <button onclick="agregar()">Guardar local</button>
   <div id="mensaje"></div>
 
+  <div id="modalDuplicado" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:200;align-items:center;justify-content:center;padding:20px;">
+    <div style="background:#2a2a2a;border:1px solid #444;border-radius:12px;padding:20px;max-width:340px;width:100%;">
+      <div id="modalDupTexto" style="font-size:14px;line-height:1.6;color:#eee;"></div>
+      <div style="display:flex;gap:8px;margin-top:16px;">
+        <button onclick="confirmarAgregarIgual()" style="flex:1;margin:0;">Sí, agregar igual</button>
+        <button onclick="cancelarDuplicado()" style="flex:1;margin:0;background:#333;border:1px solid #555;">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
   <div id="seccionSugerencias">
     <h2>📋 Sugerencias pendientes</h2>
     <div id="listaSugerencias"><div id="sinSugerencias">Cargando...</div></div>
@@ -177,6 +187,7 @@ const SUPABASE_URL = 'https://zxwwffnjrrkmtsxzvswa.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp4d3dmZm5qcnJrbXRzeHp2c3dhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA3MDU2MzksImV4cCI6MjA5NjI4MTYzOX0.0rCwuo78dkvJ-C6Y3br3s7ZuPpdikakxC21WO4dv_rI';
 let SESSION_TOKEN = null;
 let _panelFotoFile = null;
+let _pendingAgregar = null;
 
 function comprimirImagen(file) {
   return new Promise((resolve) => {
@@ -548,6 +559,53 @@ async function agregar() {
     msg.style.display = 'block';
     return;
   }
+
+  // Verificar duplicados
+  try {
+    const resDup = await fetch(`${SUPABASE_URL}/rest/v1/locales?nombre=ilike.${encodeURIComponent(nombre)}&select=id,nombre,comuna`, {
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SESSION_TOKEN}` }
+    });
+    if (resDup.ok) {
+      const dups = await resDup.json();
+      if (Array.isArray(dups) && dups.length > 0) {
+        _pendingAgregar = { nombre, comuna, nota, lat, lng };
+        const contenedor = document.getElementById('modalDupTexto');
+        contenedor.textContent = '';
+        const aviso = document.createElement('div');
+        aviso.textContent = '⚠️ Ya existe un local con ese nombre:';
+        aviso.style.marginBottom = '8px';
+        const detalle = document.createElement('div');
+        detalle.textContent = `${dups[0].nombre} — ${dups[0].comuna}`;
+        detalle.style.cssText = 'font-weight:700;color:#FF6B2C;margin-bottom:8px;';
+        const pregunta = document.createElement('div');
+        pregunta.textContent = '¿Deseas agregarlo de todas formas?';
+        contenedor.appendChild(aviso);
+        contenedor.appendChild(detalle);
+        contenedor.appendChild(pregunta);
+        document.getElementById('modalDuplicado').style.display = 'flex';
+        return;
+      }
+    }
+  } catch(e) {}
+
+  await _ejecutarAgregar(nombre, comuna, nota, lat, lng);
+}
+
+function confirmarAgregarIgual() {
+  document.getElementById('modalDuplicado').style.display = 'none';
+  if (!_pendingAgregar) return;
+  const { nombre, comuna, nota, lat, lng } = _pendingAgregar;
+  _pendingAgregar = null;
+  _ejecutarAgregar(nombre, comuna, nota, lat, lng);
+}
+
+function cancelarDuplicado() {
+  document.getElementById('modalDuplicado').style.display = 'none';
+  _pendingAgregar = null;
+}
+
+async function _ejecutarAgregar(nombre, comuna, nota, lat, lng) {
+  const msg = document.getElementById('mensaje');
 
   // Subir foto si hay una seleccionada
   let foto_url = null;
