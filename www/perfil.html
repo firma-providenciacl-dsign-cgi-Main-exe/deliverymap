@@ -7,8 +7,7 @@
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      background: linear-gradient(135deg, #0a0e1a 0%, #0d1526 50%, #0a0e1a 100%);
-      background-attachment: fixed;
+      background: linear-gradient(135deg, #080d1a 0%, #0a1128 50%, #080d1a 100%);
       color: #ccc;
       font-family: sans-serif;
       min-height: 100vh;
@@ -32,12 +31,12 @@
 
     #heroCard {
       margin: 14px 16px;
-      background: rgba(10,30,70,0.8);
-      border: 1px solid #1e90ff;
+      background: rgba(8,20,60,0.85);
+      border: 1px solid rgba(30,144,255,0.8);
       border-radius: 16px;
       padding: 20px 16px;
       position: relative; overflow: hidden;
-      box-shadow: 0 0 20px rgba(30,144,255,0.3);
+      box-shadow: 0 0 25px rgba(30,144,255,0.25), inset 0 0 30px rgba(10,30,80,0.5);
     }
     #heroCard::before {
       content: '';
@@ -83,7 +82,7 @@
       background: rgba(10,30,70,0.8); border: 1px solid #1e90ff;
       border-radius: 12px; padding: 14px;
       display: flex; align-items: center; gap: 12px;
-      box-shadow: 0 0 16px rgba(30,144,255,0.2);
+      box-shadow: 0 0 12px rgba(30,144,255,0.15);
     }
     .stat-icono {
       width: 36px; height: 36px; border-radius: 50%;
@@ -124,12 +123,12 @@
     .mensaje.exito { background: #0f2e1a; color: #4caf50; border: 1px solid #2a5c35; }
 
     .btn-primary {
-      width: 100%; padding: 14px; background: linear-gradient(90deg, #0066ff, #0099ff); color: white;
+      width: 100%; padding: 14px; background: linear-gradient(90deg, #0047cc, #0066ff); color: #ffffff;
       border: none; border-radius: 12px; font-size: 14px; font-weight: 700;
       cursor: pointer; letter-spacing: 1px; text-transform: uppercase;
       display: flex; align-items: center; justify-content: center; gap: 8px;
       transition: opacity 0.2s;
-      box-shadow: 0 0 20px rgba(0,150,255,0.5);
+      box-shadow: 0 0 15px rgba(0,102,255,0.4);
     }
     .btn-primary:active { opacity: 0.8; }
     .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
@@ -147,7 +146,7 @@
       background: #0d1f3c; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
     }
     .btn-row-texto { flex: 1; font-size: 13px; font-weight: 600; color: white; }
-    .btn-row-flecha { color: #4a90e2; font-size: 16px; }
+    .btn-row-flecha { color: #4da6ff; font-size: 16px; }
     .btn-row.danger { border-color: #f4433633; background: rgba(30,8,8,0.6); }
     .btn-row.danger .btn-row-icono { background: #2e0f0f; }
     .btn-row.danger .btn-row-texto { color: #f44336; }
@@ -185,7 +184,7 @@
 
     #navInferior {
       position: fixed; bottom: 16px; left: 16px; right: 16px;
-      background: rgba(15,15,15,0.97); border-radius: 20px;
+      background: rgba(8,14,26,0.97); border-radius: 20px;
       backdrop-filter: blur(10px);
       display: flex; align-items: center;
       z-index: 3000; height: 60px;
