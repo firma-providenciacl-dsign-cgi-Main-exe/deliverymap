@@ -3,7 +3,7 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 
 async function buscarEnSupabase(texto) {
   const q = encodeURIComponent(texto);
-  const url = `${SUPABASE_URL}/rest/v1/locales?or=(nombre.ilike.*${q}*,comuna.ilike.*${q}*)&select=*,local_fotos(url)&limit=100`;
+  const url = `${SUPABASE_URL}/rest/v1/locales?or=(nombre.ilike.*${q}*,comuna.ilike.*${q}*)&select=*,local_fotos(url)&order=nombre.asc&limit=100`;
   const res = await fetch(url, {
     headers: {
       'apikey': SUPABASE_KEY,

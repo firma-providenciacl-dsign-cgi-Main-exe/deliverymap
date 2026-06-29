@@ -13,7 +13,7 @@
   align-items: center;
   gap: 12px;
   padding: 12px 16px;
-  border-top: 1px solid #222;
+  border-top: 1px solid rgba(30,144,255,0.15);
 }
 .like-btn {
   display: flex;
@@ -21,9 +21,9 @@
   gap: 6px;
   padding: 8px 16px;
   border-radius: 20px;
-  border: 1px solid #333;
-  background: #222;
-  color: #aaa;
+  border: 1px solid rgba(30,144,255,0.2);
+  background: rgba(10,25,60,0.6);
+  color: #ffffff;
   font-size: 14px;
   cursor: pointer;
   transition: all 0.2s;
@@ -33,17 +33,17 @@
 .like-btn:disabled { opacity: 0.45; cursor: not-allowed; pointer-events: none; }
 #sheetComentarios {
   padding: 0 16px 16px;
-  border-top: 1px solid #222;
+  border-top: 1px solid rgba(30,144,255,0.15);
 }
 .comentarios-titulo {
   font-size: 13px;
-  color: #555;
+  color: #4da6ff;
   padding: 12px 0 10px;
   letter-spacing: 1px;
   text-transform: uppercase;
 }
 .comentario-item {
-  background: #222;
+  background: rgba(10,25,60,0.6);
   border-radius: 10px;
   padding: 10px 12px;
   margin-bottom: 8px;
@@ -129,37 +129,42 @@
 }
 #inputComentario {
   flex: 1;
-  background: #222;
-  border: 1px solid #333;
-  border-radius: 10px;
-  color: white;
+  background: rgba(10,25,60,0.6);
+  border: 1px solid rgba(30,144,255,0.2);
+  border-radius: 8px;
+  color: #ffffff;
   font-size: 14px;
   padding: 10px 12px;
   outline: none;
   font-family: sans-serif;
+  transition: border 0.2s;
 }
-#inputComentario:focus { border-color: #4a90e2; }
+#inputComentario:focus { border-color: #1e90ff; }
+#inputComentario::-webkit-input-placeholder { color: rgba(255,255,255,0.4) !important; }
+#inputComentario::-moz-placeholder { color: rgba(255,255,255,0.4) !important; opacity: 1; }
+#inputComentario::placeholder { color: rgba(255,255,255,0.4) !important; }
 #btnEnviarComentario {
-  background: #4a90e2;
+  background: linear-gradient(90deg, #0047cc, #0066ff);
   border: none;
-  border-radius: 10px;
-  color: white;
+  border-radius: 8px;
+  color: #ffffff;
   font-size: 13px;
   font-weight: 700;
   padding: 10px 14px;
   cursor: pointer;
   white-space: nowrap;
+  box-shadow: 0 0 10px rgba(0,102,255,0.3);
 }
 #btnEnviarComentario:disabled { opacity: 0.55; cursor: not-allowed; }
 .sin-comentarios {
   font-size: 13px;
-  color: #444;
+  color: rgba(255,255,255,0.6);
   text-align: center;
   padding: 16px 0;
 }
 .login-para-comentar {
   font-size: 13px;
-  color: #555;
+  color: rgba(255,255,255,0.5);
   text-align: center;
   padding: 12px 0;
 }
@@ -230,14 +235,14 @@
 }
 /* HEADER */
 #header {
-  background: rgba(10,10,10,0.85);
+  background: rgba(8,13,26,0.95);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   padding: 10px 14px;
   position: fixed; top: 0; left: 0; right: 0;
   z-index: 1000;
   display: flex; align-items: center; gap: 8px;
-  border-bottom: 1px solid #4a90e222;
+  border-bottom: 1px solid rgba(30,144,255,0.2);
 }
     #logoArea {
       display: flex; align-items: center; gap: 8px;
@@ -261,36 +266,39 @@
     #searchWrapper { position: relative; flex: 1; }
 #searchInput {
   width: 100%; padding: 9px 14px 9px 36px;
-  border-radius: 20px; border: 1px solid #4a90e244; font-size: 14px;
-  outline: none; background: #111; color: #ccc;
-  transition: border 0.2s; min-width: 0;
+  border-radius: 8px; border: 1px solid rgba(30,144,255,0.3); font-size: 14px;
+  outline: none; background: rgba(10,25,60,0.8); color: #ffffff;
+  transition: border 0.2s, box-shadow 0.2s; min-width: 0;
 }
-    #searchInput:focus { border-color: #4a90e2; }
-    #searchInput::placeholder { color: #555; }
+    #searchInput:focus { border-color: #1e90ff; box-shadow: 0 0 10px rgba(30,144,255,0.3); }
+    #searchInput::-webkit-input-placeholder { color: rgba(255,255,255,0.5) !important; }
+    #searchInput::-moz-placeholder { color: rgba(255,255,255,0.5) !important; opacity: 1; }
+    #searchInput::placeholder { color: rgba(255,255,255,0.5) !important; }
     #searchIcon {
       position: absolute; left: 12px; top: 50%;
       transform: translateY(-50%); font-size: 15px;
-      color: #555; pointer-events: none;
+      color: #4da6ff; pointer-events: none;
     }
 
     /* DROPDOWN */
     #dropdown {
       position: fixed; top: 58px; left: 0; right: 0; bottom: 0;
-      background: #0a0a0a;
+      background: rgba(8,20,60,0.97);
+      border-top: 1px solid rgba(30,144,255,0.3);
       z-index: 999; display: none; flex-direction: column;
       overflow: hidden;
     }
     #dropdownContador {
       padding: 10px 14px 6px;
       display: flex; align-items: center; justify-content: space-between;
-      border-bottom: 1px solid #4a90e211;
+      border-bottom: 1px solid rgba(30,144,255,0.15);
       flex-shrink: 0;
     }
-    #dropdownContadorTexto { font-size: 13px; color: #4a90e2; }
-    #dropdownContadorTexto span { color: #555; }
+    #dropdownContadorTexto { font-size: 13px; color: #4da6ff; }
+    #dropdownContadorTexto span { color: rgba(255,255,255,0.5); }
     #dropdownFiltros {
-      background: #111; border: 1px solid #4a90e233;
-      color: #4a90e2; font-size: 12px; padding: 5px 10px;
+      background: rgba(10,25,60,0.6); border: 1px solid rgba(30,144,255,0.3);
+      color: #4da6ff; font-size: 12px; padding: 5px 10px;
       border-radius: 8px; cursor: pointer;
       display: flex; align-items: center; gap: 5px;
     }
@@ -299,16 +307,16 @@
       padding: 8px 14px 100px;
     }
     .result-item {
-      background: #111; border: 1px solid #4a90e211;
+      background: rgba(10,25,60,0.4); border: 1px solid rgba(30,144,255,0.15);
       border-radius: 12px; padding: 12px;
       margin-bottom: 8px;
       display: flex; align-items: center; gap: 12px;
-      cursor: pointer; transition: border-color 0.15s;
+      cursor: pointer; transition: border-color 0.15s, background 0.15s;
     }
-    .result-item:active { background: #0d1f3c; border-color: #4a90e2; }
+    .result-item:active { background: rgba(30,144,255,0.1); border-color: rgba(30,144,255,0.4); }
     .result-emoji {
       width: 44px; height: 44px; border-radius: 10px;
-      background: #1a1a1a;
+      background: rgba(10,25,60,0.6);
       display: flex; align-items: center; justify-content: center;
       flex-shrink: 0; overflow: hidden;
     }
@@ -316,20 +324,24 @@
     .result-body { flex: 1; min-width: 0; }
     .result-nombre { font-size: 15px; font-weight: 600; color: white; margin-bottom: 2px;
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .result-mall { font-size: 12px; color: #555; margin-bottom: 4px; }
-    .result-nota { font-size: 12px; color: #888;
+    .result-mall { font-size: 12px; color: rgba(255,255,255,0.6); margin-bottom: 4px; }
+    .result-nota { font-size: 12px; color: rgba(255,255,255,0.5);
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
       display: flex; align-items: center; gap: 4px; }
     .result-derecha { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0; }
-    .result-dist { font-size: 12px; color: #4a90e2; font-weight: 600; white-space: nowrap; }
-    .result-flecha { color: #333; font-size: 16px; }
+    .result-dist { font-size: 12px; color: #4da6ff; font-weight: 600; white-space: nowrap; }
+    .result-flecha { color: #4da6ff; font-size: 16px; }
     .no-resultado { padding: 40px 16px; text-align: center; color: #444; font-size: 14px; }
     /* MAPA */
      #mapa { position: fixed; top: 58px; left: 0; right: 0; bottom: 0; z-index: 1; }
 
      #bottomSheet {
   position: fixed; left: 0; right: 0; bottom: -100%;
-  background: #0d1825; border-radius: 20px 20px 0 0;
+  background: rgba(8,13,26,0.97);
+  border-top: 1px solid rgba(30,144,255,0.4);
+  border-radius: 16px 16px 0 0;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   z-index: 2000; max-height: 90vh; overflow-y: auto;
   transition: bottom 0.4s ease; touch-action: pan-y;
   will-change: transform;
@@ -338,12 +350,12 @@
     #bottomSheet.medio    { bottom: -47vh; }
     #bottomSheet.abierto  { bottom: 0; }
     #sheetHandle {
-      width: 40px; height: 4px; background: #444;
-      border-radius: 10px; margin: 12px auto 0; cursor: grab;
+      width: 40px; height: 4px; background: rgba(30,144,255,0.4);
+      border-radius: 4px; margin: 12px auto 0; cursor: grab;
     }
     #btnCerrarX {
       position: absolute; top: 10px; right: 14px;
-      background: #333; border: none; color: #aaa;
+      background: rgba(10,25,60,0.6); border: 1px solid rgba(30,144,255,0.2); color: #ffffff;
       font-size: 16px; width: 30px; height: 30px;
       border-radius: 50%; cursor: pointer;
       display: flex; align-items: center; justify-content: center;
@@ -352,20 +364,29 @@
       display: flex; gap: 8px; margin-bottom: 8px;
     }
     .sheetBtn {
-      flex: 1; padding: 12px; border-radius: 12px;
+      flex: 1; padding: 12px; border-radius: 8px;
       border: none; font-size: 13px; font-weight: 600; cursor: pointer;
       text-align: center; text-decoration: none;
       display: flex; align-items: center; justify-content: center; gap: 6px;
     }
-    #btnWaze  { background: #33ccff; color: white; }
-    #btnGmaps { background: #4a90e2; color: white; }
+    #btnWaze  { background: linear-gradient(90deg, #0047cc, #0066ff); color: #ffffff; box-shadow: 0 0 12px rgba(0,102,255,0.35); }
+    #btnGmaps { background: linear-gradient(90deg, #0047cc, #0066ff); color: #ffffff; box-shadow: 0 0 12px rgba(0,102,255,0.35); }
+    #sheetAcciones {
+      display: flex; gap: 8px; margin-bottom: 10px;
+    }
+    #btnSubirFotoLocal {
+      flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px;
+      padding: 12px; border-radius: 8px; border: 1px solid rgba(30,144,255,0.3);
+      font-size: 12px; font-weight: 600; cursor: pointer;
+      background: rgba(10,25,60,0.6); color: #ffffff;
+      appearance: none; -webkit-appearance: none;
+    }
     #btnReporte {
-      display: flex; width: 100%; padding: 12px; border-radius: 12px;
-      border: 1px solid #ff950044; font-size: 13px; font-weight: 600;
+      flex: 1; display: flex; padding: 12px; border-radius: 8px;
+      border: 1px solid rgba(255,100,0,0.3); font-size: 12px; font-weight: 600;
       cursor: pointer; text-align: center; text-decoration: none;
-      background: #1a1a1a; color: #ff9500;
+      background: rgba(40,15,5,0.6); color: #ff8800;
       align-items: center; justify-content: center; gap: 6px;
-      margin-bottom: 10px;
     }
 
 #sheetHeader {
@@ -373,32 +394,35 @@
     }
     #sheetFoto {
       width: 110px; height: 110px; border-radius: 10px;
-      background: #222; flex-shrink: 0; overflow: hidden;
+      background: rgba(10,25,60,0.6); border: 1px solid rgba(30,144,255,0.2);
+      flex-shrink: 0; overflow: hidden;
       display: flex; align-items: center; justify-content: center;
     }
+    #sheetFoto > span { color: rgba(255,255,255,0.4) !important; }
     #sheetFoto img { width: 100%; height: 100%; object-fit: cover; border-radius: 10px; }
     #sheetInfo { flex: 1; padding-top: 2px; }
     #sheetNombre { font-size: 16px; font-weight: 700; color: white; margin-bottom: 4px; }
     #sheetComuna {
-      font-size: 12px; color: #888; margin-bottom: 6px;
+      font-size: 12px; color: rgba(255,255,255,0.6); margin-bottom: 6px;
       display: flex; align-items: center; gap: 4px;
     }
     #sheetFecha {
-      font-size: 11px; color: #4a90e2;
+      font-size: 11px; color: #4da6ff;
       display: flex; align-items: center; gap: 4px;
     }
     #sheetCuerpo { padding: 0 16px 8px; }
     #sheetNota {
-      font-size: 13px; color: #ccc; line-height: 1.6; margin-bottom: 14px;
-      padding: 12px; background: #222; border-radius: 10px;
-      border-left: 3px solid #4a90e2;
+      font-size: 13px; color: #ffffff; line-height: 1.6; margin-bottom: 14px;
+      padding: 12px; background: rgba(10,25,60,0.8); border-radius: 8px;
+      border-left: 3px solid #1e90ff;
     }
 
     /* NAV INFERIOR */
 #navInferior {
   position: fixed; bottom: 16px; left: 16px; right: 16px;
-  background: rgba(15,15,15,0.97);
-border-radius: 20px;
+  background: rgba(8,13,26,0.95);
+  border: 1px solid rgba(30,144,255,0.2);
+  border-radius: 20px;
   backdrop-filter: blur(10px);
   display: flex; align-items: center;
   z-index: 1500; height: 60px;
@@ -409,17 +433,22 @@ border-radius: 20px;
   align-items: center; justify-content: center;
   padding: 10px 0; gap: 4px;
   cursor: pointer; text-decoration: none;
-  opacity: 0.4; transition: opacity 0.2s;
 }
-.nav-tab.activo { opacity: 1; }
 .nav-tab svg { width: 22px; height: 22px; }
 .nav-tab span {
   font-size: 10px; letter-spacing: 0.5px;
-  color: #4a90e2; font-weight: 500;
+  color: #4da6ff; font-weight: 500;
 }
-.nav-tab.activo svg { stroke: #4a90e2; }
-.nav-tab:not(.activo) svg { stroke: #555; }
-.nav-tab:not(.activo) span { color: #555; }
+.nav-tab.activo svg { stroke: #4da6ff; }
+.nav-tab:not(.activo) svg { stroke: rgba(255,255,255,0.5); }
+.nav-tab:not(.activo) span { color: rgba(255,255,255,0.5); }
+#btnUsuario a {
+  background: rgba(10,25,60,0.8) !important;
+  border: 1px solid rgba(30,144,255,0.4) !important;
+  box-shadow: none !important;
+  color: #4da6ff !important;
+}
+#btnUsuario svg { stroke: #4da6ff; }
 
     /* LIGHTBOX */
 #lightbox {
@@ -689,7 +718,10 @@ border-radius: 20px;
         Google Maps
       </a>
     </div>
-    <button id="btnReporte" onclick="reportarError()">⚠️ Reportar error en este local</button>
+    <div id="sheetAcciones">
+      <button id="btnSubirFotoLocal" style="display:none" onclick="clickSubirFoto()">📷 Subir foto</button>
+      <button id="btnReporte" onclick="reportarError()">⚠️ Reportar error</button>
+    </div>
   </div>
 
 <div id="sheetLikes">
@@ -709,6 +741,7 @@ border-radius: 20px;
 </div>
 
 
+<input type="file" id="inputFotoLocal" accept="image/jpeg,image/jpg,image/png,image/webp" style="display:none">
 <script src="supabase.js"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
@@ -902,6 +935,7 @@ async function buscar(q) {
     distancia: (userLat && userLng) ? haversine(userLat, userLng, l.lat, l.lng) : null
   }));
   if (userLat && userLng) data.sort((a,b) => a.distancia - b.distancia);
+  else data.sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
 
   // Contador
   document.getElementById('dropdownContadorTexto').innerHTML =
@@ -981,6 +1015,7 @@ pinActivo = L.marker([l.lat, l.lng]).addTo(mapa);
   sheetFoto.innerHTML = '<span style="color:#555; font-size:13px;">📸 Sin foto aún</span>';
   document.getElementById('sheetAfluencia').innerHTML = '';
   historialCache = null;
+  document.getElementById('btnSubirFotoLocal').style.display = 'none';
   fetch(`${SUPABASE_URL}/rest/v1/local_fotos?local_id=eq.${pg(l.id)}&select=url&limit=1`, {
     headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
   })
@@ -996,6 +1031,8 @@ pinActivo = L.marker([l.lat, l.lng]).addTo(mapa);
       img.style.cssText = 'width:100%; height:180px; object-fit:cover; cursor:pointer;';
       img.addEventListener('click', () => abrirLightbox(fotoUrl));
       sheetFoto.appendChild(img);
+    } else {
+      document.getElementById('btnSubirFotoLocal').style.display = 'flex';
     }
   });
 
@@ -1116,6 +1153,7 @@ document.addEventListener('mousemove', e => { if (isDragging) onMove(e.clientY);
 document.addEventListener('mouseup', e => { if (isDragging) onEnd(e.clientY); });
 
 let localActivo = null;
+let _fotoLocalCapturado = null;
 let ultimoLikeTs = 0;
 const comentarioTimestamps = [];
 
@@ -1745,22 +1783,34 @@ async function mostrarBotonUsuario() {
         }
       });
       const data = await res.json();
+      if (Array.isArray(data) && data.length === 0) {
+        // Sin perfil: puede ser usuario nuevo o usuario eliminado.
+        // Intentar crear el perfil — si falla, el user_id no existe en auth → logout.
+        const apodo = u.user_metadata?.apodo || u.email?.split('@')[0] || 'usuario';
+        const insertRes = await supaFetch(`${SUPABASE_URL}/rest/v1/perfiles`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+          body: JSON.stringify({ user_id: u.id, apodo })
+        });
+        if (!insertRes.ok) {
+          // INSERT falló → usuario eliminado desde admin
+          try {
+            await fetch(`${SUPABASE_URL}/auth/v1/logout`, {
+              method: 'POST',
+              headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + token }
+            });
+          } catch(e) {}
+          localStorage.removeItem('dm_token');
+          localStorage.removeItem('dm_user');
+          localStorage.removeItem('dm_refresh');
+          window.location.href = 'login.html';
+          return;
+        }
+        // INSERT OK → usuario nuevo, continuar sin foto
+      }
       if (data && data.length > 0) {
         if (data[0].foto_url) fotoUrl = safeImageUrl(data[0].foto_url);
         evaluarOnboarding(data[0].es_rider, u.id);
-      } else {
-        // Perfil no existe para usuario autenticado → cuenta eliminada desde admin
-        try {
-          await fetch(`${SUPABASE_URL}/auth/v1/logout`, {
-            method: 'POST',
-            headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + token }
-          });
-        } catch(e) {}
-        localStorage.removeItem('dm_token');
-        localStorage.removeItem('dm_user');
-        localStorage.removeItem('dm_refresh');
-        window.location.href = 'login.html';
-        return;
       }
     } catch(e) {
       console.log('[PERFIL] ERROR en fetch perfiles:', e);
@@ -2224,9 +2274,123 @@ async function reportarComentario(comentarioId, apodoAutor) {
 
   alert('✅ Comentario reportado. Lo revisaremos pronto.');
 }
+function comprimirImagen(file) {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const MAX = 1200;
+        let w = img.width, h = img.height;
+        if (w > h && w > MAX) { h = h * MAX / w; w = MAX; }
+        else if (h > MAX) { w = w * MAX / h; h = MAX; }
+        canvas.width = w;
+        canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        canvas.toBlob(resolve, 'image/jpeg', 0.82);
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function clickSubirFoto() {
+  const token = localStorage.getItem('dm_token');
+  if (!token) { window.location.href = 'login.html'; return; }
+  _fotoLocalCapturado = localActivo;
+  document.getElementById('inputFotoLocal').click();
+}
+
+document.getElementById('inputFotoLocal').onchange = function() {
+  const file = this.files[0];
+  if (!file) return;
+  if (!file.type.startsWith('image/')) {
+    alert('Solo se permiten archivos de imagen.');
+    this.value = ''; return;
+  }
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    document.getElementById('fotoConfirmPreview').src = e.target.result;
+    document.getElementById('fotoConfirmModal').style.display = 'flex';
+  };
+  reader.readAsDataURL(file);
+};
+
+async function enviarFotoConfirmada() {
+  const input = document.getElementById('inputFotoLocal');
+  const file = input.files[0];
+  const local = _fotoLocalCapturado;
+  if (!file || !local) return;
+  const token = localStorage.getItem('dm_token');
+  const userStr = localStorage.getItem('dm_user');
+  if (!token || !userStr) return;
+  const userId = JSON.parse(userStr).id;
+
+  const btnEnviar = document.getElementById('btnEnviarFoto');
+  btnEnviar.disabled = true;
+  btnEnviar.textContent = 'Enviando...';
+
+  const blob = await comprimirImagen(file);
+  const filename = `sugerencia_foto_${local.id}_${Date.now()}.jpg`;
+
+  const uploadRes = await supaFetch(`${SUPABASE_URL}/storage/v1/object/locales-fotos/${filename}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'image/jpeg' },
+    body: blob
+  });
+
+  if (!uploadRes.ok) {
+    btnEnviar.disabled = false;
+    btnEnviar.textContent = '✅ Enviar foto';
+    mostrarToast('No se pudo subir la foto', 'error');
+    return;
+  }
+
+  const foto_url = `${SUPABASE_URL}/storage/v1/object/public/locales-fotos/${filename}`;
+
+  await supaFetch(`${SUPABASE_URL}/rest/v1/sugerencias`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+    body: JSON.stringify({
+      nombre: 'FOTO: ' + local.nombre,
+      comuna: local.comuna,
+      nota: 'Foto sugerida para local existente ID: ' + local.id,
+      foto_url,
+      estado: 'pendiente_foto',
+      user_id: userId
+    })
+  });
+
+  _fotoLocalCapturado = null;
+  cancelarFotoConfirmada();
+  document.getElementById('btnSubirFotoLocal').style.display = 'none';
+  mostrarToast('✅ Foto enviada, será revisada pronto', 'exito');
+}
+
+function cancelarFotoConfirmada() {
+  document.getElementById('inputFotoLocal').value = '';
+  document.getElementById('fotoConfirmPreview').src = '';
+  document.getElementById('fotoConfirmModal').style.display = 'none';
+  const btnEnviar = document.getElementById('btnEnviarFoto');
+  btnEnviar.disabled = false;
+  btnEnviar.textContent = '✅ Enviar foto';
+}
+
 verificarSesion();
 cargarAlertas();
 </script>
+<div id="fotoConfirmModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.88); z-index:5000; align-items:center; justify-content:center; padding:24px;">
+  <div style="background:#111; border:1px solid #4a90e244; border-radius:16px; padding:24px; max-width:300px; width:100%; text-align:center;">
+    <div style="font-size:11px; color:#555; margin-bottom:14px; letter-spacing:2px; text-transform:uppercase;">Vista previa</div>
+    <img id="fotoConfirmPreview" src="" alt="" style="width:100px; height:100px; object-fit:cover; border-radius:10px; border:1px solid #333; display:block; margin:0 auto 20px;"/>
+    <div style="display:flex; gap:8px;">
+      <button id="btnEnviarFoto" onclick="enviarFotoConfirmada()" style="flex:1; padding:12px; background:#4a90e2; color:white; border:none; border-radius:10px; font-size:14px; font-weight:700; cursor:pointer;">✅ Enviar foto</button>
+      <button onclick="cancelarFotoConfirmada()" style="flex:1; padding:12px; background:#222; color:#aaa; border:1px solid #333; border-radius:10px; font-size:14px; cursor:pointer;">✖ Cancelar</button>
+    </div>
+  </div>
+</div>
 <div id="lightbox" onclick="cerrarLightbox()">
   <button id="lightboxCerrar" onclick="cerrarLightbox()">✕</button>
   <img id="lightboxImg" src="" />

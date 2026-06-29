@@ -6,7 +6,11 @@
   <title>Panel - Delivery App</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
-    body { background: #1a1a1a; color: white; min-height: 100vh; }
+    body {
+      background: linear-gradient(135deg, #080d1a 0%, #0a1128 50%, #080d1a 100%);
+      color: white;
+      min-height: 100vh;
+    }
 
     #loginScreen {
       display: flex;
@@ -26,7 +30,7 @@
     }
 
     h2 {
-      color: #FF6B2C;
+      color: #4da6ff;
       font-size: 20px;
       margin-bottom: 20px;
     }
@@ -34,16 +38,24 @@
     input, textarea {
       width: 100%;
       padding: 12px 14px;
-      border-radius: 10px;
-      border: 1px solid #333;
-      background: #2a2a2a;
+      border-radius: 8px;
+      border: 1px solid rgba(30,144,255,0.2);
+      background: rgba(10,25,60,0.6);
       color: white;
       font-size: 15px;
       outline: none;
       margin-bottom: 10px;
+      transition: border 0.2s, box-shadow 0.2s;
     }
 
-    input::placeholder, textarea::placeholder { color: #666; }
+    input:focus, textarea:focus {
+      border-color: #1e90ff;
+      box-shadow: 0 0 10px rgba(30,144,255,0.4);
+    }
+
+    input::-webkit-input-placeholder, textarea::-webkit-input-placeholder { color: rgba(255,255,255,0.4) !important; }
+    input::-moz-placeholder, textarea::-moz-placeholder { color: rgba(255,255,255,0.4) !important; opacity: 1; }
+    input::placeholder, textarea::placeholder { color: rgba(255,255,255,0.4) !important; }
 
     textarea {
       resize: vertical;
@@ -53,14 +65,15 @@
     button {
       width: 100%;
       padding: 13px;
-      border-radius: 10px;
+      border-radius: 8px;
       border: none;
-      background: #FF6B2C;
+      background: linear-gradient(90deg, #0047cc, #0066ff);
       color: white;
       font-size: 16px;
       font-weight: 600;
       cursor: pointer;
       margin-top: 4px;
+      box-shadow: 0 0 15px rgba(0,102,255,0.35);
     }
 
     button:active { opacity: 0.85; }
@@ -76,20 +89,92 @@
 
     .exito { background: #1a3a1a; color: #4caf50; }
     .error { background: #3a1a1a; color: #f44336; }
+    .warning { background: #2a1e00; color: #ff9800; }
 
     .hint {
       font-size: 12px;
-      color: #666;
+      color: rgba(255,255,255,0.5);
       margin-bottom: 10px;
       margin-top: -6px;
     }
 
     #coordsBtn {
-      background: #2a2a2a;
-      border: 1px solid #444;
+      background: rgba(10,25,60,0.6);
+      border: 1px solid rgba(30,144,255,0.2);
+      color: rgba(255,255,255,0.6);
       font-size: 13px;
       font-weight: 400;
       margin-bottom: 10px;
+      box-shadow: none;
+    }
+
+    label[for="inputFotoPanel"] {
+      color: rgba(255,255,255,0.6) !important;
+      border-color: rgba(30,144,255,0.3) !important;
+    }
+
+    #fotoPanelPreview button {
+      background: rgba(10,25,60,0.8) !important;
+      border: 1px solid rgba(30,144,255,0.3) !important;
+      box-shadow: none !important;
+      width: 20px !important;
+      padding: 0 !important;
+      margin: 0 !important;
+    }
+
+    /* SUGERENCIAS */
+    #seccionSugerencias { margin-top: 32px; }
+    #seccionSugerencias h2 { color: #4da6ff; }
+    .sug-card {
+      background: rgba(8,20,60,0.85);
+      border: 1px solid rgba(30,144,255,0.3);
+      border-radius: 10px; padding: 14px;
+      margin-bottom: 12px;
+    }
+    .sug-field { margin-bottom: 8px; }
+    .sug-label {
+      font-size: 9px; font-weight: 700; color: #4da6ff;
+      letter-spacing: 2px; text-transform: uppercase;
+      display: block; margin-bottom: 2px;
+    }
+    .sug-nombre { font-size: 14px; font-weight: 700; color: white; }
+    .sug-comuna { font-size: 13px; color: rgba(255,255,255,0.8); }
+    .sug-nota { font-size: 13px; color: rgba(255,255,255,0.7); line-height: 1.5; }
+    .sug-foto { margin-bottom: 8px; }
+    .sug-foto img {
+      width: 80px; height: 80px; object-fit: cover;
+      border-radius: 8px; border: 1px solid rgba(30,144,255,0.3);
+      cursor: pointer; display: block;
+    }
+    .sug-usuario { font-size: 13px; color: rgba(255,255,255,0.8); }
+    .sug-usuario a { color: #4da6ff !important; }
+    .sug-fecha { font-size: 12px; color: rgba(255,255,255,0.4); }
+    .sug-btns { display: flex; gap: 8px; }
+    .btn-aprobar {
+      flex: 1; padding: 10px; border-radius: 8px;
+      background: #1a3a1a; color: #4caf50;
+      border: 1px solid #2a5c35; font-size: 13px;
+      font-weight: 600; cursor: pointer;
+      box-shadow: none; margin: 0; width: auto;
+    }
+    .btn-rechazar {
+      flex: 1; padding: 10px; border-radius: 8px;
+      background: #3a1a1a; color: #f44336;
+      border: 1px solid #5c2a2a; font-size: 13px;
+      font-weight: 600; cursor: pointer;
+      box-shadow: none; margin: 0; width: auto;
+    }
+    .btn-aprobar:disabled, .btn-rechazar:disabled { opacity: 0.5; cursor: not-allowed; }
+    #sinSugerencias { color: rgba(255,255,255,0.4); font-size: 13px; text-align: center; padding: 20px 0; }
+
+    #modalDuplicado > div {
+      background: rgba(8,20,60,0.97) !important;
+      border: 1px solid rgba(30,144,255,0.4) !important;
+    }
+    #modalDuplicado button + button {
+      background: rgba(10,25,60,0.6) !important;
+      border: 1px solid rgba(30,144,255,0.2) !important;
+      box-shadow: none !important;
     }
   </style>
 </head>
@@ -109,18 +194,151 @@
   <input id="nombre" type="text" placeholder="Nombre del local" autocomplete="off"/>
   <input id="comuna" type="text" placeholder="Comuna" autocomplete="off"/>
   <textarea id="nota" placeholder="Nota: cómo llegar, entrada, piso, etc."></textarea>
-  <input id="lat" type="number" step="any" placeholder="Latitud (ej: -33.4382)"/>
-  <input id="lng" type="number" step="any" placeholder="Longitud (ej: -70.5612)"/>
-  <p class="hint">💡 Para obtener lat/lng: abre Google Maps, mantén presionado en el local y copia los números que aparecen abajo.</p>
+  <input id="coords" type="text" placeholder="ej. -33.3910, -70.5467" autocomplete="off"/>
+  <p class="hint">💡 Abre Google Maps, mantén presionado en el local y copia las coordenadas que aparecen abajo.</p>
+
+  <input type="file" id="inputFotoPanel" accept="image/jpeg,image/jpg,image/png,image/webp" style="display:none" onchange="panelSeleccionarFoto(this)"/>
+  <label for="inputFotoPanel" style="display:flex;align-items:center;gap:8px;cursor:pointer;color:#888;font-size:13px;padding:10px 14px;border:1px dashed #444;border-radius:10px;margin-bottom:10px;">
+    📷 Agregar foto (opcional)
+  </label>
+  <div id="fotoPanelPreview" style="display:none;margin-bottom:10px;position:relative;width:80px;">
+    <img id="fotoPanelImg" src="" alt="preview" style="width:80px;height:80px;object-fit:cover;border-radius:8px;border:1px solid #444;display:block;"/>
+    <button type="button" onclick="panelQuitarFoto()" style="position:absolute;top:-6px;right:-6px;width:20px;height:20px;border-radius:50%;background:#333;border:1px solid #555;color:white;font-size:12px;padding:0;cursor:pointer;line-height:1;margin:0;">✕</button>
+  </div>
 
   <button onclick="agregar()">Guardar local</button>
   <div id="mensaje"></div>
+
+  <div id="modalDuplicado" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:200;align-items:center;justify-content:center;padding:20px;">
+    <div style="background:#2a2a2a;border:1px solid #444;border-radius:12px;padding:20px;max-width:340px;width:100%;">
+      <div id="modalDupTexto" style="font-size:14px;line-height:1.6;color:#eee;"></div>
+      <div style="display:flex;gap:8px;margin-top:16px;">
+        <button onclick="confirmarAgregarIgual()" style="flex:1;margin:0;">Sí, agregar igual</button>
+        <button onclick="cancelarDuplicado()" style="flex:1;margin:0;background:#333;border:1px solid #555;">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="seccionSugerencias">
+    <h2>📋 Sugerencias pendientes</h2>
+    <div id="listaSugerencias"><div id="sinSugerencias">Cargando...</div></div>
+  </div>
 </div>
 
 <script>
 const SUPABASE_URL = 'https://zxwwffnjrrkmtsxzvswa.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp4d3dmZm5qcnJrbXRzeHp2c3dhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA3MDU2MzksImV4cCI6MjA5NjI4MTYzOX0.0rCwuo78dkvJ-C6Y3br3s7ZuPpdikakxC21WO4dv_rI';
 let SESSION_TOKEN = null;
+let SESSION_REFRESH = null;
+let _panelFotoFile = null;
+let _pendingAgregar = null;
+
+function sessionExpirada() {
+  SESSION_TOKEN = null;
+  SESSION_REFRESH = null;
+  document.getElementById('appScreen').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
+  const err = document.getElementById('loginError');
+  err.textContent = 'Sesión expirada. Por favor inicia sesión de nuevo.';
+  err.style.display = 'block';
+  document.querySelector('#loginScreen button').disabled = false;
+  document.querySelector('#loginScreen button').textContent = 'Entrar';
+}
+
+async function panelFetch(url, options = {}) {
+  // Refresh proactivo si el token expira en menos de 30s
+  if (SESSION_TOKEN) {
+    try {
+      const payload = JSON.parse(atob(SESSION_TOKEN.split('.')[1]));
+      if (payload.exp * 1000 < Date.now() + 30000) {
+        if (!SESSION_REFRESH) { sessionExpirada(); return new Response(null, { status: 401 }); }
+        const rr = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=refresh_token`, {
+          method: 'POST',
+          headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ refresh_token: SESSION_REFRESH })
+        });
+        if (rr.ok) {
+          const nd = await rr.json();
+          SESSION_TOKEN = nd.access_token;
+          if (nd.refresh_token) SESSION_REFRESH = nd.refresh_token;
+        } else {
+          sessionExpirada(); return new Response(null, { status: 401 });
+        }
+      }
+    } catch(e) {}
+  }
+
+  const makeHeaders = () => ({
+    'apikey': SUPABASE_KEY,
+    'Authorization': `Bearer ${SESSION_TOKEN}`,
+    ...(options.headers || {})
+  });
+
+  const res = await fetch(url, { ...options, headers: makeHeaders() });
+
+  // Retry una vez si 401 (token expiró entre el chequeo y la llamada)
+  if (res.status === 401 && SESSION_REFRESH) {
+    const rr = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=refresh_token`, {
+      method: 'POST',
+      headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ refresh_token: SESSION_REFRESH })
+    });
+    if (rr.ok) {
+      const nd = await rr.json();
+      SESSION_TOKEN = nd.access_token;
+      if (nd.refresh_token) SESSION_REFRESH = nd.refresh_token;
+      return fetch(url, { ...options, headers: makeHeaders() });
+    }
+    sessionExpirada(); return res;
+  }
+
+  return res;
+}
+
+function comprimirImagen(file) {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const MAX = 1200;
+        let w = img.width, h = img.height;
+        if (w > h && w > MAX) { h = h * MAX / w; w = MAX; }
+        else if (h > MAX) { w = w * MAX / h; h = MAX; }
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        canvas.toBlob(resolve, 'image/jpeg', 0.82);
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function panelSeleccionarFoto(input) {
+  const file = input.files[0];
+  if (!file) return;
+  if (!file.type.startsWith('image/')) {
+    alert('Solo se permiten archivos de imagen (jpg, png, webp).');
+    input.value = '';
+    return;
+  }
+  _panelFotoFile = file;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    document.getElementById('fotoPanelImg').src = e.target.result;
+    document.getElementById('fotoPanelPreview').style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+}
+
+function panelQuitarFoto() {
+  _panelFotoFile = null;
+  document.getElementById('inputFotoPanel').value = '';
+  document.getElementById('fotoPanelImg').src = '';
+  document.getElementById('fotoPanelPreview').style.display = 'none';
+}
 
 async function login() {
   const email = document.getElementById('passInput').value.trim();
@@ -145,20 +363,11 @@ async function login() {
       btn.disabled = false; btn.textContent = 'Entrar'; return;
     }
 
-    // Re-verificar rol admin directamente desde el servidor con el JWT obtenido
-    const verifyRes = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
-      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${data.access_token}` }
-    });
-    const verifyData = await verifyRes.json();
-    if (!verifyRes.ok || verifyData?.app_metadata?.role !== 'admin') {
-      err.textContent = 'No tienes permisos de administrador.';
-      err.style.display = 'block';
-      btn.disabled = false; btn.textContent = 'Entrar'; return;
-    }
-
     SESSION_TOKEN = data.access_token;
+    SESSION_REFRESH = data.refresh_token || null;
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('appScreen').style.display = 'block';
+    cargarSugerencias();
   } catch (e) {
     err.textContent = 'Error de red. Intenta de nuevo.';
     err.style.display = 'block';
@@ -166,20 +375,287 @@ async function login() {
   }
 }
 
+async function cargarSugerencias() {
+  const lista = document.getElementById('listaSugerencias');
+  lista.textContent = '';
+  const cargando = document.createElement('div');
+  cargando.id = 'sinSugerencias';
+  cargando.textContent = 'Cargando...';
+  lista.appendChild(cargando);
+
+  try {
+    const res = await panelFetch(`${SUPABASE_URL}/rest/v1/sugerencias?estado=in.(pendiente,pendiente_foto)&select=id,nombre,comuna,nota,foto_url,fecha,estado,user_id&order=fecha.asc`);
+    const data = await res.json();
+    lista.textContent = '';
+
+    if (!Array.isArray(data) || data.length === 0) {
+      const vacio = document.createElement('div');
+      vacio.id = 'sinSugerencias';
+      vacio.textContent = 'No hay sugerencias pendientes.';
+      lista.appendChild(vacio);
+      return;
+    }
+
+    const userIds = [...new Set(data.filter(s => s.user_id).map(s => s.user_id))];
+    const apodoMap = new Map();
+    if (userIds.length > 0) {
+      try {
+        const resPerfiles = await panelFetch(`${SUPABASE_URL}/rest/v1/perfiles?user_id=in.(${userIds.join(',')})&select=user_id,apodo`);
+        if (resPerfiles.ok) {
+          const perfilesData = await resPerfiles.json();
+          perfilesData.forEach(p => apodoMap.set(p.user_id, p.apodo));
+        }
+      } catch(e) {}
+    }
+
+    data.forEach(s => {
+      const card = document.createElement('div');
+      card.className = 'sug-card';
+      card.id = `sug-${s.id}`;
+
+      if (s.estado === 'pendiente_foto') {
+        const badge = document.createElement('div');
+        badge.textContent = '📷 Foto para local existente';
+        badge.style.cssText = 'font-size:11px;color:#4a90e2;margin-bottom:10px;';
+        card.appendChild(badge);
+      }
+
+      function campo(labelTxt, valueTxt, cls) {
+        const wrap = document.createElement('div');
+        wrap.className = 'sug-field';
+        const lbl = document.createElement('span');
+        lbl.className = 'sug-label';
+        lbl.textContent = labelTxt;
+        const val = document.createElement('div');
+        val.className = cls;
+        val.textContent = valueTxt || '—';
+        wrap.appendChild(lbl);
+        wrap.appendChild(val);
+        return wrap;
+      }
+
+      card.appendChild(campo('Nombre', s.nombre, 'sug-nombre'));
+      card.appendChild(campo('Comuna', s.comuna, 'sug-comuna'));
+      card.appendChild(campo('Descripción', s.nota, 'sug-nota'));
+
+      if (s.foto_url) {
+        const fotoWrap = document.createElement('div');
+        fotoWrap.className = 'sug-field';
+        const lbl = document.createElement('span');
+        lbl.className = 'sug-label';
+        lbl.textContent = 'Foto';
+        const imgWrap = document.createElement('div');
+        imgWrap.className = 'sug-foto';
+        const img = document.createElement('img');
+        img.src = s.foto_url;
+        img.alt = 'foto';
+        img.onclick = () => window.open(s.foto_url, '_blank');
+        imgWrap.appendChild(img);
+        fotoWrap.appendChild(lbl);
+        fotoWrap.appendChild(imgWrap);
+        card.appendChild(fotoWrap);
+      }
+
+      const usuarioWrap = document.createElement('div');
+      usuarioWrap.className = 'sug-field';
+      const usuarioLbl = document.createElement('span');
+      usuarioLbl.className = 'sug-label';
+      usuarioLbl.textContent = 'Usuario';
+      const usuarioVal = document.createElement('div');
+      usuarioVal.className = 'sug-usuario';
+      if (s.user_id && apodoMap.has(s.user_id)) {
+        const link = document.createElement('a');
+        link.href = `/perfil.html?id=${s.user_id}`;
+        link.target = '_blank';
+        link.textContent = apodoMap.get(s.user_id);
+        link.style.color = '#4a90e2';
+        usuarioVal.appendChild(link);
+      } else {
+        usuarioVal.textContent = '—';
+      }
+      usuarioWrap.appendChild(usuarioLbl);
+      usuarioWrap.appendChild(usuarioVal);
+      card.appendChild(usuarioWrap);
+      card.appendChild(campo('Fecha', s.fecha ? new Date(s.fecha).toLocaleString('es-CL') : '—', 'sug-fecha'));
+
+      const btns = document.createElement('div');
+      btns.className = 'sug-btns';
+
+      const btnAprobar = document.createElement('button');
+      btnAprobar.className = 'btn-aprobar';
+      btnAprobar.textContent = '✅ Aprobar';
+      btnAprobar.onclick = () => aprobarSugerencia(s.id, s.nombre, s.comuna, s.nota, s.foto_url, s.estado);
+
+      const btnRechazar = document.createElement('button');
+      btnRechazar.className = 'btn-rechazar';
+      btnRechazar.textContent = '✕ Rechazar';
+      btnRechazar.onclick = () => rechazarSugerencia(s.id);
+
+      btns.appendChild(btnAprobar);
+      btns.appendChild(btnRechazar);
+      card.appendChild(btns);
+
+      lista.appendChild(card);
+    });
+  } catch(e) {
+    lista.textContent = '';
+    const errDiv = document.createElement('div');
+    errDiv.id = 'sinSugerencias';
+    errDiv.textContent = 'Error al cargar sugerencias.';
+    lista.appendChild(errDiv);
+  }
+}
+
+function escPanel(str) {
+  return str == null ? '' : String(str).replace(/'/g, "\\'").replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function quitarCardSiVacia() {
+  const lista = document.getElementById('listaSugerencias');
+  if (lista.querySelectorAll('.sug-card').length === 0) {
+    lista.textContent = '';
+    const vacio = document.createElement('div');
+    vacio.id = 'sinSugerencias';
+    vacio.textContent = 'No hay sugerencias pendientes.';
+    lista.appendChild(vacio);
+  }
+}
+
+async function aprobarSugerencia(id, nombre, comuna, nota, foto_url, estado) {
+  const card = document.getElementById(`sug-${id}`);
+
+  // Foto para local existente: solo vincular foto, sin crear local
+  if (estado === 'pendiente_foto') {
+    const match = nota ? nota.match(/ID:\s*(\d+)/) : null;
+    const localId = match ? parseInt(match[1]) : null;
+    if (!localId) { alert('No se pudo leer el local_id de la nota.'); return; }
+    card.querySelectorAll('button').forEach(b => b.disabled = true);
+
+    await panelFetch(`${SUPABASE_URL}/rest/v1/local_fotos`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+      body: JSON.stringify({ local_id: localId, url: foto_url })
+    });
+
+    const resPatch = await panelFetch(`${SUPABASE_URL}/rest/v1/sugerencias?id=eq.${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+      body: JSON.stringify({ estado: 'aprobada' })
+    });
+    if (!resPatch.ok) { alert('Error al aprobar la sugerencia.'); card.querySelectorAll('button').forEach(b => b.disabled = false); return; }
+    card.remove();
+    quitarCardSiVacia();
+    return;
+  }
+
+  // Sugerencia normal: crear local
+  const lat = parseFloat(prompt(`Latitud para "${nombre}":`));
+  if (isNaN(lat)) return;
+  const lng = parseFloat(prompt(`Longitud para "${nombre}":`));
+  if (isNaN(lng)) return;
+  if (lat < -60 || lat > -15 || lng < -80 || lng > -65) {
+    alert('Coordenadas fuera del rango válido para Chile.');
+    return;
+  }
+
+  card.querySelectorAll('button').forEach(b => b.disabled = true);
+
+  const resLocal = await panelFetch(`${SUPABASE_URL}/rest/v1/locales`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Prefer': 'return=representation' },
+    body: JSON.stringify({ nombre, comuna, nota, lat, lng })
+  });
+
+  if (!resLocal.ok) {
+    alert('Error al crear el local.');
+    card.querySelectorAll('button').forEach(b => b.disabled = false);
+    return;
+  }
+
+  const localData = await resLocal.json();
+  const localId = localData[0]?.id;
+
+  if (foto_url && localId) {
+    await panelFetch(`${SUPABASE_URL}/rest/v1/local_fotos`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+      body: JSON.stringify({ local_id: localId, url: foto_url })
+    });
+  }
+
+  const resPatch = await panelFetch(`${SUPABASE_URL}/rest/v1/sugerencias?id=eq.${id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+    body: JSON.stringify({ estado: 'aprobada' })
+  });
+  if (!resPatch.ok) { alert('Error al aprobar la sugerencia.'); card.querySelectorAll('button').forEach(b => b.disabled = false); return; }
+  card.remove();
+  quitarCardSiVacia();
+}
+
+async function rechazarSugerencia(id) {
+  if (!confirm('¿Rechazar esta sugerencia?')) return;
+  const card = document.getElementById(`sug-${id}`);
+  card.querySelectorAll('button').forEach(b => b.disabled = true);
+
+  const res = await panelFetch(`${SUPABASE_URL}/rest/v1/sugerencias?id=eq.${id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+    body: JSON.stringify({ estado: 'rechazada' })
+  });
+  if (!res.ok) { alert('Error al rechazar la sugerencia.'); card.querySelectorAll('button').forEach(b => b.disabled = false); return; }
+  card.remove();
+  quitarCardSiVacia();
+}
+
+function parseCoordenadas(str) {
+  const s = str.trim();
+
+  // DMS: 33°23'27.6"S 70°32'48.5"W (acepta W u O para oeste)
+  const dmsRe = /(\d+)°(\d+)'([\d.]+)"([NS])[,\s]+(\d+)°(\d+)'([\d.]+)"([EWO])/i;
+  const dms = s.match(dmsRe);
+  if (dms) {
+    const latDeg = parseInt(dms[1]) + parseInt(dms[2]) / 60 + parseFloat(dms[3]) / 3600;
+    const lat = dms[4].toUpperCase() === 'S' ? -latDeg : latDeg;
+    const lngDeg = parseInt(dms[5]) + parseInt(dms[6]) / 60 + parseFloat(dms[7]) / 3600;
+    const lng = /[WO]/i.test(dms[8]) ? -lngDeg : lngDeg;
+    return { lat, lng };
+  }
+
+  // Decimal: separado por coma o espacio
+  const parts = s.split(/[,\s]+/).filter(Boolean);
+  if (parts.length >= 2) {
+    const lat = parseFloat(parts[0]);
+    const lng = parseFloat(parts[1]);
+    if (!isNaN(lat) && !isNaN(lng)) return { lat, lng };
+  }
+
+  return null;
+}
+
 async function agregar() {
   const nombre = document.getElementById('nombre').value.trim();
   const comuna = document.getElementById('comuna').value.trim();
   const nota   = document.getElementById('nota').value.trim();
-  const lat    = parseFloat(document.getElementById('lat').value);
-  const lng    = parseFloat(document.getElementById('lng').value);
+  const coords = document.getElementById('coords').value.trim();
   const msg    = document.getElementById('mensaje');
 
-  if (!nombre || !comuna || !nota || isNaN(lat) || isNaN(lng)) {
+  if (!nombre || !comuna || !nota || !coords) {
     msg.className = 'error';
     msg.textContent = 'Completa todos los campos.';
     msg.style.display = 'block';
     return;
   }
+
+  const parsed = parseCoordenadas(coords);
+  if (!parsed) {
+    msg.className = 'error';
+    msg.textContent = 'Formato inválido. Usa: -33.3910, -70.5467';
+    msg.style.display = 'block';
+    return;
+  }
+
+  const { lat, lng } = parsed;
   if (lat < -60 || lat > -15 || lng < -80 || lng > -65) {
     msg.className = 'error';
     msg.textContent = 'Coordenadas fuera del rango válido para Chile.';
@@ -187,31 +663,121 @@ async function agregar() {
     return;
   }
 
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/locales`, {
+  // Verificar duplicados
+  try {
+    const resDup = await panelFetch(`${SUPABASE_URL}/rest/v1/locales?nombre=ilike.${encodeURIComponent(nombre)}&select=id,nombre,comuna`);
+    if (resDup.ok) {
+      const dups = await resDup.json();
+      if (Array.isArray(dups) && dups.length > 0) {
+        _pendingAgregar = { nombre, comuna, nota, lat, lng };
+        const contenedor = document.getElementById('modalDupTexto');
+        contenedor.textContent = '';
+        const aviso = document.createElement('div');
+        aviso.textContent = '⚠️ Ya existe un local con ese nombre:';
+        aviso.style.marginBottom = '8px';
+        const detalle = document.createElement('div');
+        detalle.textContent = `${dups[0].nombre} — ${dups[0].comuna}`;
+        detalle.style.cssText = 'font-weight:700;color:#FF6B2C;margin-bottom:8px;';
+        const pregunta = document.createElement('div');
+        pregunta.textContent = '¿Deseas agregarlo de todas formas?';
+        contenedor.appendChild(aviso);
+        contenedor.appendChild(detalle);
+        contenedor.appendChild(pregunta);
+        document.getElementById('modalDuplicado').style.display = 'flex';
+        return;
+      }
+    }
+  } catch(e) {}
+
+  await _ejecutarAgregar(nombre, comuna, nota, lat, lng);
+}
+
+function confirmarAgregarIgual() {
+  document.getElementById('modalDuplicado').style.display = 'none';
+  if (!_pendingAgregar) return;
+  const { nombre, comuna, nota, lat, lng } = _pendingAgregar;
+  _pendingAgregar = null;
+  _ejecutarAgregar(nombre, comuna, nota, lat, lng);
+}
+
+function cancelarDuplicado() {
+  document.getElementById('modalDuplicado').style.display = 'none';
+  _pendingAgregar = null;
+}
+
+async function _ejecutarAgregar(nombre, comuna, nota, lat, lng) {
+  const msg = document.getElementById('mensaje');
+
+  // Subir foto si hay una seleccionada
+  let foto_url = null;
+  let fotoWarning = false;
+  if (_panelFotoFile) {
+    try {
+      const blob = await comprimirImagen(_panelFotoFile);
+      const nombreSafe = nombre.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+      const fileName = `${nombreSafe}_${Date.now()}.jpg`;
+      const resUpload = await panelFetch(`${SUPABASE_URL}/storage/v1/object/locales-fotos/${fileName}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'image/jpeg' },
+        body: blob
+      });
+      if (resUpload.ok) {
+        foto_url = `${SUPABASE_URL}/storage/v1/object/public/locales-fotos/${fileName}`;
+        console.log('[FOTO] URL generada:', foto_url);
+      } else {
+        const uploadErr = await resUpload.text();
+        console.log('[FOTO] upload status:', resUpload.status, uploadErr);
+        fotoWarning = true;
+      }
+    } catch(e) {
+      fotoWarning = true;
+    }
+  }
+
+  // INSERT local
+  const resLocal = await panelFetch(`${SUPABASE_URL}/rest/v1/locales?select=id`, {
     method: 'POST',
-headers: {
-  'apikey': SUPABASE_KEY,
-  'Authorization': `Bearer ${SESSION_TOKEN}`,
-  'Content-Type': 'application/json',
-  'Prefer': 'return=minimal'
-},
+    headers: { 'Content-Type': 'application/json', 'Prefer': 'return=representation' },
     body: JSON.stringify({ nombre, comuna, nota, lat, lng })
   });
 
-  if (res.ok) {
-    msg.className = 'exito';
-    msg.textContent = '✅ Local guardado correctamente.';
-    msg.style.display = 'block';
-    document.getElementById('nombre').value = '';
-    document.getElementById('comuna').value = '';
-    document.getElementById('nota').value = '';
-    document.getElementById('lat').value = '';
-    document.getElementById('lng').value = '';
-  } else {
+  if (!resLocal.ok) {
     msg.className = 'error';
     msg.textContent = '❌ Error al guardar. Intenta de nuevo.';
     msg.style.display = 'block';
+    return;
   }
+
+  const localData = await resLocal.json();
+  const localId = localData[0]?.id;
+
+  // Vincular foto si se subió correctamente
+  console.log('[FOTO] local_id:', localId);
+  if (foto_url && localId) {
+    const resFoto = await panelFetch(`${SUPABASE_URL}/rest/v1/local_fotos`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Prefer': 'return=representation' },
+      body: JSON.stringify({ local_id: localId, url: foto_url })
+    });
+    const fotoData = await resFoto.text();
+    console.log('[FOTO] INSERT local_fotos status:', resFoto.status);
+    console.log('[FOTO] INSERT local_fotos data:', fotoData);
+  }
+
+  if (fotoWarning) {
+    msg.className = 'warning';
+    msg.textContent = '⚠️ Local creado sin foto (error al subir la imagen).';
+  } else {
+    msg.className = 'exito';
+    msg.textContent = '✅ Local guardado correctamente.';
+  }
+  msg.style.display = 'block';
+
+  document.getElementById('nombre').value = '';
+  document.getElementById('comuna').value = '';
+  document.getElementById('nota').value = '';
+  document.getElementById('coords').value = '';
+  panelQuitarFoto();
 }
 </script>
 </body>

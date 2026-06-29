@@ -7,8 +7,8 @@
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      background: #0a0a0a;
-      color: #ccc;
+      background: linear-gradient(135deg, #080d1a 0%, #0a1128 50%, #080d1a 100%);
+      color: #ffffff;
       font-family: sans-serif;
       min-height: 100vh;
       display: flex;
@@ -19,6 +19,11 @@
     .container {
       width: 100%;
       max-width: 380px;
+      background: rgba(8,20,60,0.85);
+      border: 1px solid rgba(30,144,255,0.8);
+      box-shadow: 0 0 25px rgba(30,144,255,0.25);
+      border-radius: 12px;
+      padding: 32px 24px;
     }
     .logo {
       font-size: 28px;
@@ -46,7 +51,7 @@
     label {
       display: block;
       font-size: 12px;
-      color: #4a90e2;
+      color: #4da6ff;
       font-weight: 700;
       letter-spacing: 1px;
       text-transform: uppercase;
@@ -54,39 +59,43 @@
     }
     input {
       width: 100%;
-      background: #1a1a1a;
-      border: 1px solid #333;
-      border-radius: 10px;
-      color: white;
+      background: rgba(10,25,60,0.6);
+      border: 1px solid rgba(30,144,255,0.2);
+      border-radius: 8px;
+      color: #ffffff;
       font-size: 15px;
       padding: 12px 14px;
       outline: none;
       margin-bottom: 16px;
-      transition: border 0.2s;
+      transition: border 0.2s, box-shadow 0.2s;
     }
-    input:focus { border-color: #4a90e2; }
+    input:focus { border-color: #1e90ff; box-shadow: 0 0 10px rgba(30,144,255,0.4); }
+    input::-webkit-input-placeholder { color: rgba(255,255,255,0.6) !important; }
+    input::-moz-placeholder { color: rgba(255,255,255,0.6) !important; opacity: 1; }
+    input::placeholder { color: rgba(255,255,255,0.6) !important; }
     .btn-primary {
       width: 100%;
       padding: 14px;
-      background: #4a90e2;
-      color: white;
+      background: linear-gradient(90deg, #0047cc, #0066ff);
+      color: #ffffff;
       border: none;
-      border-radius: 10px;
+      border-radius: 8px;
       font-size: 16px;
       font-weight: 700;
       cursor: pointer;
       transition: opacity 0.2s;
       margin-bottom: 12px;
+      box-shadow: 0 0 15px rgba(0,102,255,0.4);
     }
     .btn-primary:active { opacity: 0.8; }
     .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
     .btn-google {
       width: 100%;
       padding: 13px;
-      background: #1a1a1a;
-      color: white;
-      border: 1px solid #444;
-      border-radius: 10px;
+      background: rgba(10,25,60,0.6);
+      color: #ffffff;
+      border: 1px solid rgba(30,144,255,0.3);
+      border-radius: 8px;
       font-size: 15px;
       font-weight: 600;
       cursor: pointer;
@@ -106,9 +115,9 @@
     .separador hr {
       flex: 1;
       border: none;
-      border-top: 1px solid #333;
+      border-top: 1px solid rgba(30,144,255,0.2);
     }
-    .separador span { font-size: 12px; color: #555; }
+    .separador span { font-size: 12px; color: rgba(255,255,255,0.3); }
     .mensaje {
       padding: 12px;
       border-radius: 10px;
@@ -122,30 +131,30 @@
     .mensaje.exito { background: #0f2e1a; color: #4caf50; border: 1px solid #2a5c35; }
     .hint {
       font-size: 12px;
-      color: #555;
+      color: rgba(255,255,255,0.6);
       margin-top: -12px;
       margin-bottom: 16px;
       line-height: 1.5;
     }
     .terminos {
       font-size: 12px;
-      color: #555;
+      color: rgba(255,255,255,0.7);
       text-align: center;
       margin-bottom: 20px;
       line-height: 1.6;
     }
-    .terminos a { color: #4a90e2; text-decoration: none; }
+    .terminos a { color: #4da6ff; text-decoration: none; }
     .links {
       text-align: center;
       font-size: 13px;
-      color: #666;
+      color: rgba(255,255,255,0.7);
     }
-    .links a { color: #4a90e2; text-decoration: none; }
+    .links a { color: #4da6ff; text-decoration: none; }
     .volver {
       display: block;
       text-align: center;
       margin-top: 20px;
-      color: #444;
+      color: #4da6ff;
       text-decoration: none;
       font-size: 13px;
     }

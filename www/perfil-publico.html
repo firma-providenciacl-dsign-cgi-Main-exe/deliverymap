@@ -7,8 +7,8 @@
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      background: #1b2838;
-      color: #c6d4df;
+      background: linear-gradient(135deg, #080d1a 0%, #0a1128 50%, #080d1a 100%);
+      color: #ffffff;
       font-family: sans-serif;
       min-height: 100vh;
       max-width: 480px;
@@ -16,28 +16,31 @@
       padding-bottom: 40px;
     }
     .steam-topbar {
-      background: #171a21;
+      background: rgba(10,14,26,0.97);
       padding: 14px 16px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      border-bottom: 1px solid #4a90e233;
+      border-bottom: 1px solid rgba(30,144,255,0.2);
     }
     .logo { font-size: 18px; font-weight: 900; letter-spacing: 3px; color: #ff00cc; text-shadow: 0 0 8px #ff00cc; }
     .logo span { color: #4a90e2; }
     .steam-header {
-      background: #316282;
+      background: rgba(8,20,60,0.85);
+      border: 1px solid rgba(30,144,255,0.8);
+      box-shadow: 0 0 25px rgba(30,144,255,0.25);
+      border-radius: 12px;
+      margin: 14px 16px;
       padding: 20px 16px;
       display: flex;
       align-items: center;
       gap: 16px;
-      border-bottom: 2px solid #4a90e2;
     }
     .avatar {
       width: 72px; height: 72px;
-      border-radius: 6px;
-      background: #1b2838;
-      border: 2px solid #4a90e2;
+      border-radius: 10px;
+      background: rgba(10,25,60,0.6);
+      border: 2px solid rgba(30,144,255,0.6);
       display: flex; align-items: center; justify-content: center;
       font-size: 30px;
       overflow: hidden;
@@ -45,16 +48,16 @@
     }
     .avatar img { width: 100%; height: 100%; object-fit: cover; }
     .steam-header-info { flex: 1; }
-    .steam-nombre { font-size: 18px; font-weight: 700; color: white; margin-bottom: 4px; }
-    .steam-since { font-size: 11px; color: #8f98a0; margin-bottom: 4px; }
+    .steam-nombre { font-size: 18px; font-weight: 700; color: #ffffff; margin-bottom: 4px; }
+    .steam-since { font-size: 11px; color: rgba(255,255,255,0.6); margin-bottom: 4px; }
     .badge-founder {
       display: inline-block;
-      background: #4a90e2;
-      color: #c6d4df;
+      background: linear-gradient(135deg, #f0a500, #e07b00);
+      color: #ffffff;
       font-size: 10px;
       font-weight: 700;
       padding: 2px 8px;
-      border-radius: 2px;
+      border-radius: 4px;
       letter-spacing: 1px;
       text-transform: uppercase;
     }
@@ -63,24 +66,24 @@
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 8px;
-      padding: 14px 0;
-      border-bottom: 1px solid #4a90e233;
+      padding: 14px 16px;
     }
     .stat {
-      background: #16202d;
-      border-radius: 4px;
-      padding: 12px;
-      border: 1px solid #4a90e233;
+      background: rgba(10,30,70,0.8);
+      border-radius: 12px;
+      padding: 14px;
+      border: 1px solid #1e90ff;
+      box-shadow: 0 0 12px rgba(30,144,255,0.15);
     }
-    .stat-numero { font-size: 26px; font-weight: 700; color: #4a90e2; }
-    .stat-label { font-size: 10px; color: #8f98a0; margin-top: 2px; text-transform: uppercase; letter-spacing: 1px; }
+    .stat-numero { font-size: 26px; font-weight: 700; color: #ffffff; }
+    .stat-label { font-size: 10px; color: #ffffff; margin-top: 2px; text-transform: uppercase; letter-spacing: 1px; }
     .steam-footer {
       padding: 16px;
       text-align: center;
     }
-    .volver { color: #4a5566; text-decoration: none; font-size: 12px; display: block; margin-top: 12px; }
-    .terminos { color: #4a5566; text-decoration: none; font-size: 11px; }
-    #cargando { text-align: center; color: #4a5566; font-size: 14px; padding: 60px 0; }
+    .volver { color: #4da6ff; text-decoration: none; font-size: 12px; display: block; margin-top: 12px; }
+    .terminos { color: rgba(255,255,255,0.5); text-decoration: none; font-size: 11px; }
+    #cargando { text-align: center; color: rgba(255,255,255,0.5); font-size: 14px; padding: 60px 0; }
   </style>
   <script defer src="https://cloud.umami.is/script.js" data-website-id="568d65a7-876b-405a-a4b2-3b6a35d3d8f9"></script>
 </head>
