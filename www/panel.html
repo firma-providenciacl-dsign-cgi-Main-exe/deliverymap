@@ -564,7 +564,10 @@ async function agregar() {
       });
       if (resUpload.ok) {
         foto_url = `${SUPABASE_URL}/storage/v1/object/public/locales-fotos/${fileName}`;
+        console.log('[FOTO] URL generada:', foto_url);
       } else {
+        const uploadErr = await resUpload.text();
+        console.log('[FOTO] upload status:', resUpload.status, uploadErr);
         fotoWarning = true;
       }
     } catch(e) {
@@ -595,12 +598,16 @@ async function agregar() {
   const localId = localData[0]?.id;
 
   // Vincular foto si se subió correctamente
+  console.log('[FOTO] local_id:', localId);
   if (foto_url && localId) {
-    await fetch(`${SUPABASE_URL}/rest/v1/local_fotos`, {
+    const resFoto = await fetch(`${SUPABASE_URL}/rest/v1/local_fotos`, {
       method: 'POST',
-      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SESSION_TOKEN}`, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SESSION_TOKEN}`, 'Content-Type': 'application/json', 'Prefer': 'return=representation' },
       body: JSON.stringify({ local_id: localId, url: foto_url })
     });
+    const fotoData = await resFoto.text();
+    console.log('[FOTO] INSERT local_fotos status:', resFoto.status);
+    console.log('[FOTO] INSERT local_fotos data:', fotoData);
   }
 
   if (fotoWarning) {
