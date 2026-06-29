@@ -186,8 +186,71 @@
 const SUPABASE_URL = 'https://zxwwffnjrrkmtsxzvswa.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp4d3dmZm5qcnJrbXRzeHp2c3dhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA3MDU2MzksImV4cCI6MjA5NjI4MTYzOX0.0rCwuo78dkvJ-C6Y3br3s7ZuPpdikakxC21WO4dv_rI';
 let SESSION_TOKEN = null;
+let SESSION_REFRESH = null;
 let _panelFotoFile = null;
 let _pendingAgregar = null;
+
+function sessionExpirada() {
+  SESSION_TOKEN = null;
+  SESSION_REFRESH = null;
+  document.getElementById('appScreen').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
+  const err = document.getElementById('loginError');
+  err.textContent = 'Sesión expirada. Por favor inicia sesión de nuevo.';
+  err.style.display = 'block';
+  document.querySelector('#loginScreen button').disabled = false;
+  document.querySelector('#loginScreen button').textContent = 'Entrar';
+}
+
+async function panelFetch(url, options = {}) {
+  // Refresh proactivo si el token expira en menos de 30s
+  if (SESSION_TOKEN) {
+    try {
+      const payload = JSON.parse(atob(SESSION_TOKEN.split('.')[1]));
+      if (payload.exp * 1000 < Date.now() + 30000) {
+        if (!SESSION_REFRESH) { sessionExpirada(); return new Response(null, { status: 401 }); }
+        const rr = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=refresh_token`, {
+          method: 'POST',
+          headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ refresh_token: SESSION_REFRESH })
+        });
+        if (rr.ok) {
+          const nd = await rr.json();
+          SESSION_TOKEN = nd.access_token;
+          if (nd.refresh_token) SESSION_REFRESH = nd.refresh_token;
+        } else {
+          sessionExpirada(); return new Response(null, { status: 401 });
+        }
+      }
+    } catch(e) {}
+  }
+
+  const makeHeaders = () => ({
+    'apikey': SUPABASE_KEY,
+    'Authorization': `Bearer ${SESSION_TOKEN}`,
+    ...(options.headers || {})
+  });
+
+  const res = await fetch(url, { ...options, headers: makeHeaders() });
+
+  // Retry una vez si 401 (token expiró entre el chequeo y la llamada)
+  if (res.status === 401 && SESSION_REFRESH) {
+    const rr = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=refresh_token`, {
+      method: 'POST',
+      headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ refresh_token: SESSION_REFRESH })
+    });
+    if (rr.ok) {
+      const nd = await rr.json();
+      SESSION_TOKEN = nd.access_token;
+      if (nd.refresh_token) SESSION_REFRESH = nd.refresh_token;
+      return fetch(url, { ...options, headers: makeHeaders() });
+    }
+    sessionExpirada(); return res;
+  }
+
+  return res;
+}
 
 function comprimirImagen(file) {
   return new Promise((resolve) => {
@@ -258,6 +321,7 @@ async function login() {
     }
 
     SESSION_TOKEN = data.access_token;
+    SESSION_REFRESH = data.refresh_token || null;
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('appScreen').style.display = 'block';
     cargarSugerencias();
@@ -277,9 +341,7 @@ async function cargarSugerencias() {
   lista.appendChild(cargando);
 
   try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/sugerencias?estado=in.(pendiente,pendiente_foto)&select=id,nombre,comuna,nota,foto_url,fecha,estado,user_id&order=fecha.asc`, {
-      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SESSION_TOKEN}` }
-    });
+    const res = await panelFetch(`${SUPABASE_URL}/rest/v1/sugerencias?estado=in.(pendiente,pendiente_foto)&select=id,nombre,comuna,nota,foto_url,fecha,estado,user_id&order=fecha.asc`);
     const data = await res.json();
     lista.textContent = '';
 
@@ -295,9 +357,7 @@ async function cargarSugerencias() {
     const apodoMap = new Map();
     if (userIds.length > 0) {
       try {
-        const resPerfiles = await fetch(`${SUPABASE_URL}/rest/v1/perfiles?user_id=in.(${userIds.join(',')})&select=user_id,apodo`, {
-          headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SESSION_TOKEN}` }
-        });
+        const resPerfiles = await panelFetch(`${SUPABASE_URL}/rest/v1/perfiles?user_id=in.(${userIds.join(',')})&select=user_id,apodo`);
         if (resPerfiles.ok) {
           const perfilesData = await resPerfiles.json();
           perfilesData.forEach(p => apodoMap.set(p.user_id, p.apodo));
@@ -428,15 +488,15 @@ async function aprobarSugerencia(id, nombre, comuna, nota, foto_url, estado) {
     if (!localId) { alert('No se pudo leer el local_id de la nota.'); return; }
     card.querySelectorAll('button').forEach(b => b.disabled = true);
 
-    await fetch(`${SUPABASE_URL}/rest/v1/local_fotos`, {
+    await panelFetch(`${SUPABASE_URL}/rest/v1/local_fotos`, {
       method: 'POST',
-      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SESSION_TOKEN}`, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+      headers: { 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
       body: JSON.stringify({ local_id: localId, url: foto_url })
     });
 
-    const resPatch = await fetch(`${SUPABASE_URL}/rest/v1/sugerencias?id=eq.${id}`, {
+    const resPatch = await panelFetch(`${SUPABASE_URL}/rest/v1/sugerencias?id=eq.${id}`, {
       method: 'PATCH',
-      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SESSION_TOKEN}`, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+      headers: { 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
       body: JSON.stringify({ estado: 'aprobada' })
     });
     if (!resPatch.ok) { alert('Error al aprobar la sugerencia.'); card.querySelectorAll('button').forEach(b => b.disabled = false); return; }
@@ -457,9 +517,9 @@ async function aprobarSugerencia(id, nombre, comuna, nota, foto_url, estado) {
 
   card.querySelectorAll('button').forEach(b => b.disabled = true);
 
-  const resLocal = await fetch(`${SUPABASE_URL}/rest/v1/locales`, {
+  const resLocal = await panelFetch(`${SUPABASE_URL}/rest/v1/locales`, {
     method: 'POST',
-    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SESSION_TOKEN}`, 'Content-Type': 'application/json', 'Prefer': 'return=representation' },
+    headers: { 'Content-Type': 'application/json', 'Prefer': 'return=representation' },
     body: JSON.stringify({ nombre, comuna, nota, lat, lng })
   });
 
@@ -473,16 +533,16 @@ async function aprobarSugerencia(id, nombre, comuna, nota, foto_url, estado) {
   const localId = localData[0]?.id;
 
   if (foto_url && localId) {
-    await fetch(`${SUPABASE_URL}/rest/v1/local_fotos`, {
+    await panelFetch(`${SUPABASE_URL}/rest/v1/local_fotos`, {
       method: 'POST',
-      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SESSION_TOKEN}`, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+      headers: { 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
       body: JSON.stringify({ local_id: localId, url: foto_url })
     });
   }
 
-  const resPatch = await fetch(`${SUPABASE_URL}/rest/v1/sugerencias?id=eq.${id}`, {
+  const resPatch = await panelFetch(`${SUPABASE_URL}/rest/v1/sugerencias?id=eq.${id}`, {
     method: 'PATCH',
-    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SESSION_TOKEN}`, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+    headers: { 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
     body: JSON.stringify({ estado: 'aprobada' })
   });
   if (!resPatch.ok) { alert('Error al aprobar la sugerencia.'); card.querySelectorAll('button').forEach(b => b.disabled = false); return; }
@@ -495,9 +555,9 @@ async function rechazarSugerencia(id) {
   const card = document.getElementById(`sug-${id}`);
   card.querySelectorAll('button').forEach(b => b.disabled = true);
 
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/sugerencias?id=eq.${id}`, {
+  const res = await panelFetch(`${SUPABASE_URL}/rest/v1/sugerencias?id=eq.${id}`, {
     method: 'PATCH',
-    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SESSION_TOKEN}`, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+    headers: { 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
     body: JSON.stringify({ estado: 'rechazada' })
   });
   if (!res.ok) { alert('Error al rechazar la sugerencia.'); card.querySelectorAll('button').forEach(b => b.disabled = false); return; }
@@ -562,9 +622,7 @@ async function agregar() {
 
   // Verificar duplicados
   try {
-    const resDup = await fetch(`${SUPABASE_URL}/rest/v1/locales?nombre=ilike.${encodeURIComponent(nombre)}&select=id,nombre,comuna`, {
-      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SESSION_TOKEN}` }
-    });
+    const resDup = await panelFetch(`${SUPABASE_URL}/rest/v1/locales?nombre=ilike.${encodeURIComponent(nombre)}&select=id,nombre,comuna`);
     if (resDup.ok) {
       const dups = await resDup.json();
       if (Array.isArray(dups) && dups.length > 0) {
@@ -615,9 +673,9 @@ async function _ejecutarAgregar(nombre, comuna, nota, lat, lng) {
       const blob = await comprimirImagen(_panelFotoFile);
       const nombreSafe = nombre.replace(/[^a-z0-9]/gi, '_').toLowerCase();
       const fileName = `${nombreSafe}_${Date.now()}.jpg`;
-      const resUpload = await fetch(`${SUPABASE_URL}/storage/v1/object/locales-fotos/${fileName}`, {
+      const resUpload = await panelFetch(`${SUPABASE_URL}/storage/v1/object/locales-fotos/${fileName}`, {
         method: 'POST',
-        headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SESSION_TOKEN}`, 'Content-Type': 'image/jpeg' },
+        headers: { 'Content-Type': 'image/jpeg' },
         body: blob
       });
       if (resUpload.ok) {
@@ -634,14 +692,9 @@ async function _ejecutarAgregar(nombre, comuna, nota, lat, lng) {
   }
 
   // INSERT local
-  const resLocal = await fetch(`${SUPABASE_URL}/rest/v1/locales?select=id`, {
+  const resLocal = await panelFetch(`${SUPABASE_URL}/rest/v1/locales?select=id`, {
     method: 'POST',
-    headers: {
-      'apikey': SUPABASE_KEY,
-      'Authorization': `Bearer ${SESSION_TOKEN}`,
-      'Content-Type': 'application/json',
-      'Prefer': 'return=representation'
-    },
+    headers: { 'Content-Type': 'application/json', 'Prefer': 'return=representation' },
     body: JSON.stringify({ nombre, comuna, nota, lat, lng })
   });
 
@@ -658,9 +711,9 @@ async function _ejecutarAgregar(nombre, comuna, nota, lat, lng) {
   // Vincular foto si se subió correctamente
   console.log('[FOTO] local_id:', localId);
   if (foto_url && localId) {
-    const resFoto = await fetch(`${SUPABASE_URL}/rest/v1/local_fotos`, {
+    const resFoto = await panelFetch(`${SUPABASE_URL}/rest/v1/local_fotos`, {
       method: 'POST',
-      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SESSION_TOKEN}`, 'Content-Type': 'application/json', 'Prefer': 'return=representation' },
+      headers: { 'Content-Type': 'application/json', 'Prefer': 'return=representation' },
       body: JSON.stringify({ local_id: localId, url: foto_url })
     });
     const fotoData = await resFoto.text();
