@@ -7,7 +7,8 @@
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      background: #0a0a0a;
+      background: linear-gradient(135deg, #0a0e1a 0%, #0d1526 50%, #0a0e1a 100%);
+      background-attachment: fixed;
       color: #ccc;
       font-family: sans-serif;
       min-height: 100vh;
@@ -17,7 +18,7 @@
     }
 
     #header {
-      background: rgba(10,10,10,0.97);
+      background: rgba(10,14,26,0.97);
       padding: 12px 16px;
       display: flex; align-items: center; justify-content: space-between;
       border-bottom: 1px solid #4a90e222;
@@ -31,11 +32,12 @@
 
     #heroCard {
       margin: 14px 16px;
-      background: #0d1f3c;
-      border: 1px solid #4a90e233;
+      background: rgba(10,30,70,0.8);
+      border: 1px solid #1e90ff;
       border-radius: 16px;
       padding: 20px 16px;
       position: relative; overflow: hidden;
+      box-shadow: 0 0 20px rgba(30,144,255,0.3);
     }
     #heroCard::before {
       content: '';
@@ -78,9 +80,10 @@
 
     #statsRow { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 0 16px 14px; }
     .stat-card {
-      background: #111; border: 1px solid #4a90e211;
+      background: rgba(10,30,70,0.8); border: 1px solid #1e90ff;
       border-radius: 12px; padding: 14px;
       display: flex; align-items: center; gap: 12px;
+      box-shadow: 0 0 16px rgba(30,144,255,0.2);
     }
     .stat-icono {
       width: 36px; height: 36px; border-radius: 50%;
@@ -91,17 +94,17 @@
 
     .seccion { margin: 0 16px 12px; }
     .seccion-titulo {
-      font-size: 10px; font-weight: 700; color: #555;
+      font-size: 10px; font-weight: 700; color: #4da6ff;
       letter-spacing: 2px; text-transform: uppercase;
       margin-bottom: 8px; padding-left: 4px;
     }
 
     .input-group {
-      background: #111; border: 1px solid #4a90e211;
+      background: rgba(10,25,60,0.6); border: 1px solid rgba(30,144,255,0.2);
       border-radius: 12px; padding: 12px 14px;
       margin-bottom: 8px; display: flex; align-items: center; gap: 12px;
     }
-    .input-group:focus-within { border-color: #4a90e244; }
+    .input-group:focus-within { border-color: rgba(30,144,255,0.5); }
     .input-icono {
       width: 32px; height: 32px; border-radius: 50%;
       background: #0d1f3c; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
@@ -121,36 +124,37 @@
     .mensaje.exito { background: #0f2e1a; color: #4caf50; border: 1px solid #2a5c35; }
 
     .btn-primary {
-      width: 100%; padding: 14px; background: #4a90e2; color: white;
+      width: 100%; padding: 14px; background: linear-gradient(90deg, #0066ff, #0099ff); color: white;
       border: none; border-radius: 12px; font-size: 14px; font-weight: 700;
       cursor: pointer; letter-spacing: 1px; text-transform: uppercase;
       display: flex; align-items: center; justify-content: center; gap: 8px;
       transition: opacity 0.2s;
+      box-shadow: 0 0 20px rgba(0,150,255,0.5);
     }
     .btn-primary:active { opacity: 0.8; }
     .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
 
     .btn-row {
-      background: #111; border: 1px solid #4a90e211;
+      background: rgba(10,25,60,0.6); border: 1px solid rgba(30,144,255,0.2);
       border-radius: 12px; padding: 14px;
       display: flex; align-items: center; gap: 12px;
       cursor: pointer; margin-bottom: 8px;
       text-decoration: none; width: 100%; text-align: left;
     }
-    .btn-row:active { background: #0d1f3c; }
+    .btn-row:active { background: rgba(10,30,70,0.9); }
     .btn-row-icono {
       width: 32px; height: 32px; border-radius: 50%;
       background: #0d1f3c; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
     }
     .btn-row-texto { flex: 1; font-size: 13px; font-weight: 600; color: white; }
     .btn-row-flecha { color: #4a90e2; font-size: 16px; }
-    .btn-row.danger { border-color: #f4433622; }
+    .btn-row.danger { border-color: #f4433633; background: rgba(30,8,8,0.6); }
     .btn-row.danger .btn-row-icono { background: #2e0f0f; }
     .btn-row.danger .btn-row-texto { color: #f44336; }
     .btn-row.danger .btn-row-flecha { color: #f44336; }
 
     .notif-item {
-      background: #111; border: 1px solid #4a90e211;
+      background: rgba(10,25,60,0.6); border: 1px solid rgba(30,144,255,0.2);
       border-radius: 10px; padding: 12px 14px;
       margin-bottom: 6px; font-size: 13px; color: #ccc; line-height: 1.5;
     }
@@ -164,7 +168,7 @@
 
     .eliminar-form {
       display: none; margin-top: 10px;
-      background: #111; border: 1px solid #f4433622;
+      background: rgba(30,8,8,0.6); border: 1px solid #f4433633;
       border-radius: 12px; padding: 14px;
     }
     .eliminar-form p { font-size: 12px; color: #666; margin-bottom: 12px; }
