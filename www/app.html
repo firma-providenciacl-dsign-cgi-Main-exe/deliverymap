@@ -646,6 +646,93 @@
 }
 .alerta-tipo-btn span:first-child { font-size: 20px; line-height: 1; }
 
+/* FREEMIUM */
+.premium-gate { position: relative; }
+.premium-overlay {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(8, 13, 26, 0.85);
+  border-radius: 8px;
+  color: #ffffff;
+  text-align: center;
+  gap: 8px;
+  z-index: 10;
+  padding: 10px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.premium-overlay small { font-size: 11px; font-weight: 400; color: #8fa3bf; }
+.premium-overlay button {
+  background: linear-gradient(90deg, #0047cc, #0066ff);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  padding: 8px 16px;
+  font-size: 12px;
+  cursor: pointer;
+  box-shadow: 0 0 10px rgba(0, 102, 255, 0.4);
+  margin-top: 8px;
+}
+
+/* MODAL PREMIUM */
+#modalPremium {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(4, 8, 20, 0.95);
+  backdrop-filter: blur(10px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  overflow-y: auto;
+}
+.modal-premium-card {
+  background: rgba(8, 20, 60, 0.95);
+  border: 1px solid rgba(30, 144, 255, 0.6);
+  box-shadow: 0 0 40px rgba(30, 144, 255, 0.2);
+  border-radius: 16px;
+  padding: 28px 24px;
+  max-width: 380px;
+  width: 100%;
+  color: white;
+  position: relative;
+}
+.modal-premium-x {
+  position: absolute; top: 12px; right: 12px;
+  width: 28px; height: 28px; border-radius: 50%;
+  background: rgba(10, 25, 60, 0.6);
+  border: 1px solid rgba(30, 144, 255, 0.2);
+  color: #ffffff; font-size: 14px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+.modal-premium-titulo { font-size: 18px; font-weight: 700; color: #ffffff; margin-bottom: 6px; }
+.modal-premium-sub { font-size: 13px; color: #8fa3bf; margin-bottom: 18px; line-height: 1.35; }
+.modal-premium-lista { display: flex; flex-direction: column; gap: 9px; margin-bottom: 18px; }
+.modal-premium-lista div { font-size: 13px; color: #dce6f5; line-height: 1.35; }
+.modal-premium-precio { font-size: 23px; font-weight: 700; color: #ffffff; }
+.modal-premium-precio span { font-size: 12px; font-weight: 400; color: #8fa3bf; }
+.modal-premium-arg { font-size: 12px; color: #8fa3bf; line-height: 1.45; margin: 10px 0 20px; }
+.modal-premium-cta {
+  width: 100%; padding: 13px;
+  background: linear-gradient(90deg, #0047cc, #0066ff);
+  border: none; border-radius: 10px;
+  color: white; font-size: 14px; font-weight: 600; cursor: pointer;
+  box-shadow: 0 0 16px rgba(0, 102, 255, 0.45);
+}
+.modal-premium-no {
+  width: 100%; padding: 11px; margin-top: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  color: #aaa; font-size: 13px; cursor: pointer;
+}
+.modal-premium-msg { font-size: 12px; text-align: center; margin-top: 12px; color: #4caf50; line-height: 1.4; }
+
   </style>
   <script defer src="https://cloud.umami.is/script.js" data-website-id="568d65a7-876b-405a-a4b2-3b6a35d3d8f9"></script>
 </head>
@@ -887,6 +974,15 @@ const ALERTA_TIPOS = {
   zona_incidentes:  { emoji: '🚨', label: 'Zona de incidentes' }
 };
 let marcadoresAlertas = [];
+
+// FREEMIUM
+let esPremium = false;
+(function initPremiumCache() {
+  try {
+    const u = JSON.parse(localStorage.getItem('dm_user') || 'null');
+    if (u) esPremium = localStorage.getItem('dm_es_premium_' + u.id) === 'true';
+  } catch(e) {}
+})();
 let votosEmitidos = new Set();
 let historialCache = null;
 
@@ -1078,12 +1174,166 @@ function volver() {
 }
 
 function abrirPanelAlertas() {
+  if (!esPremium) { mostrarModalPremium('alertas'); return; }
   document.getElementById('panelAlertas').classList.add('abierto');
   document.getElementById('overlayAlertas').style.display = 'block';
 }
 function cerrarPanelAlertas() {
   document.getElementById('panelAlertas').classList.remove('abierto');
   document.getElementById('overlayAlertas').style.display = 'none';
+}
+// MODAL PREMIUM
+const PREMIUM_SUBTITULOS = {
+  alertas:   'Sé el primero en saber qué pasa en la calle',
+  afluencia: 'Llega cuando el local está vacío',
+  historial: 'Conoce los patrones antes de salir'
+};
+const PREMIUM_BENEFICIOS = [
+  { clave: 'alertas',   texto: 'Ver y crear alertas de tráfico en tiempo real' },
+  { clave: 'afluencia', texto: 'Afluencia actual de cada local' },
+  { clave: 'historial', texto: 'Historial de afluencia por hora y día' },
+  { clave: 'videos',    texto: 'Videos de acceso directo al local (próximamente)' },
+  { clave: 'chat',      texto: 'Burbujas de chat por zona (próximamente)' }
+];
+
+function mostrarModalPremium(origen) {
+  cerrarModalPremium();
+
+  const fondo = document.createElement('div');
+  fondo.id = 'modalPremium';
+
+  const card = document.createElement('div');
+  card.className = 'modal-premium-card';
+
+  const btnX = document.createElement('button');
+  btnX.className = 'modal-premium-x';
+  btnX.textContent = '✕';
+  btnX.setAttribute('aria-label', 'Cerrar');
+  btnX.addEventListener('click', cerrarModalPremium);
+  card.appendChild(btnX);
+
+  const titulo = document.createElement('div');
+  titulo.className = 'modal-premium-titulo';
+  titulo.textContent = '⚡ DeliveryMap Premium';
+  card.appendChild(titulo);
+
+  const sub = document.createElement('div');
+  sub.className = 'modal-premium-sub';
+  sub.textContent = PREMIUM_SUBTITULOS[origen] || 'Todo lo que necesitas para moverte mejor';
+  card.appendChild(sub);
+
+  // El beneficio que corresponde al origen se muestra primero
+  const lista = document.createElement('div');
+  lista.className = 'modal-premium-lista';
+  const ordenados = PREMIUM_BENEFICIOS.slice().sort(
+    (a, b) => (b.clave === origen) - (a.clave === origen)
+  );
+  ordenados.forEach(b => {
+    const item = document.createElement('div');
+    item.textContent = '✅ ' + b.texto;
+    lista.appendChild(item);
+  });
+  card.appendChild(lista);
+
+  const precio = document.createElement('div');
+  precio.className = 'modal-premium-precio';
+  precio.textContent = '$2.999 CLP ';
+  const porMes = document.createElement('span');
+  porMes.textContent = '/ mes';
+  precio.appendChild(porMes);
+  card.appendChild(precio);
+
+  const arg = document.createElement('div');
+  arg.className = 'modal-premium-arg';
+  arg.textContent = 'Una multa evitada paga 16 meses. Un pedido extra por semana paga tu suscripción.';
+  card.appendChild(arg);
+
+  const cta = document.createElement('button');
+  cta.className = 'modal-premium-cta';
+  cta.textContent = '🔔 Avisarme cuando esté disponible';
+  cta.addEventListener('click', () => registrarInteresadoPremium(origen));
+  card.appendChild(cta);
+
+  const btnNo = document.createElement('button');
+  btnNo.className = 'modal-premium-no';
+  btnNo.textContent = 'Ahora no';
+  btnNo.addEventListener('click', cerrarModalPremium);
+  card.appendChild(btnNo);
+
+  fondo.appendChild(card);
+  document.body.appendChild(fondo);
+  document.addEventListener('keydown', escModalPremium);
+}
+
+function cerrarModalPremium() {
+  const m = document.getElementById('modalPremium');
+  if (m) m.remove();
+  document.removeEventListener('keydown', escModalPremium);
+}
+
+function escModalPremium(e) {
+  if (e.key === 'Escape') cerrarModalPremium();
+}
+
+// Mensaje de feedback dentro de la card (el toast queda tapado por el modal)
+function mensajeModalPremium(texto, color) {
+  const card = document.querySelector('#modalPremium .modal-premium-card');
+  if (!card) return;
+  let msg = card.querySelector('.modal-premium-msg');
+  if (!msg) {
+    msg = document.createElement('div');
+    msg.className = 'modal-premium-msg';
+    card.appendChild(msg);
+  }
+  msg.style.color = color || '#4caf50';
+  msg.textContent = texto;
+}
+
+// TEMPORAL — implementación real en el PASO 7
+function registrarInteresadoPremium(origen) {
+  mensajeModalPremium('Pendiente PASO 7 (origen: ' + origen + ')', '#ffb300');
+}
+
+// Envuelve un bloque premium: lo difumina y le superpone el overlay de venta
+function bloquearPremium(elemento, blurPx, titulo, subtitulo, origen) {
+  const gate = document.createElement('div');
+  gate.className = 'premium-gate';
+
+  elemento.style.filter = `blur(${blurPx}px)`;
+  elemento.style.pointerEvents = 'none';
+  elemento.style.userSelect = 'none';
+  elemento.setAttribute('aria-hidden', 'true');
+  elemento.querySelectorAll('button, a, input').forEach(el => { el.tabIndex = -1; });
+  gate.appendChild(elemento);
+
+  const overlay = document.createElement('div');
+  overlay.className = 'premium-overlay';
+
+  const tit = document.createElement('div');
+  tit.textContent = titulo;
+  overlay.appendChild(tit);
+
+  const sub = document.createElement('small');
+  sub.textContent = subtitulo;
+  overlay.appendChild(sub);
+
+  const btn = document.createElement('button');
+  btn.textContent = 'Ver planes →';
+  btn.addEventListener('click', () => mostrarModalPremium(origen));
+  overlay.appendChild(btn);
+
+  gate.appendChild(overlay);
+  return gate;
+}
+
+// Difumina lo ya renderizado dentro de un contenedor y le pone el overlay premium
+function bloquearHistorialSiGratis(contenedor) {
+  if (esPremium) return;
+  const interior = document.createElement('div');
+  while (contenedor.firstChild) interior.appendChild(contenedor.firstChild);
+  contenedor.appendChild(
+    bloquearPremium(interior, 6, '🔒 Historial de afluencia', 'Ve los patrones por hora y día', 'historial')
+  );
 }
 function actualizarBtnAlerta() {
   const btn = document.getElementById('btnAlerta');
@@ -1383,7 +1633,9 @@ async function cargarAfluencia(localId) {
   });
 
   seccion.innerHTML = '';
-  seccion.appendChild(wrap);
+  seccion.appendChild(esPremium
+    ? wrap
+    : bloquearPremium(wrap, 4, '🔒 Afluencia en tiempo real', 'Disponible en Premium', 'afluencia'));
   seccion.appendChild(btnHistorial);
   seccion.appendChild(historialContenedor);
 }
@@ -1492,6 +1744,7 @@ function renderHistorial(diaIdx, cache) {
     sinDatos.textContent = 'Sin datos históricos para este día';
     contenedor.appendChild(sinDatos);
     historialNota(contenedor, cache.niveles.length);
+    bloquearHistorialSiGratis(contenedor);
     return;
   }
 
@@ -1547,6 +1800,7 @@ function renderHistorial(diaIdx, cache) {
   contenedor.appendChild(grafico);
   contenedor.appendChild(tooltipDiv);
   historialNota(contenedor, cache.niveles.length);
+  bloquearHistorialSiGratis(contenedor);
 }
 
 function historialNota(contenedor, total) {
@@ -1559,8 +1813,12 @@ function historialNota(contenedor, total) {
 // ALERTAS
 function crearIconoAlerta(tipo) {
   const info = ALERTA_TIPOS[tipo] || { emoji: '⚠️' };
+  const emoji = esPremium ? info.emoji : '🔒';
+  const estilo = esPremium
+    ? 'background:rgba(8,13,26,0.9);border:2px solid rgba(30,144,255,0.7);box-shadow:0 0 10px rgba(30,144,255,0.4);'
+    : 'background:rgba(22,24,30,0.9);border:2px solid rgba(120,130,145,0.55);box-shadow:0 0 8px rgba(0,0,0,0.5);';
   return L.divIcon({
-    html: `<div style="width:30px;height:30px;box-sizing:border-box;display:flex;align-items:center;justify-content:center;background:rgba(8,13,26,0.9);border:2px solid rgba(30,144,255,0.7);box-shadow:0 0 10px rgba(30,144,255,0.4);border-radius:50%;font-size:18px;line-height:1;">${info.emoji}</div>`,
+    html: `<div style="width:30px;height:30px;box-sizing:border-box;display:flex;align-items:center;justify-content:center;${estilo}border-radius:50%;font-size:18px;line-height:1;">${emoji}</div>`,
     className: '',
     iconSize: [30, 30],
     iconAnchor: [15, 15],
@@ -1568,7 +1826,31 @@ function crearIconoAlerta(tipo) {
   });
 }
 
+function crearPopupAlertaBloqueada() {
+  const wrap = document.createElement('div');
+  wrap.style.cssText = 'min-width:170px; font-family:sans-serif;';
+
+  const tit = document.createElement('div');
+  tit.style.cssText = 'font-size:15px; font-weight:700; color:white; margin-bottom:4px;';
+  tit.textContent = '🔒 Alerta de rider';
+  wrap.appendChild(tit);
+
+  const sub = document.createElement('div');
+  sub.style.cssText = 'font-size:12px; color:#aaa; margin-bottom:10px;';
+  sub.textContent = 'Hazte Premium para ver qué está pasando';
+  wrap.appendChild(sub);
+
+  const btn = document.createElement('button');
+  btn.style.cssText = 'width:100%; padding:8px 4px; background:linear-gradient(90deg,#0047cc,#0066ff); border:none; color:white; border-radius:8px; font-size:12px; cursor:pointer; box-shadow:0 0 10px rgba(0,102,255,0.4);';
+  btn.textContent = 'Ver planes →';
+  btn.onclick = () => mostrarModalPremium('alertas');
+  wrap.appendChild(btn);
+
+  return wrap;
+}
+
 function crearContenidoPopupAlerta(alerta) {
+  if (!esPremium) return crearPopupAlertaBloqueada();
   const info = ALERTA_TIPOS[alerta.tipo] || { emoji: '⚠️', label: alerta.tipo };
   const yaVote = votosEmitidos.has(alerta.id);
   const autenticado = !!localStorage.getItem('dm_token');
@@ -1783,7 +2065,7 @@ async function mostrarBotonUsuario() {
     // Buscar foto y tipo de usuario en tabla perfiles
     let fotoUrl = null;
     try {
-      const res = await supaFetch(`${SUPABASE_URL}/rest/v1/perfiles?user_id=eq.${pg(u.id)}&select=foto_url,es_rider`, {
+      const res = await supaFetch(`${SUPABASE_URL}/rest/v1/perfiles?user_id=eq.${pg(u.id)}&select=foto_url,es_rider,es_premium`, {
         headers: {
           'Accept': 'application/json'
         }
@@ -1809,6 +2091,7 @@ async function mostrarBotonUsuario() {
           localStorage.removeItem('dm_token');
           localStorage.removeItem('dm_user');
           localStorage.removeItem('dm_refresh');
+          localStorage.removeItem('dm_es_premium_' + u.id);
           window.location.href = 'login.html';
           return;
         }
@@ -1816,6 +2099,10 @@ async function mostrarBotonUsuario() {
       }
       if (data && data.length > 0) {
         if (data[0].foto_url) fotoUrl = safeImageUrl(data[0].foto_url);
+        const premiumPrevio = esPremium;
+        esPremium = data[0].es_premium === true;
+        localStorage.setItem('dm_es_premium_' + u.id, String(esPremium));
+        if (premiumPrevio !== esPremium) cargarAlertas();
         evaluarOnboarding(data[0].es_rider, u.id);
       }
     } catch(e) {
