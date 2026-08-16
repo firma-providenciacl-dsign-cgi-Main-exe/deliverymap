@@ -337,11 +337,9 @@
 
      #bottomSheet {
   position: fixed; left: 0; right: 0; bottom: -100%;
-  background: rgba(8,13,26,0.97);
+  background: rgba(8, 13, 26, 0.98);
   border-top: 1px solid rgba(30,144,255,0.4);
   border-radius: 16px 16px 0 0;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
   z-index: 2000; max-height: 90vh; overflow-y: auto;
   transition: bottom 0.4s ease; touch-action: pan-y;
   will-change: transform;
@@ -494,6 +492,160 @@
 #toastRate.error { border-color: #5c2a2a; color: #ff6b6b; background: #2e0f0f; }
 #toastRate.visible { opacity: 1; }
 
+/* POPUP ONBOARDING */
+#popupOnboarding {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.82);
+  z-index: 10000;
+  display: none;
+  align-items: center; justify-content: center;
+  padding: 20px;
+}
+#popupOnboardingCard {
+  background: #0d1825;
+  border: 1px solid #4a90e244;
+  border-radius: 20px;
+  padding: 28px 24px;
+  max-width: 320px; width: 100%;
+  text-align: center;
+}
+#popupOnboardingCard h2 {
+  font-size: 17px; font-weight: 700; color: white;
+  margin: 12px 0 8px;
+}
+#popupOnboardingCard p {
+  font-size: 13px; color: #888; margin-bottom: 24px;
+}
+.onboarding-icon { font-size: 30px; }
+.onboarding-btn {
+  display: block; width: 100%;
+  padding: 14px; border-radius: 12px;
+  border: 1px solid #4a90e244;
+  font-size: 15px; font-weight: 600;
+  cursor: pointer; margin-bottom: 10px;
+  transition: border-color 0.2s, background 0.2s;
+}
+.onboarding-btn:last-child { margin-bottom: 0; }
+.onboarding-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.onboarding-btn-rider { background: #0d1f3c; color: white; }
+.onboarding-btn-rider:hover:not(:disabled) { border-color: #4a90e2; }
+.onboarding-btn-consumidor { background: #1a1a1a; color: #ccc; }
+.onboarding-btn-consumidor:hover:not(:disabled) { border-color: #555; }
+
+/* AFLUENCIA */
+#sheetAfluencia { border-top: 1px solid #222; }
+.afluencia-wrap { padding: 12px 16px; }
+.afluencia-header {
+  display: flex; align-items: center; gap: 8px;
+  flex-wrap: wrap; margin-bottom: 10px;
+}
+.afluencia-titulo {
+  font-size: 11px; color: #555;
+  letter-spacing: 1px; text-transform: uppercase;
+  font-weight: 700;
+}
+.afluencia-nivel { font-size: 14px; font-weight: 600; color: white; }
+.afluencia-sin-datos { font-size: 13px; color: #555; }
+.afluencia-count { font-size: 11px; color: #555; }
+.afluencia-botones { display: flex; gap: 6px; flex-wrap: wrap; }
+.afluencia-btn {
+  flex: 1; min-width: 0;
+  padding: 8px 4px; border-radius: 10px;
+  border: 1px solid #333; background: #1a1a1a;
+  color: #aaa; font-size: 12px; font-weight: 600;
+  cursor: pointer; white-space: nowrap;
+  transition: border-color 0.15s, background 0.15s;
+}
+.afluencia-btn:hover:not(:disabled) { border-color: #4a90e2; background: #0d1f3c; color: white; }
+.afluencia-btn:disabled { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
+.afluencia-bloqueado { font-size: 11px; color: #ff950088; margin-top: 8px; }
+
+/* HISTORIAL AFLUENCIA */
+.historial-toggle {
+  display: block; width: 100%; background: none; border: none;
+  color: #4a90e2; font-size: 12px; font-weight: 600;
+  padding: 8px 16px 6px; text-align: left; cursor: pointer;
+  letter-spacing: 0.5px; border-top: 1px solid #1a1a1a;
+}
+.historial-contenedor { padding: 0 16px 12px; }
+.historial-dias {
+  display: flex; gap: 6px; overflow-x: auto; padding-bottom: 10px;
+  scrollbar-width: none;
+}
+.historial-dias::-webkit-scrollbar { display: none; }
+.historial-dia-btn {
+  flex-shrink: 0; padding: 5px 12px; border-radius: 20px;
+  border: 1px solid #333; background: #111; color: #666;
+  font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.15s;
+}
+.historial-dia-btn.activo { background: #0d1f3c; border-color: #4a90e2; color: #4a90e2; }
+.historial-grafico { display: flex; align-items: flex-end; gap: 3px; height: 60px; }
+.historial-barra-wrap {
+  flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px;
+}
+.historial-barra {
+  width: 100%; border-radius: 3px 3px 0 0; min-height: 3px;
+  cursor: pointer; transition: opacity 0.15s;
+}
+.historial-barra:hover { opacity: 0.7; }
+.historial-hora { font-size: 9px; color: #444; }
+.historial-tooltip { font-size: 11px; color: #888; padding: 6px 0 2px; min-height: 22px; text-align: center; }
+.historial-nota { font-size: 11px; color: #444; padding: 2px 0 4px; }
+.historial-sin-datos { font-size: 13px; color: #555; padding: 12px 0; text-align: center; }
+
+/* ALERTAS */
+#btnAlerta {
+  position: fixed; bottom: 92px; right: 16px;
+  width: 48px; height: 48px;
+  background: rgba(8, 13, 26, 0.95); border: 1px solid rgba(30, 144, 255, 0.6); border-radius: 50%;
+  display: none; align-items: center; justify-content: center;
+  z-index: 1600; cursor: pointer; font-size: 20px; color: #ffffff;
+  box-shadow: 0 0 15px rgba(30, 144, 255, 0.3);
+}
+#overlayAlertas {
+  display: none; position: fixed; inset: 0; z-index: 2999;
+}
+#panelAlertas {
+  position: fixed; top: 0; right: 0; bottom: 0;
+  width: min(300px, 88vw);
+  background: rgba(8, 13, 26, 0.97); border-left: 1px solid rgba(30, 144, 255, 0.4);
+  backdrop-filter: blur(10px);
+  z-index: 3000;
+  transform: translateX(100%);
+  transition: transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  display: flex; flex-direction: column; overflow-y: auto;
+}
+#panelAlertas.abierto { transform: translateX(0); }
+#panelAlertasHeader {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 16px 12px; border-bottom: 1px solid #222; flex-shrink: 0;
+}
+#panelAlertasHeader strong { font-size: 13px; color: #ffffff; letter-spacing: 1px; text-transform: uppercase; }
+#panelAlertasHeader button {
+  background: rgba(10, 25, 60, 0.6); border: 1px solid rgba(30, 144, 255, 0.2); color: #ffffff;
+  width: 28px; height: 28px; border-radius: 50%;
+  font-size: 14px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+#panelAlertasBtns { padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+.alerta-tipo-btn {
+  display: flex; align-items: center; gap: 12px;
+  padding: 13px 14px; width: 100%;
+  background: rgba(10, 25, 60, 0.6); border: 1px solid rgba(30, 144, 255, 0.2);
+  border-radius: 8px; color: #ffffff; font-size: 14px;
+  cursor: pointer; text-align: left;
+  transition: border-color 0.15s, background 0.15s;
+}
+.alerta-tipo-btn:hover,
+.alerta-tipo-btn:active { background: rgba(20, 50, 120, 0.7); border-color: rgba(30, 144, 255, 0.6); }
+.alerta-tipo-btn[onclick*="zona_incidentes"] {
+  background: rgba(40, 10, 10, 0.6); border-color: rgba(255, 80, 80, 0.3); color: #ff6666;
+}
+.alerta-tipo-btn[onclick*="exclusivo_riders"] {
+  background: rgba(10, 40, 10, 0.6); border-color: rgba(30, 200, 30, 0.3); color: #44ff44;
+}
+.alerta-tipo-btn span:first-child { font-size: 20px; line-height: 1; }
+
   </style>
   <script defer src="https://cloud.umami.is/script.js" data-website-id="568d65a7-876b-405a-a4b2-3b6a35d3d8f9"></script>
 </head>
@@ -505,6 +657,16 @@
     <span id="neon-delivery">DELIVERY</span>
     <span id="neon-map">MAP</span>
     <span id="neon-sub">// CHILE DELIVERY NETWORK //</span>
+  </div>
+</div>
+
+<div id="popupOnboarding">
+  <div id="popupOnboardingCard">
+    <div class="onboarding-icon">🛵</div>
+    <h2>¿Cómo usas DeliveryMap?</h2>
+    <p>Esto nos ayuda a mostrarte información más relevante</p>
+    <button class="onboarding-btn onboarding-btn-rider" onclick="elegirTipoUsuario(true)">🛵 Soy rider de delivery</button>
+    <button class="onboarding-btn onboarding-btn-consumidor" onclick="elegirTipoUsuario(false)">🍔 Busco locales de comida</button>
   </div>
 </div>
 
@@ -572,6 +734,8 @@
   <button class="like-btn" id="btnLike" onclick="toggleLike('like')">👍 <span id="contLikes">0</span></button>
   <button class="like-btn" id="btnDislike" onclick="toggleLike('dislike')">👎 <span id="contDislikes">0</span></button>
 </div>
+
+<div id="sheetAfluencia"></div>
 
 <div id="sheetComentarios">
   <div class="comentarios-titulo">💬 Comentarios</div>
@@ -704,10 +868,27 @@ if (navigator.geolocation) {
 L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
   attribution: '© OpenStreetMap © CARTO'
 }).addTo(mapa);
+mapa.on('zoomend', actualizarVisibilidadAlertas);
+setInterval(cargarAlertas, 30000);
 
 
 
 let pinActivo = null;
+
+const ALERTA_TIPOS = {
+  policia:          { emoji: '👮', label: 'Policía' },
+  trafico:          { emoji: '🚗', label: 'Tráfico' },
+  accidente:        { emoji: '💥', label: 'Accidente' },
+  inundacion:       { emoji: '🌊', label: 'Inundación' },
+  bache:            { emoji: '🕳️', label: 'Bache' },
+  carril_bloqueado: { emoji: '🚧', label: 'Carril bloqueado' },
+  peligro:          { emoji: '⚠️', label: 'Peligro general' },
+  exclusivo_riders: { emoji: '🛵', label: 'Solo riders' },
+  zona_incidentes:  { emoji: '🚨', label: 'Zona de incidentes' }
+};
+let marcadoresAlertas = [];
+let votosEmitidos = new Set();
+let historialCache = null;
 
 // BUSCADOR
 let userLat = null, userLng = null;
@@ -819,12 +1000,27 @@ function seleccionar(l) {
   localActivo = l;
   if (pinActivo) { mapa.removeLayer(pinActivo); pinActivo = null; }
 
+  // Registrar vista pasiva (fire and forget)
+  (function() {
+    if (!localStorage.getItem('dm_token')) return;
+    const _u = JSON.parse(localStorage.getItem('dm_user') || 'null');
+    const esRiderStr = _u ? localStorage.getItem('dm_es_rider_' + _u.id) : null;
+    const esRider = esRiderStr === 'true' ? true : esRiderStr === 'false' ? false : null;
+    supaFetch(`${SUPABASE_URL}/rest/v1/rpc/registrar_vista_local`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ p_local_id: l.id, p_es_rider: esRider })
+    }).catch(() => {});
+  })();
+
 pinActivo = L.marker([l.lat, l.lng]).addTo(mapa);
   mapa.setView([l.lat, l.lng], 17);
 
   // Foto en el panel draggable
   const sheetFoto = document.getElementById('sheetFoto');
   sheetFoto.innerHTML = '<span style="color:#555; font-size:13px;">📸 Sin foto aún</span>';
+  document.getElementById('sheetAfluencia').innerHTML = '';
+  historialCache = null;
   document.getElementById('btnSubirFotoLocal').style.display = 'none';
   fetch(`${SUPABASE_URL}/rest/v1/local_fotos?local_id=eq.${pg(l.id)}&select=url&limit=1`, {
     headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
@@ -847,6 +1043,7 @@ pinActivo = L.marker([l.lat, l.lng]).addTo(mapa);
   });
 
 setTimeout(() => cargarLikesYComentarios(l.id), 300);
+  cargarAfluencia(l.id);
 
   document.getElementById('sheetNombre').textContent = l.nombre;
   const elComuna = document.getElementById('sheetComuna');
@@ -878,6 +1075,23 @@ currentY = MEDIO;
 function volver() {
   cerrarSheet();
   document.getElementById('dropdown').style.display = 'none';
+}
+
+function abrirPanelAlertas() {
+  document.getElementById('panelAlertas').classList.add('abierto');
+  document.getElementById('overlayAlertas').style.display = 'block';
+}
+function cerrarPanelAlertas() {
+  document.getElementById('panelAlertas').classList.remove('abierto');
+  document.getElementById('overlayAlertas').style.display = 'none';
+}
+function actualizarBtnAlerta() {
+  const btn = document.getElementById('btnAlerta');
+  if (!btn) return;
+  const userStr = localStorage.getItem('dm_user');
+  if (!userStr) { btn.style.display = 'none'; return; }
+  const u = JSON.parse(userStr);
+  btn.style.display = localStorage.getItem('dm_es_rider_' + u.id) === 'true' ? 'flex' : 'none';
 }
 
 // DRAGGABLE BOTTOM SHEET
@@ -1009,6 +1223,494 @@ function mostrarToast(msg, tipo = '') {
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => t.classList.remove('visible'), 1800);
 }
+// ONBOARDING
+function evaluarOnboarding(esRider, userId) {
+  const cached = localStorage.getItem('dm_es_rider_' + userId);
+  if (cached === 'true' || cached === 'false') return;
+  if (esRider === true || esRider === false) {
+    localStorage.setItem('dm_es_rider_' + userId, String(esRider));
+    return;
+  }
+  function tryShow() {
+    const splash = document.getElementById('splash');
+    if (splash && splash.style.display !== 'none') {
+      setTimeout(tryShow, 300);
+      return;
+    }
+    document.getElementById('popupOnboarding').style.display = 'flex';
+  }
+  tryShow();
+}
+
+async function elegirTipoUsuario(esRider) {
+  const userStr = localStorage.getItem('dm_user');
+  if (!userStr) return;
+  let user;
+  try { user = JSON.parse(userStr); } catch(e) { return; }
+  const popup = document.getElementById('popupOnboarding');
+  const btns = popup.querySelectorAll('button');
+  btns.forEach(b => b.disabled = true);
+  const res = await supaFetch(
+    `${SUPABASE_URL}/rest/v1/perfiles?user_id=eq.${pg(user.id)}`,
+    {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+      body: JSON.stringify({ es_rider: esRider })
+    }
+  );
+  if (res.ok) {
+    localStorage.setItem('dm_es_rider_' + user.id, String(esRider));
+    popup.style.display = 'none';
+    actualizarBtnAlerta();
+  } else {
+    btns.forEach(b => b.disabled = false);
+  }
+}
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape' && document.getElementById('popupOnboarding').style.display !== 'none') {
+    e.preventDefault();
+  }
+});
+
+// AFLUENCIA
+async function cargarAfluencia(localId) {
+  const seccion = document.getElementById('sheetAfluencia');
+  if (!seccion) return;
+  const token = localStorage.getItem('dm_token');
+  const userStr = localStorage.getItem('dm_user');
+  const userId = userStr ? JSON.parse(userStr).id : null;
+  const autenticado = !!(token && userId);
+
+  const ahora = Date.now();
+  const hace2h = new Date(ahora - 2 * 60 * 60 * 1000).toISOString();
+  const res = await supaFetch(
+    `${SUPABASE_URL}/rest/v1/afluencia?local_id=eq.${pg(localId)}&creado_en=gte.${encodeURIComponent(hace2h)}&select=nivel,creado_en&order=creado_en.desc`,
+    { headers: { 'Accept': 'application/json' } }
+  );
+  const raw = await res.json();
+  const reportes = res.ok && Array.isArray(raw) ? raw : [];
+
+  const hace1h = ahora - 60 * 60 * 1000;
+  const countHora = reportes.filter(r => new Date(r.creado_en).getTime() > hace1h).length;
+  const NIVEL_INFO = { 1: '🟢 Vacío', 2: '🟡 Moderado', 3: '🔴 Lleno', 4: '💀 Colapsado' };
+
+  const wrap = document.createElement('div');
+  wrap.className = 'afluencia-wrap';
+
+  const header = document.createElement('div');
+  header.className = 'afluencia-header';
+
+  const titulo = document.createElement('span');
+  titulo.className = 'afluencia-titulo';
+  titulo.textContent = 'AFLUENCIA';
+  header.appendChild(titulo);
+
+  if (reportes.length === 0) {
+    const sinDatos = document.createElement('span');
+    sinDatos.className = 'afluencia-sin-datos';
+    sinDatos.textContent = 'Sin datos recientes';
+    header.appendChild(sinDatos);
+  } else {
+    // Promedio ponderado por antigüedad
+    let sumaPesos = 0, sumaProducto = 0;
+    reportes.forEach(r => {
+      const minAtras = (ahora - new Date(r.creado_en).getTime()) / 60000;
+      const peso = minAtras <= 30 ? 1.0 : minAtras <= 60 ? 0.6 : minAtras <= 90 ? 0.3 : 0.1;
+      sumaPesos += peso;
+      sumaProducto += r.nivel * peso;
+    });
+    const nivelFinal = Math.min(4, Math.max(1, Math.round(sumaProducto / sumaPesos)));
+    const nivelEl = document.createElement('span');
+    nivelEl.className = 'afluencia-nivel';
+    nivelEl.textContent = NIVEL_INFO[nivelFinal];
+    header.appendChild(nivelEl);
+  }
+  wrap.appendChild(header);
+
+  // Línea de metadatos: conteo + último reporte
+  if (reportes.length > 0) {
+    const meta = document.createElement('div');
+    meta.className = 'afluencia-count';
+    const ultimoTiempo = tiempoTranscurrido(reportes[0].creado_en);
+    meta.textContent = `${countHora} reporte${countHora !== 1 ? 's' : ''} en la última hora · último ${ultimoTiempo}`;
+    wrap.appendChild(meta);
+    if (reportes.length === 1) {
+      const nota = document.createElement('div');
+      nota.className = 'afluencia-count';
+      nota.textContent = '📊 1 reporte — puede variar';
+      wrap.appendChild(nota);
+    }
+  }
+
+  if (autenticado) {
+    const cacheKey = `dm_reporte_${localId}`;
+    const ultimoReporte = localStorage.getItem(cacheKey);
+    const bloqueado = !!ultimoReporte && (ahora - parseInt(ultimoReporte)) < 30 * 60 * 1000;
+    const niveles = [[1, '🟢 Vacío'], [2, '🟡 Moderado'], [3, '🔴 Lleno'], [4, '💀 Colapsado']];
+    const botonesDiv = document.createElement('div');
+    botonesDiv.className = 'afluencia-botones';
+    niveles.forEach(([n, label]) => {
+      const btn = document.createElement('button');
+      btn.className = 'afluencia-btn';
+      btn.textContent = label;
+      btn.disabled = bloqueado;
+      btn.addEventListener('click', () => reportarAfluencia(n, localId));
+      botonesDiv.appendChild(btn);
+    });
+    wrap.appendChild(botonesDiv);
+    if (bloqueado) {
+      const msg = document.createElement('div');
+      msg.className = 'afluencia-bloqueado';
+      msg.textContent = 'Ya reportaste este local hace menos de 30 minutos';
+      wrap.appendChild(msg);
+    }
+  }
+
+  const historialContenedor = document.createElement('div');
+  historialContenedor.className = 'historial-contenedor';
+  historialContenedor.id = 'historialAfluencia';
+  historialContenedor.style.display = 'none';
+
+  const btnHistorial = document.createElement('button');
+  btnHistorial.className = 'historial-toggle';
+  btnHistorial.textContent = 'Ver historial ▼';
+  btnHistorial.addEventListener('click', () => {
+    const abierto = historialContenedor.style.display !== 'none';
+    historialContenedor.style.display = abierto ? 'none' : 'block';
+    btnHistorial.textContent = abierto ? 'Ver historial ▼' : 'Ver historial ▲';
+    if (!abierto) cargarHistorial(localId);
+  });
+
+  seccion.innerHTML = '';
+  seccion.appendChild(wrap);
+  seccion.appendChild(btnHistorial);
+  seccion.appendChild(historialContenedor);
+}
+
+async function reportarAfluencia(nivel, localId) {
+  if (!Number.isInteger(localId)) return;
+  const token = localStorage.getItem('dm_token');
+  const userStr = localStorage.getItem('dm_user');
+  if (!token || !userStr) { window.location.href = 'login.html'; return; }
+  const user = JSON.parse(userStr);
+  const res = await supaFetch(`${SUPABASE_URL}/rest/v1/afluencia`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+    body: JSON.stringify({ local_id: localId, user_id: user.id, nivel })
+  });
+  if (!res.ok) {
+    mostrarToast('Ya reportaste este local hace menos de 30 minutos', 'error');
+    return;
+  }
+  localStorage.setItem(`dm_reporte_${localId}`, Date.now().toString());
+  mostrarToast('¡Afluencia reportada!', 'exito');
+  cargarAfluencia(localId);
+}
+
+async function cargarHistorial(localId) {
+  const contenedor = document.getElementById('historialAfluencia');
+  if (!contenedor) return;
+
+  if (historialCache && historialCache.localId === localId) {
+    renderHistorial((new Date().getDay() + 6) % 7, historialCache);
+    return;
+  }
+
+  contenedor.textContent = '';
+  const cargando = document.createElement('div');
+  cargando.className = 'historial-sin-datos';
+  cargando.textContent = 'Cargando historial...';
+  contenedor.appendChild(cargando);
+
+  try {
+    const [resV, resN] = await Promise.all([
+      supaFetch(
+        `${SUPABASE_URL}/rest/v1/afluencia_vistas?local_id=eq.${pg(localId)}&select=creado_en`,
+        { headers: { 'Accept': 'application/json' } }
+      ),
+      supaFetch(
+        `${SUPABASE_URL}/rest/v1/afluencia?local_id=eq.${pg(localId)}&select=nivel,creado_en`,
+        { headers: { 'Accept': 'application/json' } }
+      )
+    ]);
+    const [rawV, rawN] = await Promise.all([resV.json(), resN.json()]);
+    historialCache = {
+      localId,
+      vistas: (resV.ok && Array.isArray(rawV)) ? rawV : [],
+      niveles: (resN.ok && Array.isArray(rawN)) ? rawN : []
+    };
+  } catch(e) {
+    historialCache = { localId, vistas: [], niveles: [] };
+  }
+
+  renderHistorial((new Date().getDay() + 6) % 7, historialCache);
+}
+
+function renderHistorial(diaIdx, cache) {
+  const contenedor = document.getElementById('historialAfluencia');
+  if (!contenedor) return;
+  contenedor.textContent = '';
+
+  const DIAS = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+  const JS_DIAS = [1, 2, 3, 4, 5, 6, 0]; // índice botón → JS getDay()
+
+  const diasWrap = document.createElement('div');
+  diasWrap.className = 'historial-dias';
+  DIAS.forEach((nombre, idx) => {
+    const btn = document.createElement('button');
+    btn.className = 'historial-dia-btn' + (idx === diaIdx ? ' activo' : '');
+    btn.textContent = nombre;
+    btn.addEventListener('click', () => renderHistorial(idx, cache));
+    diasWrap.appendChild(btn);
+  });
+  contenedor.appendChild(diasWrap);
+
+  const jsDia = JS_DIAS[diaIdx];
+  const vistasDia = (cache.vistas || []).filter(v => new Date(v.creado_en).getDay() === jsDia);
+  const nivelesDia = cache.niveles.filter(r => new Date(r.creado_en).getDay() === jsDia);
+
+  const BUCKETS = [0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22];
+  const buckets = BUCKETS.map(h0 => {
+    const vistas = vistasDia.filter(v => {
+      const hora = new Date(v.creado_en).getHours();
+      return hora >= h0 && hora < h0 + 2;
+    }).length;
+    const registros = nivelesDia.filter(r => {
+      const hora = new Date(r.creado_en).getHours();
+      return hora >= h0 && hora < h0 + 2;
+    });
+    const count = registros.length;
+    const avgNivel = count > 0 ? registros.reduce((s, r) => s + r.nivel, 0) / count : null;
+    return { h0, vistas, count, avgNivel };
+  });
+
+  const hasDatos = buckets.some(b => b.count > 0 || b.vistas > 0);
+  if (!hasDatos) {
+    const sinDatos = document.createElement('div');
+    sinDatos.className = 'historial-sin-datos';
+    sinDatos.textContent = 'Sin datos históricos para este día';
+    contenedor.appendChild(sinDatos);
+    historialNota(contenedor, cache.niveles.length);
+    return;
+  }
+
+  const alturas = buckets.map(b => b.count > 0 ? b.count : b.vistas);
+  const maxAlt = Math.max(...alturas, 1);
+
+  function colorBarra(b) {
+    if (b.count === 0 && b.vistas === 0) return '#1e1e1e'; // vacío
+    if (b.count === 0) return '#3a3a3a';                   // solo vistas, sin nivel
+    if (b.avgNivel < 1.5) return '#4CAF50';
+    if (b.avgNivel < 2.5) return '#FFC107';
+    if (b.avgNivel < 3.5) return '#F44336';
+    return '#9C27B0';
+  }
+  function labelNivel(avg) {
+    if (avg === null) return 'sin reporte de nivel';
+    if (avg < 1.5) return 'Vacío';
+    if (avg < 2.5) return 'Moderado';
+    if (avg < 3.5) return 'Lleno';
+    return 'Colapsado';
+  }
+
+  const tooltipDiv = document.createElement('div');
+  tooltipDiv.className = 'historial-tooltip';
+  tooltipDiv.textContent = 'Toca una barra para ver detalles';
+
+  const grafico = document.createElement('div');
+  grafico.className = 'historial-grafico';
+  buckets.forEach((b, i) => {
+    const pct = b.count === 0 && b.vistas === 0 ? 5 : Math.max(5, Math.round((alturas[i] / maxAlt) * 100));
+    const wrap = document.createElement('div');
+    wrap.className = 'historial-barra-wrap';
+    const barra = document.createElement('div');
+    barra.className = 'historial-barra';
+    barra.style.height = pct + '%';
+    barra.style.backgroundColor = colorBarra(b);
+    barra.addEventListener('click', () => {
+      const h = String(b.h0).padStart(2, '0');
+      if (b.count > 0) {
+        tooltipDiv.textContent = `${h}:00 — ${b.count} reporte${b.count !== 1 ? 's' : ''} · ${labelNivel(b.avgNivel)}`;
+      } else if (b.vistas > 0) {
+        tooltipDiv.textContent = `${h}:00 — ${b.vistas} consulta${b.vistas !== 1 ? 's' : ''} · sin reporte de nivel`;
+      }
+    });
+    const horaLabel = document.createElement('div');
+    horaLabel.className = 'historial-hora';
+    horaLabel.textContent = String(b.h0).padStart(2, '0');
+    wrap.appendChild(barra);
+    wrap.appendChild(horaLabel);
+    grafico.appendChild(wrap);
+  });
+
+  contenedor.appendChild(grafico);
+  contenedor.appendChild(tooltipDiv);
+  historialNota(contenedor, cache.niveles.length);
+}
+
+function historialNota(contenedor, total) {
+  const nota = document.createElement('div');
+  nota.className = 'historial-nota';
+  nota.textContent = `Basado en ${total} reporte${total !== 1 ? 's' : ''} histórico${total !== 1 ? 's' : ''} de riders`;
+  contenedor.appendChild(nota);
+}
+
+// ALERTAS
+function crearIconoAlerta(tipo) {
+  const info = ALERTA_TIPOS[tipo] || { emoji: '⚠️' };
+  return L.divIcon({
+    html: `<div style="width:30px;height:30px;box-sizing:border-box;display:flex;align-items:center;justify-content:center;background:rgba(8,13,26,0.9);border:2px solid rgba(30,144,255,0.7);box-shadow:0 0 10px rgba(30,144,255,0.4);border-radius:50%;font-size:18px;line-height:1;">${info.emoji}</div>`,
+    className: '',
+    iconSize: [30, 30],
+    iconAnchor: [15, 15],
+    popupAnchor: [0, -18]
+  });
+}
+
+function crearContenidoPopupAlerta(alerta) {
+  const info = ALERTA_TIPOS[alerta.tipo] || { emoji: '⚠️', label: alerta.tipo };
+  const yaVote = votosEmitidos.has(alerta.id);
+  const autenticado = !!localStorage.getItem('dm_token');
+
+  const wrap = document.createElement('div');
+  wrap.style.cssText = 'min-width:170px; font-family:sans-serif;';
+
+  const tit = document.createElement('div');
+  tit.style.cssText = 'font-size:15px; font-weight:700; color:white; margin-bottom:4px;';
+  tit.textContent = info.emoji + ' ' + info.label;
+  wrap.appendChild(tit);
+
+  const tiempo = document.createElement('div');
+  tiempo.style.cssText = 'font-size:12px; color:#888; margin-bottom:6px;';
+  tiempo.textContent = tiempoTranscurrido(alerta.creado_en);
+  wrap.appendChild(tiempo);
+
+  const contadores = document.createElement('div');
+  contadores.style.cssText = 'font-size:12px; color:#aaa; margin-bottom:10px; display:flex; gap:14px;';
+  const spanSi = document.createElement('span');
+  spanSi.textContent = '👍 ' + (alerta.votos_si || 0);
+  const spanNo = document.createElement('span');
+  spanNo.textContent = '👎 ' + (alerta.votos_no || 0);
+  contadores.appendChild(spanSi);
+  contadores.appendChild(spanNo);
+  wrap.appendChild(contadores);
+
+  if (!autenticado || yaVote) {
+    const msg = document.createElement('div');
+    msg.style.cssText = 'font-size:12px; color:#555;';
+    msg.textContent = yaVote ? 'Ya votaste en esta alerta' : 'Inicia sesión para votar';
+    wrap.appendChild(msg);
+  } else {
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex; gap:6px;';
+    const btnSi = document.createElement('button');
+    btnSi.style.cssText = 'flex:1; padding:7px 4px; background:#0d1f3c; border:1px solid #4a90e2; color:#4a90e2; border-radius:8px; font-size:12px; cursor:pointer;';
+    btnSi.textContent = '👍 Sigue ahí';
+    btnSi.onclick = () => votarAlerta(alerta.id, 'si');
+    const btnNo = document.createElement('button');
+    btnNo.style.cssText = 'flex:1; padding:7px 4px; background:#2e0f0f; border:1px solid #ff4444; color:#ff4444; border-radius:8px; font-size:12px; cursor:pointer;';
+    btnNo.textContent = '👎 Ya no está';
+    btnNo.onclick = () => votarAlerta(alerta.id, 'no');
+    row.appendChild(btnSi);
+    row.appendChild(btnNo);
+    wrap.appendChild(row);
+  }
+  return wrap;
+}
+
+async function crearAlerta(tipo) {
+  cerrarPanelAlertas();
+  const token = localStorage.getItem('dm_token');
+  const userStr = localStorage.getItem('dm_user');
+  if (!token || !userStr) return;
+  const user = JSON.parse(userStr);
+
+  navigator.geolocation.getCurrentPosition(async (pos) => {
+    try {
+      const lat = pos.coords.latitude;
+      const lng = pos.coords.longitude;
+      if (lat < -60 || lat > -15 || lng < -80 || lng > -65) {
+        mostrarToast('Ubicación fuera de Chile', 'error');
+        return;
+      }
+      const res = await supaFetch(`${SUPABASE_URL}/rest/v1/alertas`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Prefer': 'return=representation' },
+        body: JSON.stringify({ user_id: user.id, tipo, lat, lng })
+      });
+      if (!res.ok) { mostrarToast('No se pudo crear la alerta', 'error'); return; }
+      const data = await res.json();
+      mostrarToast('✅ Alerta creada', 'exito');
+      if (Array.isArray(data) && data.length > 0) {
+        const alerta = data[0];
+        const zoom = mapa.getZoom();
+        const marker = L.marker([alerta.lat, alerta.lng], { icon: crearIconoAlerta(alerta.tipo) });
+        marker.bindPopup(() => crearContenidoPopupAlerta(alerta));
+        if (alerta.tipo === 'policia' || zoom >= 13) marker.addTo(mapa);
+        marcadoresAlertas.push({ alertaId: alerta.id, layer: marker, tipo: alerta.tipo });
+      }
+    } catch(e) {
+      mostrarToast('Error al crear la alerta', 'error');
+    }
+  }, () => {
+    mostrarToast('Activa tu ubicación para crear una alerta', 'error');
+  });
+}
+
+async function cargarAlertas() {
+  const ahora = new Date().toISOString();
+  const res = await supaFetch(
+    `${SUPABASE_URL}/rest/v1/alertas?expira_en=gt.${encodeURIComponent(ahora)}&select=id,tipo,lat,lng,creado_en,votos_si,votos_no&order=creado_en.desc`,
+    { headers: { 'Accept': 'application/json' } }
+  );
+  if (!res.ok) return;
+  const alertas = await res.json();
+  if (!Array.isArray(alertas)) return;
+
+  marcadoresAlertas.forEach(m => mapa.removeLayer(m.layer));
+  marcadoresAlertas = [];
+
+  const zoom = mapa.getZoom();
+  alertas.forEach(alerta => {
+    const marker = L.marker([alerta.lat, alerta.lng], { icon: crearIconoAlerta(alerta.tipo) });
+    marker.bindPopup(() => crearContenidoPopupAlerta(alerta));
+    if (alerta.tipo === 'policia' || zoom >= 13) marker.addTo(mapa);
+    marcadoresAlertas.push({ alertaId: alerta.id, layer: marker, tipo: alerta.tipo });
+  });
+}
+
+function actualizarVisibilidadAlertas() {
+  const zoom = mapa.getZoom();
+  marcadoresAlertas.forEach(({ layer, tipo }) => {
+    const visible = tipo === 'policia' || zoom >= 13;
+    if (visible && !mapa.hasLayer(layer)) layer.addTo(mapa);
+    if (!visible && mapa.hasLayer(layer)) mapa.removeLayer(layer);
+  });
+}
+
+async function votarAlerta(alertaId, voto) {
+  const res = await supaFetch(`${SUPABASE_URL}/rest/v1/rpc/votar_alerta`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ p_alerta_id: alertaId, p_voto: voto })
+  });
+  const data = await res.json();
+  if (data && data.error) {
+    mostrarToast(data.error === 'ya votaste' ? 'Ya votaste en esta alerta' : 'No se pudo votar', 'error');
+    return;
+  }
+  votosEmitidos.add(alertaId);
+  mapa.closePopup();
+  if (data && data.eliminada) {
+    const idx = marcadoresAlertas.findIndex(m => m.alertaId === alertaId);
+    if (idx !== -1) { mapa.removeLayer(marcadoresAlertas[idx].layer); marcadoresAlertas.splice(idx, 1); }
+    mostrarToast('Alerta eliminada por la comunidad', 'exito');
+  } else {
+    mostrarToast(voto === 'si' ? '👍 Voto registrado' : '👎 Voto registrado', 'exito');
+  }
+}
+
 // SESIÓN
 function abrirLightbox(url) {
   const safeUrl = safeImageUrl(url);
@@ -1078,10 +1780,10 @@ async function mostrarBotonUsuario() {
     const apodo = u.user_metadata?.apodo || u.email?.split('@')[0] || 'R';
     const inicial = apodo.charAt(0).toUpperCase();
 
-    // Buscar foto en tabla perfiles
+    // Buscar foto y tipo de usuario en tabla perfiles
     let fotoUrl = null;
     try {
-      const res = await supaFetch(`${SUPABASE_URL}/rest/v1/perfiles?user_id=eq.${pg(u.id)}&select=foto_url`, {
+      const res = await supaFetch(`${SUPABASE_URL}/rest/v1/perfiles?user_id=eq.${pg(u.id)}&select=foto_url,es_rider`, {
         headers: {
           'Accept': 'application/json'
         }
@@ -1112,10 +1814,13 @@ async function mostrarBotonUsuario() {
         }
         // INSERT OK → usuario nuevo, continuar sin foto
       }
-      if (data && data.length > 0 && data[0].foto_url) {
-        fotoUrl = safeImageUrl(data[0].foto_url);
+      if (data && data.length > 0) {
+        if (data[0].foto_url) fotoUrl = safeImageUrl(data[0].foto_url);
+        evaluarOnboarding(data[0].es_rider, u.id);
       }
-    } catch(e) {}
+    } catch(e) {
+      console.log('[PERFIL] ERROR en fetch perfiles:', e);
+    }
 
     if (fotoUrl) {
       btn.innerHTML = `<a href="perfil.html" style="display:block; width:38px; height:38px; border-radius:50%; border:2.5px solid #4a90e2; box-shadow:0 0 8px #4a90e2, 0 0 16px #4a90e233; overflow:hidden; text-decoration:none;">
@@ -1149,6 +1854,7 @@ if (token && user) {
     }
   });
 }
+  actualizarBtnAlerta();
 }
 
 // LIKES Y COMENTARIOS
@@ -1679,6 +2385,7 @@ function cancelarFotoConfirmada() {
 }
 
 verificarSesion();
+cargarAlertas();
 </script>
 <div id="fotoConfirmModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.88); z-index:5000; align-items:center; justify-content:center; padding:24px;">
   <div style="background:#111; border:1px solid #4a90e244; border-radius:16px; padding:24px; max-width:300px; width:100%; text-align:center;">
@@ -1711,6 +2418,27 @@ verificarSesion();
     <span>PERFIL</span>
   </a>
 </nav>
+
+<button id="btnAlerta" onclick="abrirPanelAlertas()" aria-label="Crear alerta">⚠️</button>
+
+<div id="overlayAlertas" onclick="cerrarPanelAlertas()"></div>
+<div id="panelAlertas">
+  <div id="panelAlertasHeader">
+    <strong>🚨 Nueva alerta</strong>
+    <button onclick="cerrarPanelAlertas()">✕</button>
+  </div>
+  <div id="panelAlertasBtns">
+    <button class="alerta-tipo-btn" onclick="crearAlerta('policia')"><span>👮</span><span>Policía</span></button>
+    <button class="alerta-tipo-btn" onclick="crearAlerta('trafico')"><span>🚗</span><span>Tráfico</span></button>
+    <button class="alerta-tipo-btn" onclick="crearAlerta('accidente')"><span>💥</span><span>Accidente</span></button>
+    <button class="alerta-tipo-btn" onclick="crearAlerta('inundacion')"><span>🌊</span><span>Inundación</span></button>
+    <button class="alerta-tipo-btn" onclick="crearAlerta('bache')"><span>🕳️</span><span>Bache</span></button>
+    <button class="alerta-tipo-btn" onclick="crearAlerta('carril_bloqueado')"><span>🚧</span><span>Carril bloqueado</span></button>
+    <button class="alerta-tipo-btn" onclick="crearAlerta('peligro')"><span>⚠️</span><span>Peligro general</span></button>
+    <button class="alerta-tipo-btn" onclick="crearAlerta('exclusivo_riders')"><span>🛵</span><span>Solo riders</span></button>
+    <button class="alerta-tipo-btn" onclick="crearAlerta('zona_incidentes')"><span>🚨</span><span>Zona de incidentes</span></button>
+  </div>
+</div>
 
 </body>
 </html>

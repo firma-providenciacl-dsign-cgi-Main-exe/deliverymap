@@ -236,7 +236,8 @@ async function iniciarSesion() {
 }
 
 function loginGoogle() {
-  window.location.href = `${SUPABASE_URL}/auth/v1/authorize?provider=google&redirect_to=https://deliverymap.cl/app.html`;
+  const redirectTo = encodeURIComponent(window.location.origin + '/app.html');
+  window.location.href = `${SUPABASE_URL}/auth/v1/authorize?provider=google&redirect_to=${redirectTo}`;
 }
 function mostrarMensaje(texto, tipo) {
   const msg = document.getElementById('mensaje');

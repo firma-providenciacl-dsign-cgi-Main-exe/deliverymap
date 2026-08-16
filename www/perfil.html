@@ -172,6 +172,21 @@
     }
     .eliminar-form p { font-size: 12px; color: #666; margin-bottom: 12px; }
 
+    .tipo-cuenta-opciones { display: flex; flex-direction: column; gap: 8px; }
+    .tipo-cuenta-btn {
+      background: #111; border: 1px solid #4a90e211;
+      border-radius: 12px; padding: 14px;
+      display: flex; align-items: center; gap: 12px;
+      cursor: pointer; width: 100%; text-align: left;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .tipo-cuenta-btn.activo { border-color: #4a90e2; background: #0d1f3c; }
+    .tipo-cuenta-emoji { font-size: 20px; }
+    .tipo-cuenta-label { flex: 1; font-size: 13px; font-weight: 600; color: white; }
+    .tipo-cuenta-check { color: #4a90e2; font-size: 16px; font-weight: 700; opacity: 0; transition: opacity 0.2s; }
+    .tipo-cuenta-btn.activo .tipo-cuenta-check { opacity: 1; }
+    .tipo-cuenta-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
     .footer { text-align: center; padding: 16px; margin-top: 48px; }
     .footer a { color: #333; text-decoration: none; font-size: 11px; display: block; margin-bottom: 6px; }
     #btnVolver {
@@ -298,6 +313,23 @@
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
       Guardar cambios
     </button>
+  </div>
+
+  <div class="seccion">
+    <div class="seccion-titulo">Tipo de cuenta</div>
+    <div id="tipoCuentaMensaje" class="mensaje"></div>
+    <div class="tipo-cuenta-opciones">
+      <button class="tipo-cuenta-btn" id="btnTipoRider" onclick="cambiarTipoCuenta(true)">
+        <span class="tipo-cuenta-emoji">🛵</span>
+        <span class="tipo-cuenta-label">Rider de delivery</span>
+        <span class="tipo-cuenta-check">✓</span>
+      </button>
+      <button class="tipo-cuenta-btn" id="btnTipoConsumidor" onclick="cambiarTipoCuenta(false)">
+        <span class="tipo-cuenta-emoji">🍔</span>
+        <span class="tipo-cuenta-label">Consumidor</span>
+        <span class="tipo-cuenta-check">✓</span>
+      </button>
+    </div>
   </div>
 
   <div class="seccion">
@@ -533,6 +565,11 @@ async function cargarPerfil() {
       span.textContent = badgeLabels[data[0].badge] || data[0].badge;
       badgeDiv.appendChild(span);
     }
+    const esRider = data[0].es_rider;
+    if (esRider !== null && esRider !== undefined) {
+      localStorage.setItem('dm_es_rider_' + userId, String(esRider));
+    }
+    actualizarTipoCuenta(esRider ?? null);
   }
 }
 
@@ -738,6 +775,46 @@ async function confirmarEliminarCuenta() {
     window.location.href = 'index.html';
   } else {
     msg.textContent = 'No se pudo eliminar la cuenta. Intenta de nuevo.'; msg.className = 'mensaje error'; msg.style.display = 'block';
+  }
+}
+
+function actualizarTipoCuenta(esRider) {
+  const btnRider = document.getElementById('btnTipoRider');
+  const btnConsumidor = document.getElementById('btnTipoConsumidor');
+  if (!btnRider || !btnConsumidor) return;
+  btnRider.classList.toggle('activo', esRider === true);
+  btnConsumidor.classList.toggle('activo', esRider === false);
+}
+
+async function cambiarTipoCuenta(esRider) {
+  const msg = document.getElementById('tipoCuentaMensaje');
+  const btnRider = document.getElementById('btnTipoRider');
+  const btnConsumidor = document.getElementById('btnTipoConsumidor');
+  btnRider.disabled = true;
+  btnConsumidor.disabled = true;
+  const res = await fetch(SUPABASE_URL + '/rest/v1/perfiles?user_id=eq.' + userId, {
+    method: 'PATCH',
+    headers: {
+      'apikey': SUPABASE_KEY,
+      'Authorization': 'Bearer ' + token,
+      'Content-Type': 'application/json',
+      'Prefer': 'return=minimal'
+    },
+    body: JSON.stringify({ es_rider: esRider })
+  });
+  btnRider.disabled = false;
+  btnConsumidor.disabled = false;
+  if (res.ok) {
+    localStorage.setItem('dm_es_rider_' + userId, String(esRider));
+    actualizarTipoCuenta(esRider);
+    msg.textContent = '✅ Preferencia guardada';
+    msg.className = 'mensaje exito';
+    msg.style.display = 'block';
+    setTimeout(() => { msg.style.display = 'none'; }, 2500);
+  } else {
+    msg.textContent = 'No se pudo guardar. Intenta de nuevo.';
+    msg.className = 'mensaje error';
+    msg.style.display = 'block';
   }
 }
 
